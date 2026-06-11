@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(\\(New-Object Media.SoundPlayer 'C:\\\\Windows\\\\Media\\\\Windows Notify.wav'\\).PlaySync\\(\\))"
+    ]
+  }
+}
