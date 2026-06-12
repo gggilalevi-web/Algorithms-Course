@@ -56,24 +56,8 @@ export async function POST(request: NextRequest) {
 
   let selectedItems: { name: string; price: string; quantity: string; vatType: number }[]
 
-  if (topicCode === 15 && fullCoursePrice != null && pickedTopics.length > 0) {
-    // Distribute full course price evenly — no zeros, sum must equal fullCoursePrice exactly
-    const n = pickedTopics.length
-    const base = Math.floor(fullCoursePrice / n)
-    const remainder = fullCoursePrice - base * n
-    // Pick `remainder` random indices to receive +1
-    const order = Array.from({ length: n }, (_, i) => i)
-    for (let i = n - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[order[i], order[j]] = [order[j], order[i]]
-    }
-    const bonusSet = new Set(order.slice(0, remainder))
-    selectedItems = pickedTopics.map((t, i) => ({
-      name:     t.name,
-      price:    String(base + (bonusSet.has(i) ? 1 : 0)),
-      quantity: '1',
-      vatType:  1,
-    }))
+  if (topicCode === 15 && fullCoursePrice != null) {
+    selectedItems = [{ name: 'קורס מלא', price: String(fullCoursePrice), quantity: '1', vatType: 1 }]
   } else {
     selectedItems = pickedTopics.map(t => ({
       name:     t.name,

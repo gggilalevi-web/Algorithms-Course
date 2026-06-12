@@ -135,14 +135,37 @@ function RegisterForm() {
     })
   }
 
+  const Aurora = () => (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+      <div className="aurora-1 absolute -top-40 -right-32 w-[600px] h-[600px] rounded-full bg-violet-600/20 blur-[130px]" />
+      <div className="aurora-2 absolute bottom-0 -left-32 w-[500px] h-[500px] rounded-full blur-[120px]"
+        style={{ background: 'rgba(6,182,212,0.12)' }} />
+      <div className="absolute inset-0 opacity-[0.025]"
+        style={{
+          backgroundImage: 'radial-gradient(rgba(124,58,237,0.8) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
+          maskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, black, transparent)',
+          WebkitMaskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, black, transparent)',
+        }}
+      />
+    </div>
+  )
+
   // ── Confirm screen ────────────────────────────────────────────────────────
   if (step === 'confirm') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="absolute inset-0 hero-glow pointer-events-none" />
-        <div className="relative z-10 bg-surface border border-border rounded-2xl p-10 w-full max-w-md text-center">
-          <div className="text-5xl mb-5">📧</div>
-          <h1 className="text-2xl font-bold text-foreground mb-3">בדקי את תיבת הדואר שלך</h1>
+      <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+        <Aurora />
+        <div className="relative z-10 rounded-2xl p-10 w-full max-w-md text-center"
+          style={{ background: 'linear-gradient(145deg, rgba(124,58,237,0.1), rgba(14,14,38,0.85))', border: '1px solid rgba(124,58,237,0.3)', boxShadow: '0 0 40px rgba(124,58,237,0.1)' }}>
+          <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center text-3xl"
+            style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.2), rgba(6,182,212,0.15))', border: '1px solid rgba(124,58,237,0.3)' }}>
+            📧
+          </div>
+          <h1 className="text-2xl font-bold mb-3"
+            style={{ background: 'linear-gradient(to left, #a78bfa, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            בדקי את תיבת הדואר שלך
+          </h1>
           <p className="text-muted mb-2 text-sm">שלחנו לינק לאימות לכתובת:</p>
           <p className="font-semibold text-accent mb-6" dir="ltr">{form.email}</p>
           <p className="text-muted text-sm mb-8 leading-relaxed">
@@ -159,20 +182,26 @@ function RegisterForm() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="absolute inset-0 hero-glow pointer-events-none" />
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+      <Aurora />
 
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-9 h-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
-              <span className="text-accent font-bold">א</span>
+          <div className="inline-flex items-center gap-2.5 mb-4">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.35), rgba(6,182,212,0.2))', border: '1px solid rgba(124,58,237,0.45)' }}>
+              <span className="text-violet-300 font-bold">א</span>
             </div>
-            <span className="font-bold text-foreground text-lg">אלגוריתמים א׳</span>
+            <div className="leading-snug text-right">
+              <span className="font-bold text-lg"
+                style={{ background: 'linear-gradient(to left, #a78bfa, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                אלגוריתמים א׳
+              </span>
+              <p className="text-[10px] text-muted/60">גילה לוי · אולטרה קוד</p>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold text-foreground">הרשמה לקורס</h1>
-          <p className="text-muted text-sm mt-1">אולטרה קוד</p>
+          <h1 className="text-3xl font-bold text-foreground">הרשמה לקורס</h1>
 
           {/* Step indicator */}
           <div className="flex items-center justify-center gap-2 mt-5">
@@ -185,7 +214,7 @@ function RegisterForm() {
                   s === step
                     ? 'bg-primary text-white'
                     : step === 'topics' && s === 'details'
-                    ? 'bg-success/20 text-success'
+                    ? 'bg-emerald-500/20 text-emerald-400'
                     : 'bg-surface border border-border text-muted'
                 }`}>
                   {step === 'topics' && s === 'details' ? '✓' : i + 1}
@@ -195,7 +224,8 @@ function RegisterForm() {
           </div>
         </div>
 
-        <div className="bg-surface border border-border rounded-2xl p-8">
+        <div className="rounded-2xl p-8"
+          style={{ background: 'linear-gradient(145deg, rgba(124,58,237,0.1), rgba(14,14,38,0.85))', border: '1px solid rgba(124,58,237,0.3)', boxShadow: '0 0 40px rgba(124,58,237,0.1)' }}>
           {error && (
             <div className="bg-red-500/10 border border-red-500/25 text-red-400 rounded-xl px-4 py-3 text-sm mb-5">
               {error}
