@@ -607,7 +607,7 @@ export default function LandingPage({ topics }: Props) {
       </main>
 
       <footer className="relative z-10 border-t border-border/40 py-8 text-center text-muted/60 text-sm">
-        <p>© {new Date().getFullYear()} אלגוריתמים א׳&nbsp;&nbsp;|&nbsp;&nbsp;גילה לוי - אוטוסטרדה</p>
+        <p>© {new Date().getFullYear()} אלגוריתמים א׳&nbsp;&nbsp;|&nbsp;&nbsp;גילה לוי</p>
       </footer>
     </div>
   )
