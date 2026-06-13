@@ -42,16 +42,7 @@ export default function SelectTopicsPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
 
-      const [{ data: t }, { data: e }] = await Promise.all([
-        supabase.from('topics').select('*').order('order_index'),
-        supabase.from('enrollments').select('id').eq('user_id', user.id).limit(1),
-      ])
-
-      // Already paid → no second purchase allowed
-      if (e && e.length > 0) {
-        router.push('/dashboard')
-        return
-      }
+      const { data: t } = await supabase.from('topics').select('*').order('order_index')
 
       setTopics((t as Topic[]) ?? [])
 
