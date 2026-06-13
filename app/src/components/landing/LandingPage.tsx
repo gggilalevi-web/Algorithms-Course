@@ -401,7 +401,7 @@ export default function LandingPage({ topics }: Props) {
               <span className="hidden sm:block w-px h-4 bg-border" />
               <span className="flex items-center gap-2"><span style={{ color: '#06b6d4' }}>⏱</span> בכל שעה, בקצב שלך</span>
               <span className="hidden sm:block w-px h-4 bg-border" />
-              <span className="flex items-center gap-2"><span style={{ color: '#06b6d4' }}>♾</span> גישה לכל חומרי הקורס</span>
+              <span className="flex items-center gap-2"><span style={{ color: '#06b6d4' }}>♾</span> גישה עד אחרי אלגוריתמים ב׳</span>
             </div>
           </div>
         </section>
