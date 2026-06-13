@@ -138,8 +138,8 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // ── 8. Store pending topicCode in metadata — read by /payment/success ─────
-  await supabase.auth.updateUser({ data: { pending_payment_topics: topicCode } })
+  // Store pending topicCode in background — not needed before redirect
+  supabase.auth.updateUser({ data: { pending_payment_topics: topicCode } })
 
   return NextResponse.json({ url: paymentUrl })
 }
