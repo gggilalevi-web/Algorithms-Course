@@ -29,37 +29,10 @@ export async function GET(request: NextRequest) {
     }
   )
 
-  const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+  const { error } = await supabase.auth.exchangeCodeForSession(code)
 
-  if (error || !data.user) {
+  if (error) {
     return NextResponse.redirect(new URL('/login?error=auth_failed', origin))
-  }
-
-  // Process pending enrollments stored in user_metadata during registration
-  const meta = data.user.user_metadata ?? {}
-  const pendingFullCourse = meta.pending_full_course === true
-  const pendingTopics: string[] = Array.isArray(meta.pending_topics) ? meta.pending_topics : []
-
-  if (pendingFullCourse || pendingTopics.length > 0) {
-    if (pendingFullCourse) {
-      await supabase.from('enrollments').insert({
-        user_id: data.user.id,
-        topic_id: null,
-        is_full_course: true,
-      })
-    } else {
-      await supabase.from('enrollments').insert(
-        pendingTopics.map((topicId) => ({
-          user_id: data.user.id,
-          topic_id: topicId,
-          is_full_course: false,
-        }))
-      )
-    }
-    // Clear pending data from metadata
-    await supabase.auth.updateUser({
-      data: { pending_full_course: null, pending_topics: null },
-    })
   }
 
   return NextResponse.redirect(new URL(next, origin))
