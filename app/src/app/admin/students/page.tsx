@@ -82,6 +82,21 @@ export default function StudentsPage() {
     loadData()
   }
 
+  async function deleteStudent(id: string, name: string) {
+    if (!confirm(`למחוק את התלמידה "${name}"?\nהפעולה תמחק את החשבון, ה-enrollments וכל הנתונים שלה.`)) return
+    const res = await fetch('/api/admin/students', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      setError(data.error ?? 'שגיאה במחיקת התלמידה')
+      return
+    }
+    setStudents(prev => prev.filter(s => s.id !== id))
+  }
+
   if (loading) return <div className="text-muted py-10">טוען...</div>
 
   return (
@@ -154,6 +169,10 @@ export default function StudentsPage() {
                     <button onClick={() => toggleEnrollment(student.id, null, true)}
                       className="text-xs border border-border text-muted rounded-lg px-2.5 py-1 hover:border-primary hover:text-accent">
                       {isFullCourse ? 'הסרה' : 'הענקה'}
+                    </button>
+                    <button onClick={() => deleteStudent(student.id, student.name ?? 'ללא שם')}
+                      className="text-xs border border-border text-red-400/60 hover:text-red-400 hover:border-red-500/40 rounded-lg px-2.5 py-1 transition-colors">
+                      מחיקה
                     </button>
                   </div>
                 </div>
