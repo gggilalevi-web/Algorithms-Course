@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       name:     t.name,
       price:    String(Math.round(t.price)),
       quantity: '1',
-      vatType:  1,
+      vatType:  3,
     }))
   }
 
