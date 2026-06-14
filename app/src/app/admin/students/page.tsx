@@ -7,6 +7,7 @@ import type { Profile, Topic, Enrollment } from '@/lib/types'
 interface StudentWithEnrollments extends Profile {
   enrollments: Enrollment[]
   email: string
+  seminary: string
 }
 
 const inputCls = 'w-full bg-surface-elevated border border-border text-foreground rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted'
@@ -27,21 +28,12 @@ export default function StudentsPage() {
   useEffect(() => { loadData() }, [])
 
   async function loadData() {
-    const [{ data: profiles }, { data: topicsData }] = await Promise.all([
-      supabase.from('profiles').select('*').eq('role', 'student').order('created_at', { ascending: false }),
+    const [studentsRes, { data: topicsData }] = await Promise.all([
+      fetch('/api/admin/students').then(r => r.json()),
       supabase.from('topics').select('*').order('order_index'),
     ])
 
-    if (!profiles) { setLoading(false); return }
-
-    const profilesWithEnrollments = await Promise.all(
-      (profiles as Profile[]).map(async (p) => {
-        const { data: enrollments } = await supabase.from('enrollments').select('*').eq('user_id', p.id)
-        return { ...p, enrollments: (enrollments ?? []) as Enrollment[], email: '' }
-      })
-    )
-
-    setStudents(profilesWithEnrollments)
+    setStudents(studentsRes ?? [])
     setTopics((topicsData as Topic[]) ?? [])
     setLoading(false)
   }
@@ -152,7 +144,8 @@ export default function StudentsPage() {
                 <div className="flex items-center justify-between gap-4 mb-4">
                   <div>
                     <p className="font-semibold text-foreground">{student.name ?? 'ללא שם'}</p>
-                    <p className="text-sm text-muted" dir="ltr">{student.id.slice(0, 8)}...</p>
+                    {student.email && <p className="text-xs text-muted" dir="ltr">{student.email}</p>}
+                    {student.seminary && <p className="text-xs text-muted/70">{student.seminary}</p>}
                   </div>
                   <div className="flex items-center gap-2 flex-wrap justify-end">
                     <span className={`text-xs rounded-full px-2.5 py-1 font-medium ${isFullCourse ? 'bg-primary text-white' : 'bg-surface-elevated text-muted'}`}>
