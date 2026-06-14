@@ -8,6 +8,7 @@ export async function GET() {
     .from('testimonials')
     .select('id, name, seminary, quote')
     .eq('approved', true)
+    .eq('allow_publish', true)
     .order('created_at', { ascending: false })
 
   if (error) return NextResponse.json([], { status: 200 })
@@ -20,13 +21,14 @@ export async function POST(request: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const { quote, display_name, seminary } = body
+  const { quote, display_name, seminary, allow_publish } = body
   if (!quote || typeof quote !== 'string' || quote.trim().length < 10) {
     return NextResponse.json({ error: 'התגובה קצרה מדי' }, { status: 400 })
   }
 
   const admin = createAdminClient()
   const name = (typeof display_name === 'string' && display_name.trim()) ? display_name.trim() : 'אנונימית'
+  const publish = allow_publish !== false  // default true; explicit false = private
 
   // Prevent duplicate submissions (one per user)
   const { data: existing } = await admin
@@ -39,13 +41,13 @@ export async function POST(request: NextRequest) {
   if (existing) {
     const { error } = await admin
       .from('testimonials')
-      .update({ name, seminary: seminary ?? null, quote: quote.trim(), approved: false })
+      .update({ name, seminary: seminary ?? null, quote: quote.trim(), approved: false, allow_publish: publish })
       .eq('user_id', user.id)
     dbError = error
   } else {
     const { error } = await admin
       .from('testimonials')
-      .insert({ user_id: user.id, name, seminary: seminary ?? null, quote: quote.trim() })
+      .insert({ user_id: user.id, name, seminary: seminary ?? null, quote: quote.trim(), allow_publish: publish })
     dbError = error
   }
 

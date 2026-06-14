@@ -164,10 +164,10 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        {accessibleTopics.length > 0 && !isAdmin && (
+        {!isAdmin && !isFullCourse && (allTopics as Topic[] | null) && enrolledTopicIds.size < ((allTopics as Topic[]).length) && (
           <div className="mt-8 text-center">
             <Link href="/select-topics" className="text-xs text-muted hover:text-accent underline underline-offset-4 transition-colors">
-              עדכון הנושאים שלי
+              אני רוצה להוסיף נושאים
             </Link>
           </div>
         )}

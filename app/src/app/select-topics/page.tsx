@@ -29,6 +29,9 @@ export default function SelectTopicsPage() {
   const router = useRouter()
   const supabase = createClient()
 
+  // allTopics: every topic (used for bitmask calculation)
+  // topics: only topics not yet enrolled (used for display)
+  const [allTopics, setAllTopics] = useState<Topic[]>([])
   const [topics, setTopics] = useState<Topic[]>([])
   const [selectedTopics, setSelectedTopics] = useState<Set<string>>(new Set())
   const [fullCourse, setFullCourse] = useState(false)
@@ -42,9 +45,21 @@ export default function SelectTopicsPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
 
-      const { data: t } = await supabase.from('topics').select('*').order('order_index')
+      const [{ data: t }, { data: enrollments }] = await Promise.all([
+        supabase.from('topics').select('*').order('order_index'),
+        supabase.from('enrollments').select('topic_id, is_full_course').eq('user_id', user.id),
+      ])
 
-      setTopics((t as Topic[]) ?? [])
+      const fetchedTopics = (t as Topic[]) ?? []
+      setAllTopics(fetchedTopics)
+
+      const hasFullCourse = enrollments?.some(e => e.is_full_course) ?? false
+      if (hasFullCourse) {
+        setTopics([])
+      } else {
+        const enrolledIds = new Set(enrollments?.map(e => e.topic_id).filter(Boolean) ?? [])
+        setTopics(fetchedTopics.filter(top => !enrolledIds.has(top.id)))
+      }
 
       fetch('/api/admin/settings')
         .then(r => r.json())
@@ -60,10 +75,9 @@ export default function SelectTopicsPage() {
 
   const displayTotal = (() => {
     if (!canPay) return 0
-    const sorted = [...topics].sort((a, b) => a.order_index - b.order_index)
-    const code = encodeTopics(fullCourse, selectedTopics, topics)
+    const code = encodeTopics(fullCourse, selectedTopics, allTopics)
     if (code === 15 && fullCoursePrice != null) return fullCoursePrice
-    return sorted.filter(t => fullCourse || selectedTopics.has(t.id)).reduce((s, t) => s + t.price, 0)
+    return topics.filter(t => selectedTopics.has(t.id)).reduce((s, t) => s + t.price, 0)
   })()
 
   async function handlePayment(e: React.FormEvent) {
@@ -73,7 +87,7 @@ export default function SelectTopicsPage() {
     setPaying(true)
     setError(null)
 
-    const topicCode = encodeTopics(fullCourse, selectedTopics, topics)
+    const topicCode = encodeTopics(fullCourse, selectedTopics, allTopics)
 
     const res = await fetch('/api/checkout', {
       method: 'POST',
@@ -189,7 +203,7 @@ export default function SelectTopicsPage() {
               </div>
             </button>
 
-            {/* Individual topics */}
+            {/* Individual topics — only shown if there are unenrolled topics */}
             {topics.length > 0 && (
               <>
                 <p className="text-xs text-muted text-center py-1">— או נושאים בנפרד —</p>

@@ -10,6 +10,7 @@ export default function TestimonialForm({ profileName = '' }: { profileName?: st
   const [quote,       setQuote]       = useState('')
   const [nameChoice,  setNameChoice]  = useState<NameChoice>('initial')
   const [showSem,     setShowSem]     = useState(false)
+  const [allowPublish, setAllowPublish] = useState(true)
   const [status,      setStatus]      = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [seminary,    setSeminary]    = useState('')
 
@@ -42,6 +43,7 @@ export default function TestimonialForm({ profileName = '' }: { profileName?: st
           quote:        quote.trim(),
           display_name: resolvedName(),
           seminary:     showSem ? seminary : null,
+          allow_publish: allowPublish,
         }),
       })
       setStatus(res.ok ? 'sent' : 'error')
@@ -121,6 +123,17 @@ export default function TestimonialForm({ profileName = '' }: { profileName?: st
               </span>
             </label>
           )}
+
+          {/* Publish consent */}
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={!allowPublish}
+              onChange={e => setAllowPublish(!e.target.checked)}
+              className="w-4 h-4 rounded accent-primary"
+            />
+            <span className="text-xs text-muted">אינני מעוניינת שהתגובה תתפרסם</span>
+          </label>
 
           <div className="flex items-center justify-between gap-3 pt-1">
             <span className="text-xs text-muted">{quote.length}/300</span>

@@ -18,23 +18,23 @@ export default async function PaymentSuccessPage() {
 
   const admin = createAdminClient()
 
-  // Delete any existing enrollments then insert fresh ones (idempotent)
-  await admin.from('enrollments').delete().eq('user_id', user.id)
-
   if (topicCode === 15) {
+    // Full course: replace all existing enrollments with a single full-course record
+    await admin.from('enrollments').delete().eq('user_id', user.id)
     await admin.from('enrollments').insert({
       user_id: user.id,
       topic_id: null,
       is_full_course: true,
     })
   } else {
+    // Individual topics: ADD to existing enrollments (preserve prior purchases)
     const { data: topics } = await admin
       .from('topics')
       .select('id, order_index')
       .order('order_index')
 
     if (topics && topics.length > 0) {
-      const enrollments = topics
+      const newEnrollments = topics
         .filter((_, i) => !!(topicCode & (1 << (topics.length - 1 - i))))
         .map(t => ({
           user_id: user.id,
@@ -42,8 +42,8 @@ export default async function PaymentSuccessPage() {
           is_full_course: false,
         }))
 
-      if (enrollments.length > 0) {
-        await admin.from('enrollments').insert(enrollments)
+      if (newEnrollments.length > 0) {
+        await admin.from('enrollments').insert(newEnrollments)
       }
     }
   }
