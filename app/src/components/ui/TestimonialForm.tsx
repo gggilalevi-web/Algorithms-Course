@@ -71,7 +71,11 @@ export default function TestimonialForm({ profileName = '' }: { profileName?: st
       {status === 'sent' ? (
         <div className="text-center py-4">
           <p className="text-emerald-400 font-semibold mb-1">תודה! ✓</p>
-          <p className="text-muted text-sm">התגובה נשלחה ותוצג לאחר אישור.</p>
+          <p className="text-muted text-sm">
+            {allowPublish
+              ? 'התגובה נשלחה ותוצג בדף הבית לאחר אישור.'
+              : 'תודה על התגובה! נשמור אותה אצלנו לשימוש פנימי בלבד.'}
+          </p>
         </div>
       ) : (
         <div className="space-y-4">

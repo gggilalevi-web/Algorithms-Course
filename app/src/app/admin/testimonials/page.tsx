@@ -9,6 +9,7 @@ interface Testimonial {
   seminary: string | null
   quote: string
   approved: boolean
+  allow_publish: boolean
   created_at: string
   real_name: string | null
   email: string | null
@@ -45,8 +46,9 @@ export default function AdminTestimonialsPage() {
 
   if (loading) return <div className="text-muted py-10">טוען...</div>
 
-  const pending  = items.filter(t => !t.approved)
-  const approved = items.filter(t => t.approved)
+  const pending  = items.filter(t => !t.approved && t.allow_publish !== false)
+  const private_ = items.filter(t => t.allow_publish === false)
+  const approved = items.filter(t => t.approved && t.allow_publish !== false)
 
   return (
     <div className="max-w-2xl space-y-10">
@@ -69,6 +71,27 @@ export default function AdminTestimonialsPage() {
           <div className="space-y-3">
             {pending.map(t => (
               <TestimonialCard key={t.id} t={t} onApprove={() => setApproved(t.id, true)} onDelete={() => remove(t.id)} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Private */}
+      <section>
+        <h2 className="font-semibold text-lg text-foreground mb-4">
+          פרטיות — לא לפרסום
+          {private_.length > 0 && (
+            <span className="mr-2 text-xs bg-slate-500/20 text-slate-400 border border-slate-500/30 rounded-full px-2 py-0.5">
+              {private_.length}
+            </span>
+          )}
+        </h2>
+        {private_.length === 0 ? (
+          <p className="text-muted text-sm">אין תגובות פרטיות.</p>
+        ) : (
+          <div className="space-y-3">
+            {private_.map(t => (
+              <TestimonialCard key={t.id} t={t} onDelete={() => remove(t.id)} />
             ))}
           </div>
         )}
@@ -115,13 +138,20 @@ function TestimonialCard({
             יופיע בפועל: <span className="text-foreground/60">{t.name}</span>
           </p>
         </div>
-        <span className={`text-xs rounded-full px-2 py-0.5 font-medium shrink-0 ${
-          t.approved
-            ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25'
-            : 'bg-amber-500/15 text-amber-400 border border-amber-500/25'
-        }`}>
-          {t.approved ? 'מאושר' : 'ממתין'}
-        </span>
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          {t.allow_publish === false && (
+            <span className="text-xs rounded-full px-2 py-0.5 font-medium bg-slate-500/15 text-slate-400 border border-slate-500/25">
+              פרטי
+            </span>
+          )}
+          <span className={`text-xs rounded-full px-2 py-0.5 font-medium ${
+            t.approved
+              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25'
+              : 'bg-amber-500/15 text-amber-400 border border-amber-500/25'
+          }`}>
+            {t.approved ? 'מאושר' : 'ממתין'}
+          </span>
+        </div>
       </div>
 
       <p className="text-foreground/85 text-sm leading-relaxed border-r-2 border-primary/30 pr-3">

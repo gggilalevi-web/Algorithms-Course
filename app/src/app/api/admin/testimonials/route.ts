@@ -17,7 +17,7 @@ export async function GET() {
 
   const { data: testimonials } = await admin
     .from('testimonials')
-    .select('id, user_id, name, seminary, quote, approved, created_at')
+    .select('id, user_id, name, seminary, quote, approved, allow_publish, created_at')
     .order('created_at', { ascending: false })
 
   if (!testimonials?.length) return NextResponse.json([])
