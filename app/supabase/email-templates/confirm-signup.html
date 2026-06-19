@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>אימות כתובת המייל</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f0eef8;font-family:Arial,Helvetica,sans-serif;direction:rtl;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"
+    style="background-color:#f0eef8;padding:40px 16px;">
+    <tr>
+      <td align="center">
+
+        <table width="520" cellpadding="0" cellspacing="0" border="0"
+          style="max-width:520px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(124,58,237,0.10);">
+
+          <!-- ── Header ── -->
+          <tr>
+            <td align="center"
+              style="background-color:#7c3aed;background:linear-gradient(135deg,#7c3aed 0%,#4f46e5 100%);padding:32px 40px;">
+              <p style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:-0.5px;">
+                אלגוריתמים א׳
+              </p>
+              <p style="margin:6px 0 0;color:rgba(255,255,255,0.75);font-size:13px;">
+                גילה לוי &middot; אולטרה קוד
+              </p>
+            </td>
+          </tr>
+
+          <!-- ── Body ── -->
+          <tr>
+            <td style="padding:40px 40px 32px;">
+              <h1 style="margin:0 0 16px;font-size:21px;font-weight:700;color:#1e1b3a;">
+                אמתי את כתובת המייל שלך
+              </h1>
+              <p style="margin:0 0 10px;font-size:15px;color:#4b4b6b;line-height:1.75;">
+                שמחה שנרשמת לקורס!
+              </p>
+              <p style="margin:0 0 32px;font-size:15px;color:#4b4b6b;line-height:1.75;">
+                לחצי על הכפתור כדי לאמת את חשבונך ולהמשיך לבחירת הנושאים ולתשלום.
+              </p>
+
+              <!-- CTA -->
+              <table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 32px;">
+                <tr>
+                  <td align="center"
+                    style="background-color:#7c3aed;background:linear-gradient(135deg,#7c3aed,#6d28d9);border-radius:12px;">
+                    <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup&next=/select-topics"
+                      style="display:inline-block;padding:15px 40px;color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;">
+                      אמתי את חשבונך &#8592;
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Fallback link -->
+              <p style="margin:0 0 6px;font-size:13px;color:#9090b0;">
+                אם הכפתור לא עובד, העתיקי את הקישור הבא לדפדפן:
+              </p>
+              <p style="margin:0 0 24px;font-size:12px;color:#7c3aed;word-break:break-all;" dir="ltr">
+                {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup&next=/select-topics
+              </p>
+
+              <p style="margin:0;font-size:12px;color:#b0b0c8;line-height:1.6;">
+                הקישור בתוקף ל-24 שעות.<br />
+                אם לא נרשמת לקורס, ניתן להתעלם ממייל זה.
+              </p>
+            </td>
+          </tr>
+
+          <!-- ── Footer ── -->
+          <tr>
+            <td style="padding:20px 40px;border-top:1px solid #f0eef8;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#c0c0d8;">
+                גילה לוי &middot; אלגוריתמים א׳ &middot;
+                <a href="mailto:gggilalevi@gmail.com"
+                  style="color:#7c3aed;text-decoration:none;">gggilalevi@gmail.com</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
