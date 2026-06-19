@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
   let selectedItems: { name: string; price: string; quantity: string; vatType: number }[]
 
   if (topicCode === 15 && fullCoursePrice != null) {
-    selectedItems = [{ name: 'קורס מלא', price: String(fullCoursePrice), quantity: '1', vatType: 1 }]
+    selectedItems = [{ name: 'קורס מלא', price: String(fullCoursePrice), quantity: '1', vatType: 3 }]
   } else {
     selectedItems = pickedTopics.map(t => ({
       name:     t.name,
