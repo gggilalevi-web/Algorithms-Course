@@ -272,6 +272,9 @@ body:has(.page){margin:0;background:#F8F1EC;overflow-x:hidden}
 .poster:hover .play{transform:scale(1.06)}
 .play svg{width:34%;transform:translateX(6%)}
 .player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.unmute{position:absolute;z-index:2;inset-block-start:18px;inset-inline-start:18px;display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:0 24px;border:0;border-radius:999px;background:var(--brass);color:var(--night);font:inherit;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 0 0 6px rgba(201,161,90,.25),0 16px 30px -12px rgba(0,0,0,.7)}
+.unmute:hover{background:var(--brass-hi)}
+@media (max-width:520px){.unmute{inset-block-start:10px;inset-inline-start:10px;min-height:44px;padding:0 16px;font-size:15.5px}}
 .vnote{margin-top:18px;font-size:14px;color:rgba(248,241,236,.5)}
 @media (max-width:600px){.poster .pt{inset-inline:0}.poster .pt b,.poster .pt>span:not(.play),.poster .dur{display:none}.poster .play{margin:0 auto}.poster::before{background:rgba(30,8,25,.45)}}
 

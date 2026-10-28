@@ -122,6 +122,7 @@ export const VIDEO = {
   soon: 'הסרטון יעלה כאן בקרוב.',
   fallback: 'הסרטון לא נפתח?',
   fallbackLink: 'לצפייה ביוטיוב',
+  unmute: 'להפעלת הקול',
 }
 
 export const FEATURES = {
