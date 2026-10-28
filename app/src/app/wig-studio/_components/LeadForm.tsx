@@ -4,10 +4,10 @@ import { useRef, useState, type FormEvent } from 'react'
 import { flushSync } from 'react-dom'
 import s from '../wig-studio.module.css'
 import { FORM } from '../content'
-import { isValidEmail, isValidPhone, normalizePhone } from '../lead-rules'
+import { isValidEmail, isValidPhone, isValidVolume, normalizePhone } from '../lead-rules'
 import { cx } from './cx'
 
-type Field = 'name' | 'phone' | 'email'
+type Field = 'name' | 'phone' | 'email' | 'volume'
 type Errors = Record<Field, string> | null
 
 export default function LeadForm() {
@@ -16,6 +16,7 @@ export default function LeadForm() {
   const nameRef = useRef<HTMLInputElement>(null)
   const phoneRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
+  const volumeRef = useRef<HTMLSelectElement>(null)
   const doneRef = useRef<HTMLDivElement>(null)
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -28,10 +29,11 @@ export default function LeadForm() {
       name: name.length < 2 ? FORM.errName : '',
       phone: isValidPhone(rawPhone) ? '' : FORM.errPhone,
       email: isValidEmail(email) ? '' : FORM.errEmail,
+      volume: isValidVolume(d.volume || '') ? '' : FORM.errVolume,
     }
     setErrors(next)
-    const firstBad = (['name', 'phone', 'email'] as Field[]).find(k => next[k])
-    if (firstBad) { ({ name: nameRef, phone: phoneRef, email: emailRef })[firstBad].current?.focus(); return }
+    const firstBad = (['name', 'phone', 'email', 'volume'] as Field[]).find(k => next[k])
+    if (firstBad) { ({ name: nameRef, phone: phoneRef, email: emailRef, volume: volumeRef })[firstBad].current?.focus(); return }
 
     const src = (new URLSearchParams(location.search).get('src') || 'direct').toLowerCase()
     const source = /^[a-z0-9_-]{1,30}$/.test(src) ? src : 'direct'
@@ -62,10 +64,10 @@ export default function LeadForm() {
         <div className={s.fields}>
           <div className={cx(s.fld, errors?.name && s.bad)} id="f-name"><label htmlFor="name">{FORM.name}</label><input id="name" name="name" autoComplete="name" maxLength={60} aria-describedby="e-name" aria-invalid={invalid('name')} ref={nameRef} /><span className={s.err} id="e-name">{errors?.name}</span></div>
           <div className={cx(s.fld, errors?.phone && s.bad)} id="f-phone"><label htmlFor="phone">{FORM.phone}</label><input id="phone" name="phone" type="tel" inputMode="tel" autoComplete="tel" dir="ltr" style={{ textAlign: 'end' }} maxLength={22} aria-describedby="e-phone" aria-invalid={invalid('phone')} ref={phoneRef} /><span className={s.err} id="e-phone">{errors?.phone}</span></div>
-          <div className={cx(s.fld, errors?.email && s.bad)} id="f-email"><label htmlFor="email">{FORM.email} <small>{FORM.optional}</small></label><input id="email" name="email" type="email" inputMode="email" autoComplete="email" dir="ltr" style={{ textAlign: 'end' }} maxLength={120} aria-describedby="e-email" aria-invalid={invalid('email')} ref={emailRef} /><span className={s.err} id="e-email">{errors?.email}</span></div>
+          <div className={cx(s.fld, errors?.email && s.bad)} id="f-email"><label htmlFor="email">{FORM.email}</label><input id="email" name="email" type="email" inputMode="email" autoComplete="email" dir="ltr" style={{ textAlign: 'end' }} maxLength={120} aria-describedby="e-email" aria-invalid={invalid('email')} ref={emailRef} /><span className={s.err} id="e-email">{errors?.email}</span></div>
           <div className={s.fld}><label htmlFor="city">{FORM.city} <small>{FORM.optional}</small></label><input id="city" name="city" autoComplete="address-level2" maxLength={40} /></div>
-          <div className={cx(s.fld, s.full)}><label htmlFor="volume">{FORM.volume} <small>{FORM.optional}</small></label>
-            <select id="volume" name="volume"><option value="">{FORM.volumePlaceholder}</option>{FORM.volumes.map(v => <option key={v}>{v}</option>)}</select></div>
+          <div className={cx(s.fld, s.full, errors?.volume && s.bad)} id="f-volume"><label htmlFor="volume">{FORM.volume}</label>
+            <select id="volume" name="volume" defaultValue="" aria-describedby="e-volume" aria-invalid={invalid('volume')} ref={volumeRef}><option value="" disabled>{FORM.volumePlaceholder}</option>{FORM.volumes.map(v => <option key={v}>{v}</option>)}</select><span className={s.err} id="e-volume">{errors?.volume}</span></div>
           <div className={cx(s.fld, s.full)}><label htmlFor="message">{FORM.message} <small>{FORM.optional}</small></label><textarea id="message" name="message" maxLength={500}></textarea></div>
           <label className={s.consent}><input type="checkbox" name="consent" id="consent" />{FORM.consent}</label>
           <div className={s.hp} aria-hidden="true"><label htmlFor="company">{FORM.honeypot}</label><input id="company" name="company" tabIndex={-1} autoComplete="off" /></div>

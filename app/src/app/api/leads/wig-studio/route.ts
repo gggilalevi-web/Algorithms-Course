@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { PHONE_RE, EMAIL_MAX, isValidEmail, normalizePhone } from '@/app/wig-studio/lead-rules'
+import { PHONE_RE, EMAIL_MAX, VOLUMES, isValidEmail, normalizePhone } from '@/app/wig-studio/lead-rules'
 
 export const runtime = 'nodejs'
 
@@ -20,9 +20,9 @@ const LeadSchema = z.object({
   name: z.string().trim().min(2).max(60),
   // local or +972 / 00972 / 972, normalized to the local 0XX form before checking
   phone: z.string().max(30).transform(normalizePhone).pipe(z.string().regex(PHONE_RE)),
-  email: z.string().trim().max(EMAIL_MAX).optional().default('').refine(isValidEmail),
+  email: z.string().trim().max(EMAIL_MAX).refine(isValidEmail),
   city: z.string().trim().max(40).optional().default(''),
-  volume: z.enum(['', 'עד 20', '20 עד 50', '50 עד 100', 'מעל 100']).optional().default(''),
+  volume: z.enum(VOLUMES),
   message: z.string().trim().max(500).optional().default(''),
   consent: z.boolean().optional().default(false),
   // anything missing or malformed becomes "direct" instead of rejecting the lead

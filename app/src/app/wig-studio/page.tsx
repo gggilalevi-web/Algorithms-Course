@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { Assistant, Bellefair } from 'next/font/google'
 import s from './wig-studio.module.css'
 import {
-  META, HERO, PAIN, TURN, VIDEO, FEATURES, STEPS, VOICES_SECTION, VOICES, CONTACT,
+  META, HERO, PAIN, TURN, VIDEO, FEATURES, VOICES_SECTION, VOICES, CONTACT,
 } from './content'
 import Header from './_components/Header'
 import HeroDemo from './_components/HeroDemo'
@@ -152,35 +152,22 @@ export default function WigStudioPage() {
           </div>
         </section>
 
-        {/* STEPS */}
-        <section className={s.steps} id="how" aria-labelledby="hH">
-          <div className={s.wrap}>
-            <h2 className={s.h2} id="hH">{STEPS.h2}</h2>
-            <ol>
-              {STEPS.items.map((st, i) => <li key={st.title}><span className={s.num}>{i + 1}</span><div><h3>{st.title}</h3><p>{st.text}</p></div></li>)}
-            </ol>
-            <div className={s.imp}><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3B5E45" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 8h8M8 12h8M8 16h5" /></svg><span>{STEPS.import}</span></div>
-          </div>
-        </section>
-
-        {/* VOICES */}
+        {/* VOICES: one horizontal row */}
         <section className={s.voices} aria-labelledby="qH">
           <div className={s.wrap}>
-            <div>
+            <div className={s['v-head']}>
               <h2 className={s.h2} id="qH">{VOICES_SECTION.h2}</h2>
               <p className={s.lead}>{VOICES_SECTION.lead}</p>
             </div>
-            <div className={s.vstack}>
-              <div className={s.wall}>
-                {VOICES.filter(v => v.kind === 'whatsapp').map(v => (
-                  <div className={cx(s.wb, s.lg)} key={v.text}><div className={s.by}><i></i>{v.by}</div>{v.text}<small>{v.time}</small></div>
-                ))}
-              </div>
-              <div className={s.mails}>
-                {VOICES.filter(v => v.kind === 'mail').map(v => (
-                  <div className={s.mq} key={v.text}><div className={s['mq-h']}><span className={s['mq-av']} aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B2D5C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ChannelPaths ch="mail" /></svg></span></div><p>{v.text}</p></div>
-                ))}
-              </div>
+            <div className={s['v-row']}>
+              {VOICES.filter(v => v.kind === 'whatsapp').map(v => (
+                <div className={s.wall} key={v.text}>
+                  <div className={cx(s.wb, s.lg)}><div className={s.by}><i></i>{v.by}</div>{v.text}<small>{v.time}</small></div>
+                </div>
+              ))}
+              {VOICES.filter(v => v.kind === 'mail').map(v => (
+                <div className={s.mq} key={v.text}><div className={s['mq-h']}><span className={s['mq-av']} aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B2D5C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ChannelPaths ch="mail" /></svg></span></div><p>{v.text}</p></div>
+              ))}
             </div>
           </div>
         </section>

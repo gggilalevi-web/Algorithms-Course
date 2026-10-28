@@ -14,7 +14,7 @@ export const HEADER = {
   name: 'מערכת לסטודיו לפאות',
   navLabel: 'ניווט',
   links: [
-    { href: '#how', label: 'איך זה עובד' },
+    { href: '#stage', label: 'איך זה עובד' },
     { href: '#video', label: 'סרטון' },
   ],
   cta: 'דברי איתי',
@@ -24,7 +24,7 @@ export type Channel = 'call' | 'wa' | 'mail'
 
 export const HERO = {
   h1: 'הפאה מוכנה.',
-  h1Line2: 'והלקוחה כבר יודעת.',
+  h1Line2: 'הלקוחה כבר יודעת.',
   sub: 'מערכת לניהול סטודיו לפאות. את מסמנת "מוכנה", והלקוחה מקבלת שיחה בקולך, מייל או וואטסאפ. בלי להרים טלפון אחד.',
   ctaPrimary: 'אני רוצה לשמוע עוד',
   ctaSecondary: 'לראות איך זה עובד',
@@ -46,7 +46,7 @@ export const DEMO = {
   colIn: 'בטיפול בסטודיו',
   colOut: 'מוכנות לאיסוף',
   markReady: 'סמני מוכנה',
-  tip: 'עכשיו את: לחצי "סמני מוכנה"',
+  tip: 'עכשיו תורך: לחצי "סמני מוכנה"',
   rows: [
     { id: 'rivka', name: 'רבקה', full: 'רבקה שטרן', desc: 'פאה ארוכה, חפיפה וסירוק', ch: 'call' },
     { id: 'shira', name: 'שירה', full: 'שירה לוין', desc: 'תיקון קדמי', ch: 'wa' },
@@ -176,16 +176,6 @@ export const FEATURES = {
   ] as { label: string; kind?: 'sh' | 'go' }[],
 }
 
-export const STEPS = {
-  h2: 'שלושה צעדים, וזהו',
-  items: [
-    { title: 'קולטת', text: 'הפאות מגיעות, את מסמנת אותן במערכת.' },
-    { title: 'מסמנת מוכנה', text: 'סיימת? לחיצה אחת, והלקוחה מקבלת הודעה.' },
-    { title: 'מוסרת ורושמת', text: 'הלקוחה אוספת, את רושמת תשלום. אם נשאר חוב, הוא כבר במעקב.' },
-  ],
-  import: 'מתחילות עם רשימת הלקוחות שכבר יש לך. מייבאים אותה מאקסל.',
-}
-
 export const VOICES_SECTION = {
   h2: 'מהצד של הסטודיו',
   lead: 'ככה זה נשמע כשהמערכת כבר עובדת.',
@@ -237,7 +227,7 @@ export const FORM = {
   message: 'משהו שחשוב לך שאדע?',
   optional: '(לא חובה)',
   volumePlaceholder: 'בחרי',
-  volumes: ['עד 20', '20 עד 50', '50 עד 100', 'מעל 100'],
+  volumes: ['עד 20', '20 עד 50', '50 עד 100', 'מעל 100'], // keep in sync with VOLUMES in lead-rules.ts
   consent: 'אשמח לקבל עדכונים ומידע במייל או בהודעה',
   honeypot: 'חברה',
   submit: 'דברי איתי',
@@ -245,7 +235,8 @@ export const FORM = {
   errName: 'כתבי את שמך',
   // \u2066…\u2069 isolates the +972 number so it reads left to right inside Hebrew
   errPhone: 'מספר טלפון לא תקין. לדוגמה 050-1234567 או \u2066+972-50-1234567\u2069',
-  errEmail: 'כתובת המייל לא תקינה. לדוגמה name@gmail.com',
+  errEmail: 'כתבי כתובת מייל תקינה, לדוגמה name@gmail.com',
+  errVolume: 'בחרי בערך כמה פאות עוברות אצלך בחודש',
   failed: 'הפרטים לא נשלחו. אפשר לנסות שוב בעוד רגע.',
   doneTitle: 'תודה, הפרטים אצלי',
   doneText: 'אחזור אלייך בהקדם.',

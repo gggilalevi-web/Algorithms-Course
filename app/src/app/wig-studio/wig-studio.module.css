@@ -429,10 +429,8 @@ form.card .btn[disabled]{opacity:.7;cursor:wait}
 .hero .wrap{position:relative}
 .toasts{display:none}
 @media (min-width:1100px){
-  .toasts{display:grid;gap:14px;position:absolute;inset-inline-end:0;inset-block-start:clamp(8px,1.5vw,24px);width:min(330px,24vw);margin:0;padding:0;list-style:none;z-index:2}
+  .toasts{display:grid;gap:14px;position:absolute;inset-inline-end:0;inset-block-start:clamp(8px,1.5vw,24px);width:min(310px,22vw);margin:0;padding:0;list-style:none;z-index:2}
   .toasts li{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:14px 18px;border-radius:18px;background:rgba(248,241,236,.07);border:1px solid rgba(228,200,142,.28);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 24px 50px -24px rgba(0,0,0,.7);color:var(--paper)}
-  .toasts li:nth-child(2){margin-inline-end:34px}
-  .toasts li:nth-child(3){margin-inline-end:12px}
   .t-ic{width:42px;height:42px;border-radius:50%;display:grid;place-items:center}
   .t-call{background:var(--ready)}
   .t-wa{background:#1F7A5C}
@@ -484,7 +482,6 @@ form.card .btn[disabled]{opacity:.7;cursor:wait}
 .row .ds{font-size:15.5px}
 .row button{font-size:16.5px;min-height:44px;padding:0 20px}
 .row .chip{font-size:15.5px;padding:7px 13px}
-.tip{font-size:18px;inset-block-end:-52px}
 .phone.dev{width:200px;inset-inline-end:-96px;inset-block-end:40px}
 .phone .scr{height:180px;font-size:15px}
 .phone .scr .t{font-size:16px}
@@ -621,6 +618,26 @@ form.card .btn{min-height:64px;font-size:21px;margin-top:32px}
 .done p{font-size:20px}
 @media (max-width:900px){form.card{padding:26px}}
 .contact{padding-block-end:clamp(120px,12vw,180px)}
+
+/* "your turn" call-out, above the board */
+.tip{position:static;display:flex;justify-content:center;align-items:center;gap:12px;width:fit-content;margin:0 auto 22px;padding:14px 28px;border-radius:999px;background:var(--brass);color:var(--night);font-size:clamp(18px,1.7vw,22px);font-weight:700;box-shadow:0 0 0 8px rgba(201,161,90,.18),0 20px 40px -16px rgba(0,0,0,.6);opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .4s,transform .4s,visibility .4s}
+.tip.on{opacity:1;visibility:visible;transform:none}
+.tip svg{transform:none;flex:none}
+.stage{scroll-margin-top:110px}
+.row.hint button{background:var(--brass);color:var(--night);box-shadow:0 0 0 4px rgba(201,161,90,.35)}
+.row.hint button::after{inset:-7px;border-width:3px}
+@media (max-width:520px){.tip{font-size:17px;padding:12px 20px;margin-bottom:16px}}
+
+/* voices in one row */
+.voices .wrap{display:block}
+.v-head{max-width:860px;margin-bottom:56px}
+.v-row{display:grid;grid-template-columns:1.7fr 1fr 1fr;gap:24px;align-items:stretch}
+.v-row .wall{display:flex;align-items:center;padding:28px}
+.v-row .wb{max-width:100%;align-self:auto}
+.v-row .mq{display:flex;flex-direction:column}
+.v-row .mq p{flex:1;display:flex;align-items:center}
+@media (max-width:1000px){.v-row{grid-template-columns:1fr 1fr}.v-row .wall{grid-column:1/-1}}
+@media (max-width:640px){.v-row{grid-template-columns:1fr}.v-row .wall{padding:18px 14px}}
 
 /* ---------- motion (only for people who have not asked for less) ---------- */
 @media (prefers-reduced-motion:no-preference){

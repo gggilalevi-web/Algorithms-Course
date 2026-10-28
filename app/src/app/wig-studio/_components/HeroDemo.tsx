@@ -146,6 +146,7 @@ export default function HeroDemo() {
 
   return (
     <div className={cx(s.stage, ringing && s.ringing)} id="stage">
+      <div className={cx(s.tip, tipOn && s.on)} id="tip" aria-hidden={!tipOn}><span>{DEMO.tip}</span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14" /><path d="M6 13l6 6 6-6" /></svg></div>
       <div className={s.board} role="group" aria-label={DEMO.boardLabel} ref={boardRef}>
         <div className={s['board-h']}><b>{DEMO.title}</b><small id="bhint">{tried ? DEMO.hintTry : DEMO.hint}</small></div>
         <div className={s.cols}>
@@ -159,7 +160,6 @@ export default function HeroDemo() {
             <div className={s.row}><div className={s.who}><div className={s.nm}>{DEMO.readyRow.full}</div><div className={s.ds}>{DEMO.readyRow.desc}</div></div><span className={s.chip}>{DEMO.readyRow.chip}</span></div>
           </div>
         </div>
-        <div className={cx(s.tip, tipOn && s.on)} id="tip"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 19C9 9 14 6 20 5" /><path d="M15 4l5 1-1 5" /></svg>{DEMO.tip}</div>
       </div>
       <div className={cx(s.phone, s.dev, device.on === 'call' && s.on, device.ring && s.ring, device.shake && s.shake)} aria-hidden="true">
         <div className={s.body}>
