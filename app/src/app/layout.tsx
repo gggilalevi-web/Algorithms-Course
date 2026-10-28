@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Rubik } from 'next/font/google'
 import './globals.css'
 import SiteFooter from '@/components/SiteFooter'
+import { Analytics } from '@vercel/analytics/next'
 
 const rubik = Rubik({
   subsets: ['hebrew', 'latin'],
@@ -26,6 +27,8 @@ export default function RootLayout({
           {children}
         </div>
         <SiteFooter />
+        {/* Vercel Web Analytics: cookieless page views, script served from this domain */}
+        <Analytics />
       </body>
     </html>
   )
