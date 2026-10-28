@@ -47,6 +47,9 @@ export const DEMO = {
   colOut: 'מוכנות לאיסוף',
   markReady: 'סמני מוכנה',
   tip: 'עכשיו תורך: לחצי "סמני מוכנה"',
+  tipCount: (done: number, total: number) => `${done} מתוך ${total}`,
+  tipDone: 'כל הכבוד! ככה זה עובד אצלך כל יום. אפשר להמשיך',
+  skip: 'לדלג על ההדגמה',
   rows: [
     { id: 'rivka', name: 'רבקה', full: 'רבקה שטרן', desc: 'פאה ארוכה, חפיפה וסירוק', ch: 'call' },
     { id: 'shira', name: 'שירה', full: 'שירה לוין', desc: 'תיקון קדמי', ch: 'wa' },

@@ -22,6 +22,10 @@ export default function HeroDemo() {
   const [hintId, setHintId] = useState<string | null>(null)
   const [tipOn, setTipOn] = useState(false)
   const [tried, setTried] = useState(false)
+  // she has marked all three herself
+  const [finished, setFinished] = useState(false)
+  // the page scroll is held at the board until she finishes, skips, or follows a menu link
+  const [released, setReleased] = useState(false)
   const [device, setDevice] = useState<Device>({ on: null, ring: false, shake: false })
   const [phoneTitle, setPhoneTitle] = useState(DEMO.phone.idle)
   const [phoneMsg, setPhoneMsg] = useState(DEMO.phone.msg(firstName('call')))
@@ -85,12 +89,6 @@ export default function HeroDemo() {
     }, ch === 'call' ? 3500 : 3100)
   }
 
-  const resetDemo = () => {
-    const next = { inIds: [...listsRef.current.inIds, ...[...listsRef.current.outIds].reverse()], outIds: [] }
-    listsRef.current = next
-    setLists(next)
-  }
-
   const invite = () => {
     const first = listsRef.current.inIds[0]
     if (first) { setHintId(first); setTipOn(true); setTried(true) }
@@ -99,8 +97,10 @@ export default function HeroDemo() {
   const onMark = (id: string) => {
     if (busy.current) return
     markReady(id, () => {
-      if (!listsRef.current.inIds.length) later(() => { resetDemo(); invite() }, 1800)
-      else invite()
+      if (listsRef.current.inIds.length) { invite(); return }
+      setFinished(true)
+      setReleased(true)
+      setTipOn(true)
     })
   }
 
@@ -117,6 +117,50 @@ export default function HeroDemo() {
     obs.observe(boardRef.current!)
     return () => { obs.disconnect(); pending.forEach(clearTimeout); pending.clear() }
   }, [])
+
+  // Hold the page at the board until she has tried all three customers. Only scrolling
+  // down past the board is blocked; scrolling up, the skip link and the menu links all work.
+  useEffect(() => {
+    if (released) return
+    const board = boardRef.current!
+    // scroll position at which the whole board is in view, or, on a short screen,
+    // the "your turn" call-out sits just under the header with the board below it
+    const holdAt = () => {
+      const r = board.getBoundingClientRect()
+      const tipTop = document.getElementById('tip')?.getBoundingClientRect().top ?? r.top
+      return scrollY + Math.min(r.bottom - (innerHeight - 24), tipTop - 96)
+    }
+    const atHold = () => scrollY >= holdAt() - 2
+    const onScroll = () => { const y = holdAt(); if (scrollY > y + 1) scrollTo({ top: y, behavior: 'instant' }) }
+    const onWheel = (e: WheelEvent) => { if (e.deltaY > 0 && atHold()) e.preventDefault() }
+    let touchY = 0
+    const onTouchStart = (e: TouchEvent) => { touchY = e.touches[0].clientY }
+    const onTouchMove = (e: TouchEvent) => { if (e.touches[0].clientY < touchY && atHold()) e.preventDefault() }
+    const KEYS = new Set(['ArrowDown', 'PageDown', 'End', ' ', 'Spacebar'])
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement
+      if (KEYS.has(e.key) && !t.closest('input,textarea,select,button,[contenteditable]') && atHold()) e.preventDefault()
+    }
+    // a menu or call-to-action link means she wants to move on
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as HTMLElement).closest('a[href^="#"]')
+      if (a && a.getAttribute('href') !== '#stage') setReleased(true)
+    }
+    addEventListener('scroll', onScroll, { passive: true })
+    addEventListener('wheel', onWheel, { passive: false })
+    addEventListener('touchstart', onTouchStart, { passive: true })
+    addEventListener('touchmove', onTouchMove, { passive: false })
+    addEventListener('keydown', onKey)
+    document.addEventListener('click', onClick, true)
+    return () => {
+      removeEventListener('scroll', onScroll)
+      removeEventListener('wheel', onWheel)
+      removeEventListener('touchstart', onTouchStart)
+      removeEventListener('touchmove', onTouchMove)
+      removeEventListener('keydown', onKey)
+      document.removeEventListener('click', onClick, true)
+    }
+  }, [released])
 
   // a row remounts when it changes column, so track the live node per id
   const rowRef = (id: string) => (el: HTMLDivElement) => {
@@ -139,7 +183,12 @@ export default function HeroDemo() {
 
   return (
     <div className={cx(s.stage, ringing && s.ringing)} id="stage">
-      <div className={cx(s.tip, tipOn && s.on)} id="tip" aria-hidden={!tipOn}><span>{DEMO.tip}</span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14" /><path d="M6 13l6 6 6-6" /></svg></div>
+      <div className={cx(s.tip, tipOn && s.on, finished && s['tip-done'])} id="tip" aria-hidden={!tipOn} aria-live="polite">
+        {finished
+          ? <span>{DEMO.tipDone}</span>
+          : <><span>{DEMO.tip}</span><em>{DEMO.tipCount(lists.outIds.length, ROWS.length)}</em></>}
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14" /><path d="M6 13l6 6 6-6" /></svg>
+      </div>
       <div className={s.board} role="group" aria-label={DEMO.boardLabel} ref={boardRef}>
         <div className={s['board-h']}><b>{DEMO.title}</b><small id="bhint">{tried ? DEMO.hintTry : DEMO.hint}</small></div>
         <div className={s.cols}>
@@ -178,6 +227,7 @@ export default function HeroDemo() {
       </div>
       <div className={s.callbar} aria-hidden="true" id="cbar" data-ch={bar.ch ?? undefined}><svg id="cbI" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round"><ChannelPaths ch={bar.icon} /></svg><span id="cbT">{bar.text}</span></div>
       <p className={s.sr} aria-live="polite" id="live">{live}</p>
+      {!released && tried && <button type="button" className={s.skip} onClick={() => setReleased(true)}>{DEMO.skip}</button>}
     </div>
   )
 }
