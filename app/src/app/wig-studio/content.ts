@@ -20,6 +20,8 @@ export const HEADER = {
   cta: 'דברי איתי',
 }
 
+export type Channel = 'call' | 'wa' | 'mail'
+
 export const HERO = {
   h1: 'הפאה מוכנה.',
   h1Line2: 'והלקוחה כבר יודעת.',
@@ -28,9 +30,13 @@ export const HERO = {
   ctaSecondary: 'לראות איך זה עובד',
   chansLabel: 'ערוצי ההודעה',
   chans: { call: 'שיחה לטלפון כשר', wa: 'וואטסאפ', mail: 'מייל' },
+  // the notification cards that arrive next to the headline
+  toasts: [
+    { ch: 'call', name: 'רבקה שטרן', what: 'קיבלה שיחה בקולך', time: '09:12' },
+    { ch: 'wa', name: 'שירה לוין', what: 'קיבלה וואטסאפ', time: '09:12' },
+    { ch: 'mail', name: 'מלכי גרין', what: 'קיבלה מייל', time: '09:13' },
+  ] as { ch: Channel; name: string; what: string; time: string }[],
 }
-
-export type Channel = 'call' | 'wa' | 'mail'
 
 export const DEMO = {
   boardLabel: 'הדגמה חיה של המערכת',
@@ -225,6 +231,7 @@ export const CONTACT = {
 export const FORM = {
   name: 'שם',
   phone: 'טלפון',
+  email: 'מייל',
   city: 'עיר',
   volume: 'כמה פאות בחודש, בערך?',
   message: 'משהו שחשוב לך שאדע?',
@@ -236,20 +243,12 @@ export const FORM = {
   submit: 'דברי איתי',
   sending: 'שולחת...',
   errName: 'כתבי את שמך',
-  errPhone: 'מספר טלפון לא תקין. לדוגמה 050-1234567',
+  // \u2066…\u2069 isolates the +972 number so it reads left to right inside Hebrew
+  errPhone: 'מספר טלפון לא תקין. לדוגמה 050-1234567 או \u2066+972-50-1234567\u2069',
+  errEmail: 'כתובת המייל לא תקינה. לדוגמה name@gmail.com',
   failed: 'הפרטים לא נשלחו. אפשר לנסות שוב בעוד רגע.',
   doneTitle: 'תודה, הפרטים אצלי',
   doneText: 'אחזור אלייך בהקדם.',
-}
-
-export const FOOTER = {
-  by: 'המערכת נבנתה ע"י',
-  logoLabel: 'אוטוסטרדה, לדף הבית',
-  logoAlt: 'אוטוסטרדה, הנתיב המהיר ליעד שלך',
-  what: 'מערכות CRM, אוטומציות ומערכות טלפוניות לעסקים',
-  phoneHref: 'tel:0527691923',
-  phone: 'גילה לוי, 052.7691923',
-  site: 'gilaleviautostrada.com',
 }
 
 export const MOBILE_CTA = 'דברי איתי'

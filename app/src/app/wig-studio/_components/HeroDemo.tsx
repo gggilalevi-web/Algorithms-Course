@@ -120,7 +120,7 @@ export default function HeroDemo() {
       if (!ents[0].isIntersecting) return
       obs.disconnect()
       startAuto()
-    }, { threshold: 0.6 })
+    }, { threshold: 0.45 })
     obs.observe(boardRef.current!)
     return () => { obs.disconnect(); pending.forEach(clearTimeout); pending.clear() }
   }, [])

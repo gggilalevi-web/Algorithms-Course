@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import { PHONE_RE, EMAIL_MAX, isValidEmail, normalizePhone } from '@/app/wig-studio/lead-rules'
 
 export const runtime = 'nodejs'
 
@@ -17,7 +18,9 @@ const LOG = '[leads/wig-studio]'
 
 const LeadSchema = z.object({
   name: z.string().trim().min(2).max(60),
-  phone: z.string().transform(v => v.replace(/[\s-]/g, '')).pipe(z.string().regex(/^0(5\d{8}|[2-489]\d{7}|7\d{8})$/)),
+  // local or +972 / 00972 / 972, normalized to the local 0XX form before checking
+  phone: z.string().max(30).transform(normalizePhone).pipe(z.string().regex(PHONE_RE)),
+  email: z.string().trim().max(EMAIL_MAX).optional().default('').refine(isValidEmail),
   city: z.string().trim().max(40).optional().default(''),
   volume: z.enum(['', 'עד 20', '20 עד 50', '50 עד 100', 'מעל 100']).optional().default(''),
   message: z.string().trim().max(500).optional().default(''),
@@ -96,7 +99,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        secret, name: lead.name, phone: lead.phone, city: lead.city, volume: lead.volume,
+        secret, name: lead.name, phone: lead.phone, email: lead.email, city: lead.city, volume: lead.volume,
         message: lead.message, source: lead.source, consent: lead.consent,
       }),
       signal: controller.signal,

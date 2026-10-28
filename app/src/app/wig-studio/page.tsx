@@ -1,11 +1,9 @@
 import { Fragment, type CSSProperties } from 'react'
 import type { Metadata } from 'next'
-import Image from 'next/image'
-import Link from 'next/link'
 import { Assistant, Bellefair } from 'next/font/google'
 import s from './wig-studio.module.css'
 import {
-  META, HERO, PAIN, TURN, VIDEO, FEATURES, STEPS, VOICES_SECTION, VOICES, CONTACT, FOOTER,
+  META, HERO, PAIN, TURN, VIDEO, FEATURES, STEPS, VOICES_SECTION, VOICES, CONTACT,
 } from './content'
 import Header from './_components/Header'
 import HeroDemo from './_components/HeroDemo'
@@ -14,7 +12,6 @@ import VideoPlayer from './_components/VideoPlayer'
 import ChannelSwitcher from './_components/ChannelSwitcher'
 import StudioColors from './_components/StudioColors'
 import LeadForm from './_components/LeadForm'
-import Signature from './_components/Signature'
 import MobileCta from './_components/MobileCta'
 import { ChannelPaths, Check, PHONE_PATH } from './_components/icons'
 import { cx } from './_components/cx'
@@ -39,13 +36,6 @@ export const metadata: Metadata = {
   },
 }
 
-// Footer rays, same geometry as the reference script (rendered on the server).
-const RAYS = Array.from({ length: 44 }, (_, i) => {
-  const ang = (i / 44) * Math.PI * 2 + (i % 3) * 0.04
-  const len = 520 + (i * 137 % 380)
-  return { x2: Math.cos(ang) * len, y2: Math.sin(ang) * len, len, d: `${(i % 7) * 0.05}s` }
-})
-
 const FEATURE_ICONS = [
   <Fragment key={0}><path d="M4 7h16M4 12h16M4 17h10" /><path d="M17 16l2 2 3-4" /></Fragment>,
   <Fragment key={1}><rect x="3" y="6" width="18" height="13" rx="2" /><path d="M3 10h18M7 15h4" /></Fragment>,
@@ -68,18 +58,33 @@ export default function WigStudioPage() {
       <main>
         {/* HERO */}
         <section className={s.hero} aria-labelledby="h1">
+          <div className={s.aurora} aria-hidden="true"><i></i><i></i><i></i></div>
           <div className={s.wrap}>
-            <div>
-              <h1 id="h1">{HERO.h1}<span className={s.l2}>{HERO.h1Line2}</span></h1>
-              <p className={s.sub}>{HERO.sub}</p>
+            <ul className={s.toasts} aria-hidden="true">
+              {HERO.toasts.map((t, i) => (
+                <li key={t.name} style={{ '--i': i } as CSSProperties}>
+                  <span className={cx(s['t-ic'], s[`t-${t.ch}`])}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ChannelPaths ch={t.ch} /></svg></span>
+                  <span className={s['t-tx']}><b>{t.name}</b><span>{t.what}</span></span>
+                  <time>{t.time}</time>
+                </li>
+              ))}
+            </ul>
+            <h1 id="h1">
+              <span className={s.hl}><span>{HERO.h1}</span></span>
+              <span className={cx(s.hl, s.l2)}><span>{HERO.h1Line2}</span></span>
+            </h1>
+            <div className={s['hero-aside']}>
+              <div>
+                <p className={s.sub}>{HERO.sub}</p>
+                <div className={s.chans} aria-label={HERO.chansLabel}>
+                  <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E4C88E" strokeWidth="2" strokeLinecap="round"><ChannelPaths ch="call" /></svg>{HERO.chans.call}</span>
+                  <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E4C88E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ChannelPaths ch="wa" /></svg>{HERO.chans.wa}</span>
+                  <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E4C88E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ChannelPaths ch="mail" /></svg>{HERO.chans.mail}</span>
+                </div>
+              </div>
               <div className={s.ctas}>
                 <a className={cx(s.btn, s['btn-brass'])} href="#contact">{HERO.ctaPrimary}</a>
                 <a className={cx(s.btn, s['btn-ghost'])} href="#video">{HERO.ctaSecondary}</a>
-              </div>
-              <div className={s.chans} aria-label={HERO.chansLabel}>
-                <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E4C88E" strokeWidth="2" strokeLinecap="round"><ChannelPaths ch="call" /></svg>{HERO.chans.call}</span>
-                <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E4C88E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ChannelPaths ch="wa" /></svg>{HERO.chans.wa}</span>
-                <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E4C88E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ChannelPaths ch="mail" /></svg>{HERO.chans.mail}</span>
               </div>
             </div>
             <HeroDemo />
@@ -102,7 +107,11 @@ export default function WigStudioPage() {
           </div>
         </section>
 
-        <div className={s.turn}><p>{TURN}</p></div>
+        <div className={s.turn}>
+          <p>{TURN.split(' ').map((w, i, all) => (
+            <span key={i} className={i >= all.length / 2 ? s.warm : undefined} style={{ '--i': i } as CSSProperties}>{w}{i < all.length - 1 ? ' ' : ''}</span>
+          ))}</p>
+        </div>
 
         {/* VIDEO */}
         <section className={s.video} id="video" aria-labelledby="vH">
@@ -196,21 +205,6 @@ export default function WigStudioPage() {
         </section>
       </main>
 
-      <Signature>
-        <svg className={s.rays} viewBox="-800 -400 1600 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-          {RAYS.map((r, i) => <line key={i} x1={0} y1={0} x2={r.x2} y2={r.y2} style={{ '--len': r.len, '--d': r.d } as CSSProperties} />)}
-        </svg>
-        <div className={s.glow} aria-hidden="true"></div>
-        <div className={s.wrap}>
-          <p className={s.by}>{FOOTER.by}</p>
-          <Link className={s.logo} href="/" aria-label={FOOTER.logoLabel}>
-            <Image className={s['l-line']} src="/wig-studio/logo-line.webp" alt="" width={748} height={244} unoptimized />
-            <Image className={s['l-text']} src="/wig-studio/logo-text.webp" alt={FOOTER.logoAlt} width={748} height={244} unoptimized />
-          </Link>
-          <p className={s.what}>{FOOTER.what}</p>
-          <div className={s['contact-line']}><a href={FOOTER.phoneHref}>{FOOTER.phone}</a><Link href="/">{FOOTER.site}</Link></div>
-        </div>
-      </Signature>
 
       <MobileCta />
     </div>
