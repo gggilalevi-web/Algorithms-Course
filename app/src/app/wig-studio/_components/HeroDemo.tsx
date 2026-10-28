@@ -19,12 +19,13 @@ const now = () => new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minu
 export default function HeroDemo() {
   const [lists, setLists] = useState<Lists>({ inIds: ROWS.map(r => r.id), outIds: [] })
   const [chips, setChips] = useState<Record<string, 'wait' | 'done'>>({})
-  const [hintId, setHintId] = useState<string | null>(null)
+  // every customer still waiting is highlighted: she can pick them in any order
+  const [hintOn, setHintOn] = useState(false)
   const [tipOn, setTipOn] = useState(false)
   const [tried, setTried] = useState(false)
   // she has marked all three herself
   const [finished, setFinished] = useState(false)
-  // the page scroll is held at the board until she finishes, skips, or follows a menu link
+  // the page scroll is held at the board until her first click, a skip, or a menu link
   const [released, setReleased] = useState(false)
   const [device, setDevice] = useState<Device>({ on: null, ring: false, shake: false })
   const [phoneTitle, setPhoneTitle] = useState(DEMO.phone.idle)
@@ -68,7 +69,7 @@ export default function HeroDemo() {
     flushSync(() => {
       setLists(next)
       setChips(c => ({ ...c, [id]: 'wait' }))
-      setHintId(h => (h === id ? null : h))
+      setHintOn(false)
       setTipOn(false)
     })
     const row = rowEls.current.get(id)
@@ -90,12 +91,13 @@ export default function HeroDemo() {
   }
 
   const invite = () => {
-    const first = listsRef.current.inIds[0]
-    if (first) { setHintId(first); setTipOn(true); setTried(true) }
+    if (listsRef.current.inIds.length) { setHintOn(true); setTipOn(true); setTried(true) }
   }
 
   const onMark = (id: string) => {
     if (busy.current) return
+    // the first click is enough to let the page scroll on; the board keeps inviting her to the rest
+    setReleased(true)
     markReady(id, () => {
       if (listsRef.current.inIds.length) { invite(); return }
       setFinished(true)
@@ -118,17 +120,19 @@ export default function HeroDemo() {
     return () => { obs.disconnect(); pending.forEach(clearTimeout); pending.clear() }
   }, [])
 
-  // Hold the page at the board until she has tried all three customers. Only scrolling
+  // Hold the page at the board until she has marked her first customer. Only scrolling
   // down past the board is blocked; scrolling up, the skip link and the menu links all work.
   useEffect(() => {
     if (released) return
     const board = boardRef.current!
-    // scroll position at which the whole board is in view, or, on a short screen,
-    // the "your turn" call-out sits just under the header with the board below it
+    // Scroll position at which the whole scene is in view: the call-out, the board and the
+    // phone / WhatsApp / email devices that overhang its lower edge by 40px. On a screen too
+    // short for all of it, the call-out sits just under the header instead.
     const holdAt = () => {
       const r = board.getBoundingClientRect()
       const tipTop = document.getElementById('tip')?.getBoundingClientRect().top ?? r.top
-      return scrollY + Math.min(r.bottom - (innerHeight - 24), tipTop - 96)
+      const sceneBottom = r.bottom + 52
+      return scrollY + Math.min(sceneBottom - innerHeight, tipTop - 96)
     }
     const atHold = () => scrollY >= holdAt() - 2
     const onScroll = () => { const y = holdAt(); if (scrollY > y + 1) scrollTo({ top: y, behavior: 'instant' }) }
@@ -172,7 +176,7 @@ export default function HeroDemo() {
   const renderRow = (id: string, done: boolean) => {
     const r = byId(id)
     return (
-      <div key={id} ref={rowRef(id)} className={cx(s.row, hintId === id && s.hint)} data-name={r.name} data-ch={r.ch}>
+      <div key={id} ref={rowRef(id)} className={cx(s.row, !done && hintOn && s.hint)} data-name={r.name} data-ch={r.ch}>
         <div className={s.who}><div className={s.nm}>{r.full}</div><div className={s.ds}>{r.desc}</div></div>
         {done
           ? <span className={cx(s.chip, chips[id] === 'wait' && s.wait)}>{chips[id] === 'wait' ? DEMO.channels[r.ch].wait : DEMO.channels[r.ch].done}</span>

@@ -632,10 +632,19 @@ form.card .btn{min-height:64px;font-size:21px;margin-top:32px}
 .row.hint button::after{inset:-7px;border-width:3px}
 @media (max-width:520px){.tip{font-size:17px;padding:12px 20px;margin-bottom:16px}}
 
+/* keep the whole demo scene (call-out, board and the devices) inside one screen:
+   the devices sit on the board's lower edge instead of hanging far below it */
+.stage{padding-bottom:0;margin-bottom:clamp(110px,10vw,150px)}
+.phone.dev,.smart,.mailcard{inset-block-end:-40px}
+/* room for all four rows in "ready" so the board never grows (and pushes the devices off screen) mid-demo */
+@media (min-width:521px){.col{min-height:470px}}
+@media (max-height:820px) and (min-width:521px){.col{min-height:420px}.board{padding:20px}.board-h{margin-bottom:12px}.row{padding-block:11px;margin-bottom:8px}}
+@media (max-width:520px){.stage{margin-bottom:96px}}
+
 /* call-out states */
 .tip em{white-space:nowrap;font-style:normal;font-weight:600;font-size:.82em;background:rgba(30,8,25,.14);border-radius:999px;padding:2px 12px}
 .tip.tip-done{background:var(--ready);color:#fff;box-shadow:0 0 0 8px rgba(59,94,69,.22),0 20px 40px -16px rgba(0,0,0,.6)}
-.skip{display:block;margin:18px auto 0;background:none;border:0;padding:8px 12px;color:rgba(248,241,236,.55);font:inherit;font-size:15.5px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.skip{position:absolute;inset-block-start:calc(100% + 52px);inset-inline-start:50%;translate:50% 0;white-space:nowrap;background:none;border:0;padding:8px 12px;color:rgba(248,241,236,.55);font:inherit;font-size:15.5px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .skip:hover{color:var(--paper)}
 
 /* voices in one row */
