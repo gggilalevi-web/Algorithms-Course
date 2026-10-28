@@ -4,7 +4,13 @@ import { z } from 'zod'
 export const runtime = 'nodejs'
 
 const MAX_BODY_BYTES = 4096
-const RATE_LIMIT = 5
+// Max submissions per IP per window. Overridable with the RATE_LIMIT env var, because a
+// room full of stylists on one venue Wi-Fi shares a single IP.
+const DEFAULT_RATE_LIMIT = 60
+function rateLimit() {
+  const n = Number.parseInt(process.env.RATE_LIMIT ?? '', 10)
+  return Number.isFinite(n) && n > 0 ? n : DEFAULT_RATE_LIMIT
+}
 const RATE_WINDOW_MS = 10 * 60 * 1000
 const WEBHOOK_TIMEOUT_MS = 8000
 const LOG = '[leads/wig-studio]'
@@ -33,7 +39,7 @@ function throttled(ip: string) {
     return false
   }
   entry.count++
-  return entry.count > RATE_LIMIT
+  return entry.count > rateLimit()
 }
 
 // Reads the body but gives up as soon as it passes the limit; null means too large.
