@@ -20,7 +20,7 @@ export default function VideoPlayer() {
         <div className={s.player} id="player">
           {playing
             ? <iframe
-                src={`https://www.youtube-nocookie.com/embed/${YOUTUBE_ID}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+                src={`https://www.youtube-nocookie.com/embed/${YOUTUBE_ID}?autoplay=1&rel=0&modestbranding=1&playsinline=1&cc_load_policy=0&iv_load_policy=3`}
                 allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen title={VIDEO.iframeTitle}></iframe>
             : <button className={s.poster} type="button" id="poster" aria-label={VIDEO.posterLabel} onClick={play}>
                 <span className={s.pt}><b>{VIDEO.posterTitle}</b><span>{VIDEO.posterSub}</span><span className={s.play} style={{ display: 'grid' }}><svg viewBox="0 0 24 24" fill="#1E0819"><path d="M6 4l14 8-14 8z" /></svg></span></span>
