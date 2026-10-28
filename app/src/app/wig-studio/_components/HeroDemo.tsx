@@ -37,7 +37,6 @@ export default function HeroDemo() {
   const rowEls = useRef(new Map<string, HTMLDivElement>())
   const listsRef = useRef(lists)
   const busy = useRef(false)
-  const auto = useRef(true)
   const timers = useRef(new Set<number>())
 
   const later = (fn: () => void, ms: number) => {
@@ -97,29 +96,23 @@ export default function HeroDemo() {
     if (first) { setHintId(first); setTipOn(true); setTried(true) }
   }
 
-  const runAuto = () => {
-    const first = listsRef.current.inIds[0]
-    if (first) return markReady(first, () => later(runAuto, prefersReducedMotion() ? 200 : 450))
-    later(() => { resetDemo(); auto.current = false; invite() }, 1400)
-  }
-
   const onMark = (id: string) => {
-    if (busy.current || auto.current) return
+    if (busy.current) return
     markReady(id, () => {
       if (!listsRef.current.inIds.length) later(() => { resetDemo(); invite() }, 1800)
       else invite()
     })
   }
 
-  const startAuto = useEffectEvent(() => later(runAuto, prefersReducedMotion() ? 300 : 1000))
+  // nothing runs by itself: when the board comes into view we wait for the visitor's own click
+  const startInvite = useEffectEvent(() => later(invite, prefersReducedMotion() ? 0 : 700))
 
-  // one orchestrated moment: when the board is on screen, run all three customers once
   useEffect(() => {
     const pending = timers.current
     const obs = new IntersectionObserver((ents) => {
       if (!ents[0].isIntersecting) return
       obs.disconnect()
-      startAuto()
+      startInvite()
     }, { threshold: 0.45 })
     obs.observe(boardRef.current!)
     return () => { obs.disconnect(); pending.forEach(clearTimeout); pending.clear() }
