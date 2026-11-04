@@ -33,7 +33,7 @@ export default function CostMeter() {
 
       <div className={s.total} aria-live="polite">
         <span className={s.totalLabel}>{COST.totalLabel}</span>
-        <span className={s.totalNum} dir="ltr">{shekel(total)}</span>
+        <span className={s.totalNum} dir="ltr"><span className={s.shekel}>₪</span>{total.toLocaleString('he-IL')}</span>
         <span className={s.totalFormula}>{COST.formula(monthly, months)}</span>
         <p className={s.totalMine}>{COST.mine}</p>
       </div>
