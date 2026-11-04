@@ -1,10 +1,7 @@
 # wig-demo-page
 
-**Status:** waiting
-**Branch:** `s/wig-demo-page`. PR to `main`, not merged.
-
-## Waiting for
-1. PR #1 ready: https://github.com/gggilalevi-web/Algorithms-Course/pull/1. Merge? Recommendation: yes, after the preview check under "Open items", and before `2026-11-06T00:00:00+02:00`. After that time the page returns 410 as soon as it is deployed.
+**Status:** done
+**Branch:** `s/wig-demo-page`. PR #1 squash-merged to `main` on Gila's approval: https://github.com/gggilalevi-web/Algorithms-Course/pull/1
 
 ## What changed
 - `app/src/demo-assets/salon-k7x2.html`: the demo page, moved from `demo.html`. The only content change is the added `<meta name="robots" content="noindex, nofollow">`.
