@@ -173,21 +173,22 @@
   .tr:not(.thead) .mineCol::before{inset-block:0}
 }
 
-/* ---------- cost meter (the one bold moment after the hero) ---------- */
-.meterBox{margin-block-start:44px;display:grid;grid-template-columns:1fr 1.1fr;gap:40px;align-items:stretch}
-.sliders{display:grid;gap:30px;align-content:center}
-.slider label{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:16px;color:var(--mist)}
-.slider output{font:600 24px/1 var(--body);color:#fff}
-.slider input{inline-size:100%;margin-block-start:14px;accent-color:var(--lime);block-size:28px;cursor:pointer}
-.scale{display:flex;justify-content:space-between;font-size:13px;color:#7F8690}
-.total{background:var(--asphalt-2);border:1px solid var(--line-dark);border-radius:18px;padding:30px 32px;display:flex;flex-direction:column;justify-content:center}
-.totalLabel{font-size:16px;color:var(--mist)}
-.totalNum{font:400 clamp(48px,7.5vw,84px)/1 var(--display);color:var(--lime);margin-block:10px 8px;text-align:start;font-variant-numeric:tabular-nums}
-.shekel{font-family:var(--body);font-weight:600;font-size:.72em;margin-inline-end:.06em}
-.totalFormula{font-size:15px;color:var(--mist)}
-.totalMine{margin-block-start:22px;padding-block-start:18px;border-block-start:1px solid var(--line-dark);font-size:16px}
-.note{margin-block-start:22px;font-size:13px;color:#8A909A;max-inline-size:70ch}
-@media (max-width:860px){.meterBox{grid-template-columns:1fr}}
+/* ---------- pricing model ---------- */
+.price{margin-block-start:44px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.pricePart{background:var(--asphalt-2);border:1px solid var(--line-dark);border-radius:18px;padding:30px 32px}
+.pricePart:last-child{border-color:var(--lime)}
+.priceHead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-block-end:18px;border-block-end:1px solid var(--line-dark)}
+.priceHead h3{font:400 clamp(30px,3.4vw,40px)/1.1 var(--display)}
+.priceHead span{color:var(--lime);font-weight:600;font-size:16px}
+.pricePart ul{margin-block-start:18px;display:grid;gap:12px}
+.pricePart li{display:flex;gap:12px;align-items:flex-start}
+.pricePart svg{flex:none;color:var(--lime);margin-block-start:5px}
+.priceNot{margin-block-start:28px;display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 24px;color:var(--mist)}
+.priceNot b{color:#fff;font-weight:600}
+.priceNot ul{display:flex;flex-wrap:wrap;gap:8px 12px}
+.priceNot li{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-dark);border-radius:999px;padding:6px 14px;font-size:15px;color:#fff}
+.priceNot li::before{content:"";inline-size:10px;block-size:10px;flex:none;background:linear-gradient(45deg,transparent 42%,var(--lime) 42% 58%,transparent 58%),linear-gradient(-45deg,transparent 42%,var(--lime) 42% 58%,transparent 58%)}
+@media (max-width:860px){.price{grid-template-columns:1fr}}
 
 /* ---------- features ---------- */
 .features{margin-block-start:44px;display:grid;grid-template-columns:1fr 1fr;gap:10px 48px}

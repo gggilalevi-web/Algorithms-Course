@@ -4,7 +4,6 @@ import s from './course-platform.module.css'
 import { META, HERO, COMPARE, COST, FEATURES, CASE, HOW, FAQ, CONTACT, FOOTER } from './content'
 import Header from './_components/Header'
 import SiteSwitcher from './_components/SiteSwitcher'
-import CostMeter from './_components/CostMeter'
 import LeadForm from './_components/LeadForm'
 import MobileCta from './_components/MobileCta'
 import Logo from './_components/Logo'
@@ -85,8 +84,18 @@ export default function CoursePlatformPage() {
           <div className={s.wrap}>
             <h2 className={s.h2} id="cp-cost">{COST.h2}</h2>
             <p className={s.lead}>{COST.lead}</p>
-            <CostMeter />
-            <p className={s.note}>{COST.note}</p>
+            <div className={s.price}>
+              {COST.parts.map(p => (
+                <div className={s.pricePart} key={p.title}>
+                  <div className={s.priceHead}><h3>{p.title}</h3><span>{p.when}</span></div>
+                  <ul>{p.items.map(i => <li key={i}><Check />{i}</li>)}</ul>
+                </div>
+              ))}
+            </div>
+            <div className={s.priceNot}>
+              <b>{COST.notTitle}</b>
+              <ul>{COST.not.map(i => <li key={i}>{i}</li>)}</ul>
+            </div>
           </div>
         </section>
 
