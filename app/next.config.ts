@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
+  // The demo route reads this file at runtime, so it must ship with the function.
+  outputFileTracingIncludes: {
+    "/demo/salon-k7x2.html": ["./src/demo-assets/salon-k7x2.html"],
+  },
 };
 
 export default nextConfig;
