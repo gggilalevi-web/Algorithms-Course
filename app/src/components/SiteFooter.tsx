@@ -2,10 +2,12 @@
 
 import { usePathname } from 'next/navigation'
 
-// Global footer. Hidden on /wig-studio, which renders its own footer.
+// Global footer. Hidden on the landing pages that render their own footer.
+const OWN_FOOTER = ['/wig-studio', '/course-platform']
+
 export default function SiteFooter() {
   const pathname = usePathname()
-  if (pathname?.startsWith('/wig-studio')) return null
+  if (OWN_FOOTER.some(p => pathname?.startsWith(p))) return null
 
   return (
     <footer className="relative z-10 border-t border-white/5 py-4 px-6 text-center"
