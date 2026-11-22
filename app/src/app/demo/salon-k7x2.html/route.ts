@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
-const EXPIRES_AT = '2026-11-06T00:00:00+02:00' // Israel time
+const EXPIRES_AT = '2026-11-23T14:00:00+02:00' // Israel time
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
