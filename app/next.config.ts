@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
   // The demo route reads this file at runtime, so it must ship with the function.
   outputFileTracingIncludes: {
     "/demo/salon-k7x2.html": ["./src/demo-assets/salon-k7x2.html"],
+    "/demo/salon-6cc5.html": ["./src/demo-assets/salon-6cc5.html"],
   },
 };
 
