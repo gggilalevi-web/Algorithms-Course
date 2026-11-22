@@ -668,7 +668,7 @@ const TIPS={
  new:['״כמה גובים על שדרוג כזה? מה סיכמנו על הייצור?״','מחירון ברירת מחדל לכל רכיב, שאפשר לשנות בכל הזמנה. ההערות על הלקוחה ועל הפאה קופצות כאן לבד.'],
  customers:['״איפה המספר שלה? מה היא אוהבת?״','לכל לקוחה כרטיס עם הפאות שלה, הערות, היסטוריה וערוצי ההודעות שלה.'],
  customer:['״רגע, לה אסור לסרק? היא ביקשה שביל בצד?״','לכל פאה יש טיפול קבוע והערות קבועות, והן מופיעות בכל פעם שהפאה נקלטת. ההערות על הלקוחה מופיעות בכל הזמנה.'],
- payments:['״לרדוף אחרי כסף זה הכי לא נעים״','בהודעה ״הפאה מוכנה״ יש קישור לתשלום בביט ובאשראי. התשלום נרשם לבד, ותזכורת נשלחת בלחיצה, בלי שיחה מביכה.'],
+ payments:['״לרדוף אחרי כסף זה הכי לא נעים״','בהודעה ״הפאה מוכנה״ יש כפתורים לביט ולדף התשלום הקבוע שלך. כשהכסף נכנס, מסמנים ״שולם״ בלחיצה, ותזכורת נשלחת בלחיצה, בלי שיחה מביכה.'],
  log:['״קיבלה את ההודעה או לא?״','כל הודעה מתועדת: נמסרה, נענתה, לא נענתה או נכשלה. מה שלא הגיע ללקוחה מסומן באדום גם בדשבורד.'],
  clock:['״שעות העובדות במחברת, ובסוף החודש ויכוחים״','עמדת החתמה עם קוד אישי. השעות והשכר מחושבים לבד.'],
  expenses:['״קבלות בכל מגירה״','טופס קצר לכל הוצאה: ספק, סוג ואופן התשלום. הכל מסוכם לפי קטגוריה ונכנס לדו״ח.'],
@@ -705,7 +705,7 @@ VIEWS.dashboard=()=>{
   <button class="kpi" data-jobs="open"><span class="k-l">${I('list',16)} בעבודה</span><span class="k-v num">${work.length}</span><span class="k-s">${work.filter(j=>j.t==='prod').length} ייצור · ${work.filter(j=>j.t==='upg').length} שדרוג · ${work.filter(j=>j.t==='comb').length} סירוק</span></button>
   <button class="kpi" data-jobs="ready"><span class="k-l">${I('bell',16)} מוכנות לאיסוף</span><span class="k-v num">${ready.length}</span><span class="k-s">${ready.length-fails.length} קיבלו הודעה</span></button>
   <button class="kpi" data-go="payments"><span class="k-l">${I('wallet',16)} חובות פתוחים</span><span class="k-v num">${ils(debts.reduce((s,d)=>s+d.a,0))}</span><span class="k-s">${debts.length} לקוחות</span></button>
-  <button class="kpi" data-go="report"><span class="k-l">${I('up',16)} הכנסות החודש</span><span class="k-v num">${ils(monthIncome())}</span><span class="k-s">${PAYS.filter(p=>p.link).length} תשלומים דרך הקישור</span></button>
+  <button class="kpi" data-go="report"><span class="k-l">${I('up',16)} הכנסות החודש</span><span class="k-v num">${ils(monthIncome())}</span><span class="k-s">${PAYS.length} תשלומים נרשמו</span></button>
  </div>
  <div class="card" style="--acc:var(--a-jobs);--acc-t:var(--a-jobs-t)"><div class="card-h"><span class="ico-tile">${I('cal')}</span><h2>בסטודיו, לפי תאריך יעד</h2><span class="count">${work.length} בעבודה</span>
   <div class="act">${S.clear?`<button class="btn sm ghost" data-clear="0">ביטול</button><button class="btn sm ok" data-clearsend ${S.selJ.size?'':'disabled'}>${I('send',15)} סמני ${S.selJ.size} מוכנות ושלחי הודעות</button>`:`<button class="btn sm soft" data-clear="1">${I('check',15)} סימון כמה כמוכנות</button><button class="btn sm ghost" data-go="jobs">כל העבודות</button>`}</div></div>
@@ -909,7 +909,7 @@ VIEWS.customer=()=>{const c=C(S.custId);const js=JOBS.filter(j=>j.c===c.id).sort
     ${sw('ch_wa',c.ch.includes('wa'),'WhatsApp')}${sw('ch_mail',c.ch.includes('mail'),'מייל')}${sw('ch_voice',c.ch.includes('voice'),'שיחה קולית')}
     <div style="border-top:1px solid var(--border);padding-top:10px">${sw('debtAuto',c.debtAuto,'תזכורות חוב אוטומטיות')}</div>
     <div class="muted" style="font-size:12.5px">לקוחה שביקשה להפסיק שיחות עוברת לבד להודעות כתובות, אם יש לה מייל או WhatsApp.</div></div></div>
-   <div class="card" style="--acc:var(--a-pay);--acc-t:var(--a-pay-t)"><div class="card-h"><span class="ico-tile">${I('coins')}</span><h2>תשלומים</h2></div><div class="card-b">${pays.length?pays.slice(0,6).map(p=>`<div class="lr"><div class="grow"><div class="t1 num">${ils(p.a)}</div><div class="t2">${fmt(p.d)} · ${p.m}${p.note?' · '+p.note:''}</div></div>${p.link?`<span class="pill ok nodot">דרך הקישור</span>`:''}</div>`).join(''):`<div class="empty">עוד אין תשלומים החודש</div>`}</div></div>
+   <div class="card" style="--acc:var(--a-pay);--acc-t:var(--a-pay-t)"><div class="card-h"><span class="ico-tile">${I('coins')}</span><h2>תשלומים</h2></div><div class="card-b">${pays.length?pays.slice(0,6).map(p=>`<div class="lr"><div class="grow"><div class="t1 num">${ils(p.a)}</div><div class="t2">${fmt(p.d)} · ${p.m}${p.note?' · '+p.note:''}</div></div></div>`).join(''):`<div class="empty">עוד אין תשלומים החודש</div>`}</div></div>
   </div>
  </div>
  <div class="savebar" id="savebar" ${dn?'':'hidden'}><b id="sbtxt">${dn} שדות שונו</b><span style="opacity:.8;font-size:13.5px">השינויים בפאות יחולו מהקליטה הבאה</span><span style="margin-inline-start:auto"></span><button class="btn" data-drcancel>ביטול</button><button class="btn primary" data-drsave style="background:var(--ok);border-color:var(--ok)">${I('check')} שמירה</button></div>`};
@@ -925,7 +925,7 @@ function saveDraft(){const c=C(S.custId);for(const k in S.draft){const v=S.draft
 VIEWS.payments=()=>{const debts=debtCust();const open=JOBS.filter(j=>j.st!=='done'&&bal(j)>0);
  const methods={};PAYS.forEach(p=>methods[p.m]=(methods[p.m]||0)+p.a);const tot=monthIncome();
  const mc={'ביט':'var(--t-comb)','אשראי':'var(--t-prod)','מזומן':'var(--t-upg)','העברה':'var(--info)','צ׳ק':'var(--mute)'};
- return `<div class="ph" style="--acc:var(--a-pay);--acc-t:var(--a-pay-t)"><span class="ico-tile">${I('wallet',22)}</span><div><h1>תשלומים ותזכורות</h1><div class="muted">כל תשלום נרשם, גם במזומן וגם דרך הקישור</div></div><div class="act">${backBtn()}</div></div>
+ return `<div class="ph" style="--acc:var(--a-pay);--acc-t:var(--a-pay-t)"><span class="ico-tile">${I('wallet',22)}</span><div><h1>תשלומים ותזכורות</h1><div class="muted">כל תשלום נרשם בלחיצה: מזומן, ביט, אשראי או העברה</div></div><div class="act">${backBtn()}</div></div>
  <div class="grid g2" style="align-items:start">
   <div class="stack">${debtSection(debts)}
    <div class="card"><div class="card-h"><span class="ico-tile">${I('bell')}</span><h2>תזכורות אוטומטיות</h2><div class="act"><button class="btn sm ghost" data-go="settings">שינוי בהגדרות</button></div></div><div class="card-b stack" style="font-size:14.5px">
@@ -937,8 +937,8 @@ VIEWS.payments=()=>{const debts=debtCust();const open=JOBS.filter(j=>j.st!=='don
    <div class="card"><div class="card-h"><span class="ico-tile">${I('coins')}</span><h2>הכנסות החודש</h2><span class="count num">${ils(tot)}</span></div><div class="card-b">
     <div class="split">${Object.entries(methods).map(([m,a])=>`<i style="flex:${a};background:${mc[m]}" title="${m}"></i>`).join('')}</div>
     <div class="legend">${Object.entries(methods).map(([m,a])=>`<span><i style="background:${mc[m]}"></i>${m} <b class="num">${ils(a)}</b></span>`).join('')}</div>
-    <div class="note" style="margin-top:12px">${I('up',16)}<span><b class="num">${PAYS.filter(p=>p.link).length} תשלומים</b> הגיעו החודש דרך הקישור שבהודעה, ונרשמו במערכת לבד.</span></div></div></div>
-   <div class="card"><div class="card-h"><span class="ico-tile">${I('list')}</span><h2>תשלומים אחרונים</h2></div><div class="card-b">${PAYS.slice().sort((a,b)=>b.d-a.d).slice(0,8).map(p=>`<div class="lr"><span class="av">${initials(C(p.c).n)}</span><div class="grow"><div class="t1">${nameLink(C(p.c))}</div><div class="t2">${fmt(p.d)} · ${TYPES[p.k].n}${p.note?' · '+p.note:''}</div></div>${p.link?`<span class="pill ok nodot">${I('check',12)} דרך הקישור</span>`:''}<span class="pill nodot">${p.m}</span><b class="num">${ils(p.a)}</b></div>`).join('')}</div></div>
+    <div class="note" style="margin-top:12px">${I('up',16)}<span>בכל הודעה ללקוחה יש קישור לביט ולדף התשלום שלך. חיבור מלא לסליקה, שבו הסכום מתמלא לבד והתשלום נרשם אוטומטית, אפשר להוסיף בהמשך.</span></div></div></div>
+   <div class="card"><div class="card-h"><span class="ico-tile">${I('list')}</span><h2>תשלומים אחרונים</h2></div><div class="card-b">${PAYS.slice().sort((a,b)=>b.d-a.d).slice(0,8).map(p=>`<div class="lr"><span class="av">${initials(C(p.c).n)}</span><div class="grow"><div class="t1">${nameLink(C(p.c))}</div><div class="t2">${fmt(p.d)} · ${TYPES[p.k].n}${p.note?' · '+p.note:''}</div></div><span class="pill nodot">${p.m}</span><b class="num">${ils(p.a)}</b></div>`).join('')}</div></div>
    <div class="card"><div class="card-h"><span class="ico-tile">${I('cal')}</span><h2>יתרות על עבודות פתוחות</h2><span class="count num">${ils(open.reduce((s,j)=>s+bal(j),0))}</span></div><div class="card-b">${open.map(j=>`<div class="lr"><div class="grow"><div class="t1">${esc(C(j.c).n)} ${typePill(j.t)}</div><div class="t2">שולם ${ils(j.paid)} מתוך ${ils(total(j))}</div></div><div style="width:110px" class="bar"><i style="width:${Math.round(j.paid/total(j)*100)}%"></i></div><b class="num">${ils(bal(j))}</b></div>`).join('')}</div></div>
   </div></div>`};
 
@@ -1020,8 +1020,7 @@ VIEWS.report=()=>{const inc=monthIncome();const exp=EXPS.reduce((s,e)=>s+e.a,0);
    <div class="row" style="justify-content:space-between"><span>הזמנות ייצור פתוחות</span><b class="num">${JOBS.filter(j=>j.t==='prod'&&j.st!=='done').length}</b></div></div></div>
   <div class="card"><div class="card-h"><span class="ico-tile">${I('wallet')}</span><h2>פתוח לגבייה</h2></div><div class="card-b stack">
    <div class="row" style="justify-content:space-between"><span>חובות על פאות שנמסרו</span><b class="num">${ils(debtCust().reduce((s,d)=>s+d.a,0))}</b></div>
-   <div class="row" style="justify-content:space-between"><span>יתרות על עבודות פתוחות</span><b class="num">${ils(JOBS.filter(j=>j.st!=='done').reduce((s,j)=>s+Math.max(0,bal(j)),0))}</b></div>
-   <div class="row" style="justify-content:space-between"><span>שולם דרך הקישור</span><b class="num">${ils(PAYS.filter(p=>p.link).reduce((s,p)=>s+p.a,0))}</b></div></div></div>
+   <div class="row" style="justify-content:space-between"><span>יתרות על עבודות פתוחות</span><b class="num">${ils(JOBS.filter(j=>j.st!=='done').reduce((s,j)=>s+Math.max(0,bal(j)),0))}</b></div></div></div>
  </div>`};
 
 /* ---- settings ---- */
@@ -1047,6 +1046,11 @@ VIEWS.settings=()=>{const t=S.setTab;
     <button class="sw" role="switch" aria-checked="${SETTINGS.autoDebt}" data-setsw="autoDebt"><span class="tr"><span class="kn">${SETTINGS.autoDebt?'✓':'✕'}</span></span> חוב פתוח: תזכורת ${SETTINGS.debtDays} ימים אחרי המסירה</button>
     <button class="sw" role="switch" aria-checked="${SETTINGS.debtRepeat}" data-setsw="debtRepeat"><span class="tr"><span class="kn">${SETTINGS.debtRepeat?'✓':'✕'}</span></span> תזכורת חוב חוזרת כל שבוע</button>
     <div class="muted" style="font-size:12.5px">אפשר לכבות תזכורות חוב ללקוחה מסוימת מהכרטיס שלה.</div></div></div>
+   <div class="card"><div class="card-h"><span class="ico-tile">${I('coins')}</span><h2>קישורי תשלום</h2></div><div class="card-b stack">
+    <div class="f"><label for="sbit">הקישור שלך בביט</label><input id="sbit" class="in" dir="ltr" placeholder="https://..." value="https://www.bitpay.co.il/app/me/..."></div>
+    <div class="f"><label for="scard">דף התשלום שלך בחברת הסליקה</label><input id="scard" class="in" dir="ltr" placeholder="https://..." value="https://pay.example.co.il/leah"></div>
+    <div class="muted" style="font-size:12.5px">שני הקישורים נכנסים לכל הודעה ללקוחה, עם הסכום לתשלום. התשלום נרשם במערכת בלחיצה.</div>
+    <div class="note">${I('info',16)}<span>חיבור מלא לסליקה, שבו הסכום מתמלא לבד והתשלום נרשם אוטומטית, אפשר להוסיף בהמשך.</span></div></div></div>
    <div class="card"><div class="card-h"><span class="ico-tile">${I('chat')}</span><h2>נוסח ההודעה ״הפאה מוכנה״</h2></div><div class="card-b stack">
     <textarea class="in tmpl" rows="6" data-setv="tmpl" aria-label="נוסח ההודעה">${esc(SETTINGS.tmpl)}</textarea>
     <div style="font-size:12.5px" class="muted">שדות שמתמלאים לבד: ${['{שם}','{פירוט}','{סכום}','{קישורי תשלום}'].map(x=>`<span class="tag-ph">${x}</span>`).join('')}</div>
@@ -1081,12 +1085,10 @@ function drawPreview(){const j=JOBS.find(x=>x.id===PV.jid),c=C(j.c),w=WIG(j.w);c
  const detail=`${w?esc(w.n)+', ':''}${TYPES[j.t].n}: ${esc(itemsTxt(j))}`;
  const waMsg=`שלום ${first}, 😊<br>הפאה שלך מוכנה לאיסוף בסטודיו של לאה אלבוים.<br>${detail}<br>${payBtns?`<b>לתשלום: ${ils(b)}</b><br>אפשר לשלם כבר עכשיו, בלחיצה:`:'התשלום התקבל, תודה!'}<br>שעות איסוף: א׳–ה׳ 10:00–19:00`;
  let si='';
- if(PV.pay==='card')si=`<div class="paypage"><div class="pp-h"><div style="font-size:12px;color:#777">${I('lock',12)} תשלום מאובטח</div><b style="font-family:var(--display);font-size:18px">פאות לאה אלבוים</b><div style="font-size:12.5px;color:#666">הזמנה #${j.id} · ${esc(c.n)}</div></div><div class="pp-b"><div class="amt num">${ils(b)}</div><input class="in" placeholder="מספר כרטיס" aria-label="מספר כרטיס" dir="ltr"><div class="row"><input class="in" placeholder="MM/YY" aria-label="תוקף" dir="ltr"><input class="in" placeholder="CVV" aria-label="CVV" dir="ltr"></div><input class="in" placeholder="תעודת זהות" aria-label="תעודת זהות"><div class="row" style="font-size:12.5px;color:#666;justify-content:center">תשלומים: <select class="in" style="width:auto;height:34px" aria-label="מספר תשלומים"><option>1</option><option>2</option><option>3</option></select></div><button class="btn primary" data-dopay="card" style="margin-top:auto">שלמי ${ils(b)}</button><button class="btn ghost sm" data-pv="back">חזרה להודעה</button></div></div>`;
- else if(PV.pay==='bit')si=`<div class="paypage"><div class="pp-h"><b style="font-family:var(--display);font-size:18px">תשלום בביט</b><div style="font-size:12.5px;color:#666">פאות לאה אלבוים · הזמנה #${j.id}</div></div><div class="pp-b" style="align-items:center;justify-content:center;text-align:center"><div class="amt num">${ils(b)}</div><div style="color:#555;font-size:14px">נפתחת אפליקציית ביט עם הסכום ושם הסלון. הלקוחה רק מאשרת.</div><button class="btn primary" data-dopay="bit" style="width:100%">אישור התשלום באפליקציה</button><button class="btn ghost sm" data-pv="back">חזרה להודעה</button></div></div>`;
- else if(PV.pay==='done')si=`<div class="paypage"><div class="pp-b" style="align-items:center;justify-content:center;text-align:center;gap:14px"><span style="width:70px;height:70px;border-radius:50%;background:#E3F5EA;color:#1E7A46;display:grid;place-items:center">${I('check',36)}</span><b style="font-family:var(--display);font-size:22px">התשלום התקבל</b><div style="color:#555;font-size:14px">תודה ${first}! הקבלה נשלחה אלייך.<br>מחכות לך בסטודיו 💐</div><button class="btn ghost sm" data-pv="back">חזרה להודעה</button></div></div>`;
+ if(PV.pay==='card'||PV.pay==='bit'){const isBit=PV.pay==='bit';si=`<div class="paypage"><div class="pp-h"><b style="font-family:var(--display);font-size:18px">${isBit?'ביט':'דף התשלום של הסלון'}</b><div style="font-size:12.5px;color:#666">פאות לאה אלבוים</div></div><div class="pp-b" style="align-items:center;justify-content:center;text-align:center;gap:12px"><span style="width:62px;height:62px;border-radius:50%;background:#F3E7EF;color:#6B2D5C;display:grid;place-items:center">${I(isBit?'coins':'card',30)}</span><div style="color:#333;font-size:14.5px">${isBit?'נפתח הקישור הקבוע של הסלון בביט.':'נפתח דף התשלום הקיים של הסלון.'}<br>הלקוחה מקלידה את הסכום:</div><div class="amt num">${ils(b)}</div><div style="color:#777;font-size:12.5px">כשהכסף נכנס, לאה מסמנת ״רישום תשלום״ במערכת.</div><button class="btn ghost sm" data-pv="back">חזרה להודעה</button></div></div>`}
  const phone=`<div class="phone"><div class="screen"><div class="wa-h"><span class="av">לא</span><div><b>פאות לאה אלבוים</b><small>חשבון עסקי</small></div></div><div class="wa-body"><div class="bub">${waMsg}<div class="tm">${tm}</div></div>${payBtns?`<button class="wa-btn" data-pv="bit">${I('coins',15)} תשלום בביט</button><button class="wa-btn" data-pv="card">${I('card',15)} תשלום באשראי</button>`:''}</div>${si}</div></div>`;
  let right='';
- if(PV.tab==='wa')right=`<h3 style="font-size:20px">ההודעה ב-WhatsApp</h3><p class="muted">יוצאת מהמספר העסקי של הסלון ברגע שמסמנים ״מוכנה״. הכפתורים פותחים דף תשלום של ביט או אשראי עם הסכום המדויק.</p><div class="note">${I('compass',16)}<span><b>נסי בעצמך:</b> לחצי על ״תשלום באשראי״ או ״תשלום בביט״ בטלפון, ותראי מה הלקוחה רואה. אחרי התשלום החוב נמחק מהמערכת לבד.</span></div>`;
+ if(PV.tab==='wa')right=`<h3 style="font-size:20px">ההודעה ב-WhatsApp</h3><p class="muted">יוצאת מהמספר העסקי של הסלון ברגע שמסמנים ״מוכנה״. הכפתורים פותחים את הקישור הקבוע שלך לביט ולדף התשלום של חברת הסליקה שלך. הסכום כתוב בהודעה.</p><div class="note">${I('compass',16)}<span><b>נסי בעצמך:</b> לחצי על ״תשלום בביט״ או ״תשלום באשראי״ בטלפון. כשהכסף נכנס, מסמנים במערכת ״רישום תשלום״ והחוב נסגר. חיבור מלא לסליקה, שבו הסכום מתמלא לבד והתשלום נרשם אוטומטית, אפשר להוסיף בהמשך.</span></div>`;
  if(PV.tab==='mail')right=`<div class="mail"><div class="mail-h"><span>מאת: פאות לאה אלבוים</span><span>אל: ${esc(c.em||'אין מייל ללקוחה הזו')}</span><b>הפאה שלך מוכנה לאיסוף ✨</b></div><div class="mail-b"><div style="font-family:var(--display);font-size:22px;color:var(--primary);margin-bottom:8px">לאה אלבוים · פאות</div>שלום ${first},<br>שמחות לבשר שהפאה שלך מוכנה ומחכה לך בסטודיו.<br>${detail}<br>${payBtns?`<b>יתרה לתשלום: ${ils(b)}</b><div class="pay"><a data-pv="bit">${I('coins',16)} תשלום בביט</a><a class="alt" data-pv="card">${I('card',16)} תשלום באשראי</a></div>`:'<p>התשלום התקבל, תודה!</p>'}שעות איסוף: א׳–ה׳ 10:00–19:00<br>להתראות, לאה</div></div>`;
  if(PV.tab==='voice')right=`<div class="voice"><button class="pl" data-play aria-label="השמעת ההקלטה">${I('play',20)}</button><div><b>שיחה קולית אוטומטית</b><p style="margin:6px 0 0">״שלום, כאן פאות לאה אלבוים. הפאה שלך מוכנה לאיסוף. ${payBtns?`היתרה לתשלום היא ${b} שקלים.`:''} שעות האיסוף: ראשון עד חמישי, מעשר בבוקר עד שבע בערב. תודה ולהתראות.״</p><div class="muted" style="font-size:13px;margin-top:8px">ללקוחות בלי WhatsApp או מייל. ההקלטה בקול שלך. אם הלקוחה לא עונה, זה מסומן באדום בדשבורד.</div></div></div>`;
  const chOn=c.ch;
@@ -1128,14 +1130,14 @@ let tT;function toast(msg){const t=$('#toast');t.innerHTML=I('check')+msg;t.clas
 
 function tourModal(){const cards=[
  ['״מתי הפאה מוכנה?״ עשר פעמים ביום','הודעה יוצאת לבד','ברגע שמסמנים ״מוכנה״ הלקוחה מקבלת WhatsApp, מייל או שיחה קולית.','jobs'],
- ['לרדוף אחרי תשלומים','הכסף נכנס דרך הקישור','בהודעה יש כפתור לתשלום בביט ובאשראי. התשלום נרשם במערכת לבד.','payments'],
+ ['לרדוף אחרי תשלומים','קישור לתשלום בכל הודעה','בהודעה יש כפתור לביט ולדף התשלום שלך. התשלום נרשם בלחיצה, וכל חוב פתוח מול העיניים.','payments'],
  ['מה דחוף, ולמי הבטחתי?','תאריך יעד לכל עבודה','הדשבורד מסדר את העבודות לפי דחיפות, ומה שבאיחור מסומן באדום.','dashboard'],
  ['״לה אסור לסרק, נכון?״','המערכת מכירה כל פאה','טיפול קבוע והערות לכל פאה. לקוחות קבועות נקלטות יחד בלחיצה.','intake'],
  ['הזמנות ייצור על פתק','טופס הזמנה מסודר','ייצור, שדרוג או סירוק, עם מחירון ברירת מחדל והדפסה ללקוחה.','new'],
  ['״קיבלה את ההודעה?״','יומן הודעות','רואים מה נמסר, מה לא נענה ומה נכשל, ושולחים שוב בלחיצה.','log'],
  ['שעות העובדות במחברת','שעון נוכחות','החתמה בקוד אישי, ושכר שמחושב לבד לפי שעות.','clock'],
  ['כמה באמת הרווחתי החודש?','הוצאות ודו״ח חודשי','רישום הוצאה בחצי דקה, ובסוף החודש דו״ח רווח מוכן.','report']];
- openModal(`${mh('לאה, ככה המערכת עובדת בשבילך','compass')}<div class="m-b"><p class="muted" style="margin-top:0">זהו דמו עם לקוחות לדוגמה. אפשר ללחוץ על הכל: לקלוט פאות, לסמן פאה מוכנה, לנסות תשלום מהטלפון, לפתוח כרטיס לקוחה ולהחתים כניסה. בחרי במה להתחיל:</p>
+ openModal(`${mh('לאה, ככה המערכת עובדת בשבילך','compass')}<div class="m-b"><p class="muted" style="margin-top:0">זהו דמו עם לקוחות לדוגמה. אפשר ללחוץ על הכל: לקלוט פאות, לסמן פאה מוכנה, לראות את ההודעה בטלפון של הלקוחה, לפתוח כרטיס לקוחה ולהחתים כניסה. בחרי במה להתחיל:</p>
  <div class="tour-grid">${cards.map(c=>`<button class="tour-c" data-tourgo="${c[3]}"><span class="pain">${c[0]}</span><b>${c[1]}</b><span>${c[2]}</span><span class="go">לראות בדמו ${I('arrow',14)}</span></button>`).join('')}</div>
  <p class="muted" style="font-size:13px;margin-bottom:0">${I('info',14)} שני עיצובים לבחירה: אפשר להחליף בכל רגע בכפתור ״עיצוב לבחירה״ למעלה. כל מה שרואים כאן ניתן להתאמה: המחירון, השדות, הנוסחים והצבעים של הסלון.</p></div>`)}
 
@@ -1160,7 +1162,6 @@ document.addEventListener('click',e=>{
  if(d.preview){previewModal(+d.preview,false);return}
  if(d.pvtab){PV.tab=d.pvtab;PV.pay=null;drawPreview();return}
  if(d.pv){PV.pay=d.pv==='back'?null:d.pv;drawPreview();return}
- if(d.dopay){const j=JOBS.find(x=>x.id===PV.jid);let a=0;JOBS.filter(x=>x.c===j.c&&(x.st==='ready'||x.id===j.id)).forEach(x=>{const b=bal(x);if(b>0){a+=b;PAYS.push({c:x.c,j:x.id,a:b,m:d.dopay==='bit'?'ביט':'אשראי',d:new Date(T0),k:x.t,link:true});x.paid=total(x)}});PV.pay='done';drawPreview();render();toast(`התשלום של ${ils(a)} נקלט במערכת אוטומטית`);return}
  if(d.play){toast('בגרסה המלאה תושמע כאן ההקלטה בקולך');return}
  if(d.resend){const j=JOBS.find(x=>x.id===+d.resend);const c=C(j.c);j.notif='ok';NOTIFS.push({c:c.id,j:j.id,ch:c.ch.includes('mail')&&c.em?'mail':c.ch[0],k:'ready',st:'ok',at:new Date(T0),det:'שליחה חוזרת, נמסרה'});render();toast(`נשלחה שוב ל${c.n}`);return}
  if(d.called){const j=JOBS.find(x=>x.id===+d.called);j.notif='ok';NOTIFS.push({c:j.c,j:j.id,ch:'voice',k:'ready',st:'ok',at:new Date(T0),det:'סומן ידנית: לאה דיברה איתה'});render();toast('סומן שהלקוחה יודעת');return}
