@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>פאות לאה אלבוים · דמו מערכת ניהול</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700;800&family=Frank+Ruhl+Libre:wght@500;700;900&family=Secular+One&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: fixed side menu + scrolling work area; the same screens render in two visual languages switched by [data-skin]. */
+:root{
+  color-scheme: light;
+  --font-body:"Assistant","Segoe UI",Arial,sans-serif;
+  /* default skin = Atelier */
+  --display:"Frank Ruhl Libre","David Libre",Georgia,serif;
+  --bg:#F6F1E8; --surface:#FFFDF8; --surface-2:#FBF6EE; --border:#E4D6BF; --hair:#B08D57;
+  --text:#2A1F26; --muted:#6E5F66;
+  --primary:#6B2D5C; --primary-ink:#FFFFFF; --primary-tint:#F3E7EF;
+  --side-bg:#3A1833; --side-text:#F6EEE4; --side-muted:#CDB7C4; --side-active:#55264C; --side-bar:#C9A15A;
+  --radius:6px; --radius-sm:4px; --shadow:none; --shadow-lg:0 20px 60px rgba(42,20,36,.25);
+  --ok:#2F6B45; --ok-t:#E4F1E8; --warn:#8A5A00; --warn-t:#FBF0D9; --bad:#A63228; --bad-t:#FBE7E4; --info:#245F86; --info-t:#E3EFF7; --mute:#5F5A5D; --mute-t:#EEEBEC;
+  --t-prod:#6B2D5C; --t-prod-t:#F3E7EF; --t-upg:#7D5A1E; --t-upg-t:#F6EBD5; --t-comb:#3B5E45; --t-comb-t:#E5EFE7;
+  --a-dash:#6B2D5C; --a-dash-t:#F3E7EF; --a-jobs:#6B2D5C; --a-jobs-t:#F3E7EF; --a-new:#6B2D5C; --a-new-t:#F3E7EF;
+  --a-cust:#6B2D5C; --a-cust-t:#F3E7EF; --a-pay:#7D5A1E; --a-pay-t:#F6EBD5; --a-clock:#245F86; --a-clock-t:#E3EFF7;
+  --a-exp:#5B4A8C; --a-exp-t:#ECE8F6; --a-rep:#3B5E45; --a-rep-t:#E5EFE7;
+}
+[data-skin="crm"]{
+  --display:"Secular One","Assistant",sans-serif;
+  --bg:#F3F5F8; --surface:#FFFFFF; --surface-2:#F8F9FB; --border:#E3E7EE; --hair:#E3E7EE;
+  --text:#18202B; --muted:#5C6675;
+  --primary:#0E6B6B; --primary-ink:#FFFFFF; --primary-tint:#E2F3F2;
+  --side-bg:#FFFFFF; --side-text:#18202B; --side-muted:#5C6675; --side-active:#E2F3F2; --side-bar:#0E6B6B;
+  --radius:18px; --radius-sm:12px; --shadow:0 1px 2px rgba(16,24,40,.05),0 4px 14px rgba(16,24,40,.06); --shadow-lg:0 24px 64px rgba(16,24,40,.22);
+  --ok:#1E7A46; --ok-t:#E3F5EA; --warn:#9A5B00; --warn-t:#FFF2DB; --bad:#C0352B; --bad-t:#FDE8E6; --info:#1C6A9C; --info-t:#E2F1FA;
+  --t-prod:#6A47B8; --t-prod-t:#EFEAFB; --t-upg:#B0386F; --t-upg-t:#FCE8F1; --t-comb:#0E6B6B; --t-comb-t:#E2F3F2;
+  --a-dash:#0E6B6B; --a-dash-t:#E2F3F2; --a-jobs:#6A47B8; --a-jobs-t:#EFEAFB; --a-new:#0E6B6B; --a-new-t:#E2F3F2;
+  --a-cust:#B0386F; --a-cust-t:#FCE8F1; --a-pay:#9A5B00; --a-pay-t:#FFF2DB; --a-clock:#1C6A9C; --a-clock-t:#E2F1FA;
+  --a-exp:#5B4BB0; --a-exp-t:#ECEAFB; --a-rep:#1E7A46; --a-rep-t:#E3F5EA;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--primary) 55%,transparent);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:700;margin:0;text-wrap:balance;line-height:1.2}
+.num{font-variant-numeric:tabular-nums}
+.disp{font-family:var(--display)}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* shell */
+.app{display:grid;grid-template-columns:248px 1fr;height:100%}
+.side{background:var(--side-bg);color:var(--side-text);display:flex;flex-direction:column;padding:22px 14px 16px;gap:18px;overflow-y:auto;border-inline-end:1px solid var(--border)}
+[data-skin="atelier"] .side{border-inline-end:1px solid #2A0F25}
+.brand{padding:4px 8px 16px;border-bottom:1px solid color-mix(in srgb,var(--side-bar) 45%,transparent)}
+.brand .mark{font-family:var(--display);font-size:30px;line-height:1.05;font-weight:900;color:var(--side-bar)}
+[data-skin="crm"] .brand .mark{font-weight:400;font-size:32px;color:var(--primary)}
+.brand .tag{font-size:12.5px;color:var(--side-muted);margin-top:6px;letter-spacing:.02em}
+.brand .sys{font-size:12px;color:var(--side-muted);margin-top:2px}
+nav{display:flex;flex-direction:column;gap:3px}
+.nav-i{display:flex;align-items:center;gap:11px;padding:8px 10px;border-radius:var(--radius-sm);background:none;border:0;color:var(--side-text);text-align:start;font-weight:600;font-size:15px;position:relative;width:100%}
+.nav-i .tile{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:var(--side-bar)}
+[data-skin="crm"] .nav-i .tile{background:var(--acc-t);color:var(--acc)}
+.nav-i:hover{background:color-mix(in srgb,var(--side-active) 70%,transparent)}
+.nav-i[aria-current="page"]{background:var(--side-active)}
+.nav-i[aria-current="page"]::before{content:"";position:absolute;inset-inline-start:-14px;top:8px;bottom:8px;width:4px;border-radius:0 4px 4px 0;background:var(--side-bar)}
+.nav-i .badge{margin-inline-start:auto;background:var(--bad);color:#fff;font-size:12px;font-weight:700;border-radius:20px;padding:0 7px;min-width:22px;text-align:center}
+.nav-sep{height:1px;background:color-mix(in srgb,var(--side-muted) 25%,transparent);margin:8px 6px}
+.credit{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11.5px;color:var(--side-muted);padding-top:12px}
+.credit img{width:120px;height:auto}
+.credit .l-dark{display:block}.credit .l-light{display:none}
+[data-skin="crm"] .credit .l-dark{display:none}[data-skin="crm"] .credit .l-light{display:block}
+
+.main{overflow-y:auto;height:100%;position:relative}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:12px 28px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.search{flex:1;max-width:420px;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:7px 14px;color:var(--muted)}
+.search input{border:0;outline:0;background:none;flex:1;min-width:0}
+.skin-switch{margin-inline-start:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.content{padding:24px 28px 80px;display:flex;flex-direction:column;gap:20px;max-width:1360px}
+
+/* primitives */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+[data-skin="atelier"] .card{border-top:2px solid var(--hair)}
+.card-h{display:flex;align-items:center;gap:10px;padding:16px 18px 10px}
+.card-h h2{font-size:19px}
+.card-h .count{font-family:var(--display);font-size:15px;color:var(--muted)}
+.card-h .act{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap}
+.card-b{padding:4px 18px 18px}
+.ico-tile{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--acc-t,var(--primary-tint));color:var(--acc,var(--primary));flex:none}
+[data-skin="atelier"] .ico-tile{background:none;border:1px solid var(--hair);border-radius:50%;color:var(--hair)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);padding:0 14px;height:40px;font-weight:700;font-size:14.5px;white-space:nowrap;transition:transform .08s,background .15s}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:var(--primary-ink)}
+.btn.primary:hover{background:color-mix(in srgb,var(--primary) 88%,#000)}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.soft{background:var(--primary-tint);border-color:transparent;color:var(--primary)}
+.btn.ghost{background:none;border-color:transparent;color:var(--muted)}
+.btn.sm{height:34px;padding:0 11px;font-size:13.5px}
+.btn.lg{height:48px;padding:0 22px;font-size:16px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px 2px 10px;font-size:12.5px;font-weight:700;background:var(--mute-t);color:var(--mute);white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.nodot::before{display:none}
+.pill.ok{background:var(--ok-t);color:var(--ok)}.pill.warn{background:var(--warn-t);color:var(--warn)}.pill.bad{background:var(--bad-t);color:var(--bad)}.pill.info{background:var(--info-t);color:var(--info)}
+.pill.prod{background:var(--t-prod-t);color:var(--t-prod)}.pill.upg{background:var(--t-upg-t);color:var(--t-upg)}.pill.comb{background:var(--t-comb-t);color:var(--t-comb)}
+.muted{color:var(--muted)}
+.row{display:flex;align-items:center;gap:10px}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+.g-main{grid-template-columns:minmax(0,1.7fr) minmax(300px,1fr)}
+.stack{display:flex;flex-direction:column;gap:12px}
+.av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;background:var(--primary-tint);color:var(--primary);flex:none}
+[data-skin="atelier"] .av{border-radius:50%;background:var(--surface-2);border:1px solid var(--hair);color:var(--primary);font-family:var(--display)}
+
+/* tip strip */
+.tip{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px dashed var(--hair);border-radius:var(--radius);padding:12px 16px}
+[data-skin="crm"] .tip{border-color:color-mix(in srgb,var(--primary) 35%,transparent);background:color-mix(in srgb,var(--primary-tint) 55%,#fff)}
+.tip .lbl{font-weight:800;font-size:12px;letter-spacing:.04em;color:var(--primary);white-space:nowrap;padding-top:2px}
+.tip p{margin:0}
+.tip .pain{color:var(--muted)}
+.tip .x{margin-inline-start:auto}
+
+/* greeting */
+.greet{border-radius:var(--radius);padding:24px 28px;display:flex;align-items:center;gap:22px;flex-wrap:wrap;background:var(--primary);color:var(--primary-ink);position:relative;overflow:hidden}
+[data-skin="atelier"] .greet{background:var(--side-bg);border-bottom:2px solid var(--side-bar)}
+.greet h1{font-size:32px}
+[data-skin="atelier"] .greet h1{color:#F6EEE4}
+.greet .sub{opacity:.88;margin-top:4px;font-size:16px}
+.greet .date{font-size:13.5px;opacity:.8}
+.greet .btn{margin-inline-start:auto;background:#fff;color:var(--primary);border:0}
+[data-skin="atelier"] .greet .btn{background:var(--side-bar);color:#2A1424}
+
+/* kpi */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.kpi{all:unset;cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;gap:4px;position:relative}
+.kpi:focus-visible{outline:3px solid var(--primary)}
+.kpi .k-l{font-size:13.5px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:7px}
+.kpi .k-v{font-family:var(--display);font-size:30px;line-height:1.1}
+.kpi .k-s{font-size:12.5px;color:var(--muted)}
+.kpi.attn{border-color:color-mix(in srgb,var(--bad) 45%,transparent);background:var(--bad-t)}
+.kpi.attn .k-v,.kpi.attn .k-l{color:var(--bad)}
+
+/* due board */
+.due{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.due-col{background:var(--surface-2);border-radius:var(--radius-sm);padding:10px;display:flex;flex-direction:column;gap:8px;min-height:120px;border:1px solid var(--border);min-width:0}
+.due-col h3{font-family:var(--font-body);font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:6px;padding:2px 4px}
+.due-col.late{background:var(--bad-t);border-color:color-mix(in srgb,var(--bad) 30%,transparent)}
+.due-col.late h3{color:var(--bad)}
+.due-col.soon h3{color:var(--warn)}
+.jc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;display:flex;flex-direction:column;gap:6px;cursor:pointer;border-inline-start:4px solid var(--tc,var(--border));text-align:start;width:100%}
+.jc:hover{box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.jc .nm{font-weight:800;font-size:15px}
+.jc .it{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jc .ft{display:flex;align-items:center;gap:6px;justify-content:space-between;flex-wrap:wrap}
+.jc.prod{--tc:var(--t-prod)}.jc.upg{--tc:var(--t-upg)}.jc.comb{--tc:var(--t-comb)}
+.empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 8px;color:var(--muted);font-size:13.5px;text-align:center}
+
+/* list rows */
+.lr{display:flex;align-items:center;gap:12px;padding:10px 4px;border-top:1px solid var(--border)}
+.lr:first-child{border-top:0}
+.lr .grow{flex:1;min-width:0}
+.lr .t1{font-weight:800}
+.lr .t2{font-size:13px;color:var(--muted)}
+.lr.attn{background:linear-gradient(to left,var(--bad-t),transparent 60%);box-shadow:inset -4px 0 0 var(--bad);padding-inline-start:10px}
+.chk{width:22px;height:22px;accent-color:var(--primary)}
+
+/* tables */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-size:12.5px;font-weight:800;color:var(--muted);text-align:start;padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--surface-2)}
+tr.attn td:first-child{box-shadow:inset -4px 0 0 var(--bad)}
+tr.attn td{background:color-mix(in srgb,var(--bad-t) 60%,transparent)}
+tr.soon td:first-child{box-shadow:inset -4px 0 0 var(--warn)}
+
+/* filter tiles */
+.ftiles{display:flex;gap:10px;flex-wrap:wrap}
+.ftl{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 14px}
+.ftl .n{font-family:var(--display);font-size:20px}
+.ftl[aria-pressed="true"]{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-tint)}
+.ftl:focus-visible{outline:3px solid var(--primary)}
+
+/* page header */
+.ph{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.ph h1{font-size:30px}
+.ph .ico-tile{width:46px;height:46px;border-radius:13px}
+.ph .act{margin-inline-start:auto;display:flex;gap:8px}
+
+/* forms */
+.f{display:flex;flex-direction:column;gap:6px}
+.f label,.f .lab{font-weight:800;font-size:14px}
+.req{color:var(--bad)}
+.in{height:44px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);padding:0 12px;width:100%}
+.in:focus{border-color:var(--primary);outline:0;box-shadow:0 0 0 3px var(--primary-tint)}
+textarea.in{height:auto;min-height:72px;padding:10px 12px;resize:vertical}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{height:40px;padding:0 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface);font-weight:700;display:inline-flex;align-items:center;gap:6px}
+.seg button[aria-pressed="true"]{border-color:var(--primary);background:var(--primary-tint);color:var(--primary)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+.types{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.type-t{all:unset;cursor:pointer;border:2px solid var(--border);border-radius:var(--radius);background:var(--surface);padding:18px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow)}
+.type-t .ico-tile{width:48px;height:48px}
+.type-t b{font-family:var(--display);font-size:22px;font-weight:700}
+.type-t span{color:var(--muted);font-size:13.5px}
+.type-t[aria-pressed="true"]{border-color:var(--tc);box-shadow:0 0 0 4px color-mix(in srgb,var(--tc) 18%,transparent)}
+.type-t:focus-visible{outline:3px solid var(--primary)}
+.type-t.prod{--tc:var(--t-prod);--acc:var(--t-prod);--acc-t:var(--t-prod-t)}
+.type-t.upg{--tc:var(--t-upg);--acc:var(--t-upg);--acc-t:var(--t-upg-t)}
+.type-t.comb{--tc:var(--t-comb);--acc:var(--t-comb);--acc-t:var(--t-comb-t)}
+.opt{display:grid;grid-template-columns:auto 1fr 130px;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--border)}
+.opt:first-child{border-top:0}
+.opt .ol{font-weight:700}
+.opt .od{font-size:12.5px;color:var(--muted)}
+.price{position:relative}
+.price input{padding-inline-start:30px;text-align:start;font-variant-numeric:tabular-nums;font-weight:700}
+.price::before{content:"₪";position:absolute;inset-inline-start:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700;pointer-events:none}
+.price.changed input{border-color:var(--warn);background:var(--warn-t)}
+.note{border:1.5px dashed var(--hair);background:var(--surface-2);border-radius:var(--radius-sm);padding:10px 14px;font-size:13.5px;color:var(--muted);display:flex;gap:10px;align-items:flex-start}
+[data-skin="crm"] .note{border-color:#C9B6EE;background:#F7F4FE}
+.sum{position:sticky;top:76px}
+.sum-l{display:flex;justify-content:space-between;gap:10px;padding:5px 0;font-size:14px}
+.sum-t{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--border);margin-top:8px;padding-top:10px}
+.sum-t b{font-family:var(--display);font-size:28px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--border);background:var(--surface);border-radius:999px;height:32px;padding:0 12px;font-size:13px;font-weight:700}
+.chip[aria-pressed="true"]{border-color:var(--primary);color:var(--primary);background:var(--primary-tint)}
+
+/* switch */
+.sw{display:inline-flex;align-items:center;gap:10px;background:none;border:0;padding:0;font-weight:700}
+.sw .tr{width:46px;height:26px;border-radius:20px;background:#C9C4C7;position:relative;transition:background .15s}
+.sw .kn{position:absolute;top:3px;inset-inline-start:3px;width:20px;height:20px;border-radius:50%;background:#fff;display:grid;place-items:center;transition:inset-inline-start .15s;font-size:11px;color:#888}
+.sw[aria-checked="true"] .tr{background:var(--ok)}
+.sw[aria-checked="true"] .kn{inset-inline-start:23px;color:var(--ok)}
+
+/* modal */
+.scrim{position:fixed;inset:0;background:rgba(20,12,18,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.scrim.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-lg);width:min(960px,100%);max-height:calc(100% - 20px);overflow:auto;display:flex;flex-direction:column}
+.modal.narrow{width:min(520px,100%)}
+.m-h{display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:2}
+.m-h h2{font-size:22px}
+.m-h .x{margin-inline-start:auto}
+.m-b{padding:20px 22px}
+.m-f{display:flex;gap:10px;justify-content:flex-end;padding:14px 22px;border-top:1px solid var(--border);position:sticky;bottom:0;background:var(--surface)}
+
+/* message preview */
+.prev{display:grid;grid-template-columns:300px 1fr;gap:24px;align-items:start}
+.phone{width:300px;border-radius:38px;background:#16131A;padding:12px;box-shadow:0 18px 40px rgba(0,0,0,.25)}
+.screen{border-radius:28px;overflow:hidden;background:#EFE7DD;height:560px;display:flex;flex-direction:column;position:relative}
+.wa-h{background:#1F5F55;color:#fff;padding:26px 14px 10px;display:flex;align-items:center;gap:10px}
+.wa-h .av{background:#fff;color:#1F5F55;width:34px;height:34px;font-size:12px;border:0}
+.wa-h b{font-size:14.5px;display:block}
+.wa-h small{opacity:.8;font-size:11.5px}
+.wa-body{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;background:#EFE7DD}
+.bub{background:#fff;border-radius:10px 2px 10px 10px;padding:9px 11px 6px;font-size:13.5px;line-height:1.45;max-width:94%;box-shadow:0 1px 1px rgba(0,0,0,.08);color:#1b1b1b;align-self:flex-start}
+.bub .tm{font-size:10.5px;color:#888;text-align:left;margin-top:2px}
+.wa-btn{all:unset;cursor:pointer;background:#fff;border-radius:8px;text-align:center;color:#0B7A6C;font-weight:700;font-size:13.5px;padding:9px;max-width:94%;width:94%;align-self:flex-start;box-shadow:0 1px 1px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;gap:6px}
+.wa-btn:focus-visible{outline:2px solid #0B7A6C}
+.mail{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:#fff;color:#1b1b1b}
+.mail-h{padding:12px 16px;border-bottom:1px solid #eee;font-size:13px;color:#555;display:flex;flex-direction:column;gap:2px}
+.mail-h b{color:#111;font-size:15.5px}
+.mail-b{padding:20px 22px;font-size:14.5px;line-height:1.6}
+.mail-b .pay{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+.mail-b .pay a{all:unset;cursor:pointer;padding:11px 18px;border-radius:8px;font-weight:800;color:#fff;background:var(--primary);display:inline-flex;gap:8px;align-items:center}
+.mail-b .pay a.alt{background:#fff;color:var(--primary);border:2px solid var(--primary)}
+.voice{border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;display:flex;gap:14px;align-items:flex-start;background:var(--surface-2)}
+.voice .pl{width:44px;height:44px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;flex:none;border:0}
+.paypage{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column;color:#1b1b1b}
+.paypage .pp-h{padding:30px 16px 12px;text-align:center;border-bottom:1px solid #eee}
+.paypage .pp-b{padding:14px 16px;display:flex;flex-direction:column;gap:10px;flex:1;overflow:auto}
+.paypage .in{height:40px;font-size:14px;background:#fafafa;border-color:#ddd}
+.paypage .amt{font-family:var(--display);font-size:34px;text-align:center}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.tab{background:none;border:0;padding:10px 14px;font-weight:800;color:var(--muted);border-bottom:3px solid transparent;display:inline-flex;gap:7px;align-items:center}
+.tab[aria-selected="true"]{color:var(--primary);border-bottom-color:var(--primary)}
+
+/* print slip */
+.slip{background:#fff;color:#1b1b1b;border:1px solid #ddd;max-width:640px;margin:0 auto;padding:30px 34px;font-size:14px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.slip .sh{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1b1b1b;padding-bottom:12px;margin-bottom:14px}
+.slip h2{font-family:var(--display);font-size:26px}
+.slip table td,.slip table th{border-bottom:1px solid #e5e5e5;padding:7px 4px}
+.slip .sig{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:34px}
+.slip .sig div{border-top:1px solid #555;padding-top:4px;font-size:12px;color:#555}
+.slip .terms{font-size:11.5px;color:#666;margin-top:16px;line-height:1.5}
+
+/* clock kiosk */
+.kiosk{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.wk{all:unset;cursor:pointer;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;box-shadow:var(--shadow)}
+.wk .av{width:62px;height:62px;font-size:22px}
+.wk b{font-size:18px}
+.wk.on{border-color:var(--ok)}
+.wk:focus-visible{outline:3px solid var(--primary)}
+.pad{display:grid;grid-template-columns:repeat(3,72px);gap:10px;justify-content:center}
+.pad button{height:60px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface-2);font-size:24px;font-weight:700;font-family:var(--display)}
+.dots{display:flex;gap:12px;justify-content:center;margin:14px 0}
+.dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--primary)}
+.dots i.f{background:var(--primary)}
+.bigclock{font-family:var(--display);font-size:44px;line-height:1}
+
+/* bars */
+.bar{height:10px;border-radius:10px;background:var(--surface-2);overflow:hidden;border:1px solid var(--border)}
+.bar > i{display:block;height:100%;background:var(--acc,var(--primary));border-radius:10px}
+.split{display:flex;height:14px;border-radius:10px;overflow:hidden;gap:2px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.big-n{font-family:var(--display);font-size:34px;line-height:1.1}
+.rep-k{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.rep-k .card{padding:16px 18px}
+.rep-k .card.hl{background:var(--primary);color:var(--primary-ink);border-color:var(--primary)}
+[data-skin="atelier"] .rep-k .card.hl{background:var(--side-bg);color:#F6EEE4}
+.rep-k .lbl{font-weight:700;font-size:13.5px;opacity:.85}
+.chart text{fill:var(--muted);font-size:12px;font-family:var(--font-body)}
+
+/* toast */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:#1E1A1D;color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;display:flex;gap:10px;align-items:center;opacity:0;pointer-events:none;transition:all .25s;z-index:200;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast svg{color:#9FE3B4}
+
+/* tour */
+.tour-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tour-c{all:unset;cursor:pointer;border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;display:flex;flex-direction:column;gap:8px;background:var(--surface);transition:box-shadow .15s}
+.tour-c:hover{box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.tour-c:focus-visible{outline:3px solid var(--primary)}
+.tour-c .pain{font-size:14px;color:var(--bad);font-weight:700}
+.tour-c b{font-family:var(--display);font-size:18px}
+.tour-c span{font-size:13.5px;color:var(--muted)}
+.tour-c .go{color:var(--primary);font-weight:800;font-size:13.5px;margin-top:auto;display:flex;gap:6px;align-items:center}
+
+/* ---- v2 additions ---- */
+:root{--a-intake:#3B5E45;--a-intake-t:#E5EFE7;--a-log:#245F86;--a-log-t:#E3EFF7;--a-set:#5F5A5D;--a-set-t:#EEEBEC}
+[data-skin="crm"]{--a-intake:#0E6B6B;--a-intake-t:#E2F3F2;--a-log:#1C6A9C;--a-log-t:#E2F1FA;--a-set:#4B5563;--a-set-t:#EEF0F3}
+nav{gap:1px}
+.nav-i{padding:6px 10px;font-size:14.5px}
+.nav-i .tile{width:30px;height:30px}
+.nav-sep{margin:6px}
+.tour-grid{grid-template-columns:repeat(4,1fr)}
+/* combobox */
+.cb{position:relative}
+.cb .in{padding-inline-end:36px}
+.cb-car{position:absolute;inset-inline-end:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;display:flex}
+.cb-list{position:absolute;z-index:30;top:calc(100% + 4px);inset-inline:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);box-shadow:0 12px 32px rgba(0,0,0,.14);max-height:290px;overflow-y:auto;padding:4px}
+.cb-o{padding:8px 10px;border-radius:8px;cursor:pointer;display:flex;flex-direction:column;gap:1px}
+.cb-o span{font-size:12.5px;color:var(--muted)}
+.cb-o.act,.cb-o:hover{background:var(--primary-tint)}
+.cb-o.add{flex-direction:row;align-items:center;gap:6px;color:var(--primary);font-weight:800;border-top:1px solid var(--border);border-radius:0 0 8px 8px;margin-top:4px}
+select.in{appearance:none;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:14px 50%,19px 50%;background-size:5px 5px;background-repeat:no-repeat;padding-inline-start:12px;padding-inline-end:30px;cursor:pointer}
+/* customer note + wig */
+.cnote{border:1.5px solid color-mix(in srgb,var(--warn) 45%,transparent);background:var(--warn-t);border-radius:var(--radius-sm);padding:10px 14px;display:flex;gap:10px;align-items:flex-start;color:var(--text)}
+.cnote .lb{font-weight:800;color:var(--warn);white-space:nowrap;display:flex;gap:6px;align-items:center}
+.wnote{border:1.5px solid color-mix(in srgb,var(--t-comb) 40%,transparent);background:var(--t-comb-t);border-radius:var(--radius-sm);padding:10px 14px;display:flex;gap:10px;align-items:flex-start}
+.wnote .lb{font-weight:800;color:var(--t-comb);white-space:nowrap;display:flex;gap:6px;align-items:center}
+.smart{border:2px solid var(--t-comb);border-radius:var(--radius-sm);padding:12px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--surface)}
+.smart .ico-tile{--acc:var(--t-comb);--acc-t:var(--t-comb-t)}
+.reg{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 10px;font-size:12.5px;font-weight:800;background:var(--t-comb-t);color:var(--t-comb);white-space:nowrap}
+.wig{border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;display:flex;flex-direction:column;gap:12px;background:var(--surface-2);border-inline-start:4px solid var(--t-comb)}
+.wig.noreg{border-inline-start-color:var(--border)}
+.wig .wh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wig .wh .in{max-width:260px;font-weight:800;font-family:var(--display);font-size:17px}
+.changed{border-color:var(--warn)!important;background:var(--warn-t)!important}
+.was{font-size:11.5px;color:var(--warn);font-weight:700}
+.hero{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:20px 22px;position:relative;overflow:hidden}
+[data-skin="crm"] .hero::before{content:"";position:absolute;inset-inline:0;top:0;height:5px;background:var(--a-cust)}
+.hero .av{width:68px;height:68px;font-size:24px}
+.hero h1{font-size:32px}
+.hero .act{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border)}
+.facts > div{padding:14px 22px;border-inline-start:1px solid var(--border)}
+.facts > div:first-child{border-inline-start:0}
+.facts .fl{font-size:12.5px;font-weight:800;color:var(--muted)}
+.facts .fv{font-family:var(--display);font-size:24px;line-height:1.2}
+.savebar{position:sticky;bottom:14px;z-index:25;display:flex;align-items:center;gap:12px;background:var(--side-bg);color:var(--side-text);border-radius:var(--radius);padding:12px 18px;box-shadow:var(--shadow-lg)}
+[data-skin="crm"] .savebar{background:#18202B;color:#fff}
+.savebar .btn{height:38px}
+.savebar .btn:not(.primary){background:transparent;color:inherit;border-color:rgba(255,255,255,.45)}
+[dir="ltr"]{unicode-bidi:isolate;white-space:nowrap}
+.back{display:inline-flex}
+.wigpick{display:flex;flex-direction:column;gap:10px}
+.state-sec h3{font-family:var(--font-body);font-size:14px;font-weight:800;margin:6px 0}
+.lr.cancel{opacity:.75}
+.tmpl{font-family:var(--font-body);line-height:1.6}
+.tag-ph{display:inline-block;background:var(--primary-tint);color:var(--primary);border-radius:6px;padding:0 6px;font-weight:700;font-size:12.5px;margin:2px}
+.imp td,.imp th{padding:7px 10px;font-size:13.5px}
+.jc .pick{position:absolute;inset-inline-end:8px;top:8px}
+.jc{position:relative}
+.jc.sel{outline:3px solid var(--ok);outline-offset:-1px}
+@media (max-width:1100px){.tour-grid{grid-template-columns:1fr 1fr}.facts{grid-template-columns:1fr 1fr}}
+
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}.due{grid-template-columns:1fr 1fr}.g-main,.g2{grid-template-columns:1fr}.rep-k{grid-template-columns:1fr 1fr}.kiosk{grid-template-columns:1fr 1fr}.prev{grid-template-columns:1fr}.tour-grid{grid-template-columns:1fr 1fr}.sum{position:static}}
+@media (max-width:760px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr}.side{flex-direction:row;overflow-x:auto;padding:10px;gap:10px}.brand{border:0;padding:0 6px;min-width:150px}.brand .mark{font-size:20px}.brand .tag,.brand .sys,.credit,.nav-sep{display:none}nav{flex-direction:row}.nav-i{width:auto;white-space:nowrap}.nav-i[aria-current="page"]::before{display:none}.content{padding:16px}.topbar{padding:10px 16px}.kpis,.types,.tour-grid,.g3{grid-template-columns:1fr 1fr}.due{grid-template-columns:1fr}.opt{grid-template-columns:auto 1fr}.opt .price{grid-column:2}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media print{body *{visibility:hidden}#printArea,#printArea *{visibility:visible}#printArea{position:absolute;inset:0}.slip{box-shadow:none;border:0}}
+</style>
+</head>
+<body data-skin="atelier">
+<div class="app">
+  <aside class="side" aria-label="תפריט ראשי">
+    <div class="brand">
+      <div class="mark">לאה אלבוים</div>
+      <div class="tag">פאות · ייצור · שדרוג · סירוק</div>
+      <div class="sys">מערכת ניהול הסלון</div>
+    </div>
+    <nav id="nav"></nav>
+    <div class="credit">
+      <span>נבנה באהבה על ידי</span>
+      <img class="l-dark" alt="אוטוסטרדה" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABdCAYAAAAfdFulAAAiS0lEQVR42u2deZgcVbn/P9XLTE2msnRysoesJBAkYbMVLgwIiEZBQAU3wIv7gtd9+XG54nbFFeRefxf0gl4fURQRiCxeWQShAZEG2ZcAgZB9OUlPkppJzdR01/2jzpBOp7tOVU/PJJjzfZ55CN3Vp06dOud73u28LxgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgY7BOwzBAYGLw6UCgxEzhDrdugag2nay4N1Od/7Mrx5D/SGGTMNDDYE/BcaQEOMBHIASVgI9BjOyIwI1QXb+vo5GK/T39hOgt9O/AhmrA8V84E9gd2RFyWBVbbjnixiffcDuSBcg3RDqINeMl2xMphJSzPlXOBHzYhpVlABdgGbAGeB/4OrLIdsTZhH94LnAX0D4O0GKjBXGo74so6954P/DvQXucl1HvmHcBmYD3wELBcvaiBJsY+A3wTWAQM1Hmnfwe+aTuiXPO704EPqskz2K+twFPAE8CztiNeGiaCagMWAG8A3qKIaiwwThGXC3QDWz1Xrgd+C9xtO2JNE/c6FLhALTTdu0kD37Ed8dcIYv286vdAnd+uAL5kO6Kv5nfHAZ+rkYRc4BngcWCZ7YjnEj7anPIADGhmjGWB38+AleLZGG0OAJcDc9W6bDRGL3mufJvtiGcT9nkKcL3alCoNOOgS4EvDLWEdDby9RfO5F+j2XHk98EvbEcWYvzseOHmYd7XVwJV1Pn8t8K4m2ywronjYc+XlwC22I/oTToKPAKLB9+OBb1cR0yDeA7ytwW8qwBbPlbcBP7EdUWgRUU1W9z0TOFiRVD2MAiZVSxPAWs+VNwFX2I54OMFtj1KqU1z8Fvhrg+9Gq7E+oMH3y4HzgVq55zT11wglz5V3A/9jO+LGGOOYvmWFOHT67BjSVQa2buGFEyfJ+xpPkRC2I9Z6rvwG8GtNs/sD/+q58lzbEZUEYztdvfMorlket7HUEObia1pICqOAacCngFs9V/6L2tl0O/aiERDDn4p4Ec0irUjlJLX7XOe5cmqC389SkkkjrAf8mvGylYQTNRcE8D7gZs+Vn28BWZ0B/Bm4VG1wYxM2MQ34GHCb58qPJfjdzISbx4aI76dq3vV6wKsllxjrIwecDiz1XPkzz5WRY1P0xdRRnRxYCeLpMH4/z9uO2BZzDK4Dbo5x3XuBNyaVCpWk2wjbgfuGlbCUSnLoMBFETk3wz2mum6FYfzjRA9w9DIRVi1OAKzxXOjGv30+zY91Xxw40NUGfxwAXe648r8n5Mctz5S+Bq1u0sY0HLvNceZEiA51t7MAEbb8EPKYhv86I7x+oVb2VVLZfAhPJB4HvaZ5tSiqDqFTiNbijl7hkhVJnv6XIQ6eRfU3ZpWLb3TTmmrXAC8MtYY1Wu/xwIQVc6LnyhIhrZgMThpmwNtXbfT1XpoCDWnyvk4HPxLx2bsR3/UChwTvrSNinH3iu7EpIVguBm4BzNDtrM3PifEBHopOAwxO0+7jtCKmZZ1aEGn1Xnc871MabBB8B3hHxfVs6TXu2DTLqL91gywoCmDGH9UlubjviQeCqmOr2B2LOhTGEBvco/M12xI7hJqy2JsT7pBgLXBTB5uNHICxDKu9VvUVx4DDc7wvKmK/DIo2IXW+yHkBo3E6CDuA8nVRTNUEPBK4dZlX9fM+V8zQqyOSE7zgKB2psr+vqfL4AnfGo/lo8T6nude087R38/9XL+ePq5dy49kWWrn6BOyNWwPImxvY7hDZbnQD3hZgmjMOUWh+ljv8+6SA1gyOVijHcmB8hyR04Avdf08AYPiOhnSSJOnxWjF3r4IhLtrG7ARhCo3czBP/mOO/ac+VsRVZJVMAdSoolocPhG8osUQ8TCT23cbEh4pmyGmmtn9DzV4vTm3RoHQ0srvdFV44NXTn+5Z0Hc/KZizntnYt4+9TZ3Jmu2UpSadhWYkuEKSNKyloNfD/GpfsTek51NuYLAFuzWTzCCMRhbQOuUC7bIIGuHqjdb4Zi33QM28VrgXru3ycJvXflmPdOKbWr0eLzgFvUArLU33UNrt1M6ApOxbQHTSO0+cWRSg/zXGlFxCIJDYG82EAqvJ/QMzk4Xu3AETGkIUepRas1Ns1LNET6igoG3EYYzvKwGu9DVD+OA95EPJvfNGBlA8nicjW3KsCxEep7BXgg4j6dSmJruKGpv1o8BvyMnWEQWUVER2g2jQzQBTwYZ0F1b+awSdOhXBXmkEoBFqV8Vq5JLuQB8D+EjpcjdSqs58pf2454tMH3H0JvoL9NkeTwEpbtiLsa6O5x7RyjgFOB78WQVOY06MNSYGnC+96kJjsNCPA9ceKiVKzSJxPGIB0EfFdJLJHNx7DRRHkI77Ud4dfp86UNpLWzVb9GR8yRA4B7iTasnoreuP1D4De2I2oJdSVwk+fK7wMfJgzJGK/ZBBbXIyzbEU9XvxvPld+MIKx1mh1+oqYff7Ud0VOnD78AflEz1h1qnP5Loy4e77nykpjBs50NaNijxkucYG27niu/C/xOmX6iTDZf81z5jtq+eq48AviahpzXAD+gCb15xGE7otd2xG8VC+sIQtCaeKCMpq21zQRxxnzefrUTvRf4m+byds2LXqiRTB9P0K9ttiMuAy5DH0bRaFyFIpioPj0EnGA74rI6ZFXdnwHbET9R86JPIzGfnCA0gginihvx/TzCkJtWjPUO2xG/Iww21km0Voz5nAoqZGr1G8uC7d2stB3RO4QpeyPxwhzeWrtRea48VtmlJmuCVT9vO+KJVwVhVeFu4Hb0MUutwCw1ARvh+REg6pJSFYZyvvMozfelJrr2Qgy7UZR3a6HGbf1B2xErEvTnDzGk5wOVjSlqUXcqNYyIsJUoYny9Zv51NzHWj6I/YRFHuhpTqTC9NswhCGDyfjw0xHkaEJ6k2B7D+XaB58qxnivneK78kjKjzNb87sqkxva9grCU6vK05rKXW3S7I5WI3wjPjdBjr9dMyN5G31eplo2wpcnx0kXZVyKk1iWadj+XdCdVC+YXGvukFYPcD9A4Zx7SnDCIImKvSU9cb8QRGICtcdTBoi/mOmOZXS7var/a3k1/DCEgzjt4DPhxDPLMEwYH/4XQYC9iEPbXEkbL7zUSFkQHMwZJgsrQB1s2Ql+Mna9VGKdZaL2aEwHjNFLiGpo7aRCFZTT24h6i+d3SJsdpq4aw+jULH0LnTpRN8F5NAOokzUb6TBPP5WjWXdyzege0tdFRSydBhYEYG1Bc3KORQAdxBPG85n8CTrMdsZGRzNYQFZdTJ+pX184Ejdt7ZYsGv1PjXl07QoSlc7l3R+ywEzU2mcdqD+G2gLCCCMJaRLTn8/qEZyRrN1NriIQVFXfmE3pUibCdRgXoLrMdsbXJDYsWENa0VDpUAavtV1aKPiVpMwR77+HAR4F3x3ACxcV/Av9az0kxrITlufIYJfrVm0xpz5WXKS8JMYND52nCJ0q0xuD++ohLNrfiPsSPI4pClPq0gOgI6s1NjE1KMzZuxCI6ViMp3jyM49gXQ115nWZudWskf6GxfzWDN2hINJbUtmktU6fNgepUM1YK/H42HDtObmzGV+W58mDCrAnvaCLIOEoYuNB2xOXsoXxYryfa8OslaEtoFvD2FhHJfkQHAC4fKvMnwBEaqeFvTarPoPe40uCs3Aka2966Jo4nlYeomhxK9NGem6JsPZ4rRxPGdRHhVt+kOX6WbWXyS8+VOULPWtSGsy7OJvPHl8V8y9o9S0NpE3fbc5NLfp4rlxA6hKa1aJ6vIsyCcYXtiOf3ZAK/2UQbfYsJ2tJFJT+tdkJaYCebMATPDS0KrZioOTS+XWM0n4g+cpwmnBFRY3NDg7NebTEMrFaT42QTnkWM8s7dFSNgNyrA9hHbEds1x5JaneDyMKIDUYtxbJBFX0yyR/Hacp1Iq7aO5KYNz5WfAb7RouN2LxJ6AX8dNynfsBGWsjkt1IjpLslST0S5jR9sUfZJ3YsYqTSyU4kORJQags4NQ5/OjiCWgMaG6VEx7DGVJvu0iOio+QdiLGxbY5t7bojG8WbI+D2a+X5HTBvwDLsTUamxX/V50OexOsF67iAM5v1kzGNUaU0w6aCUf6XtiE0MU1YEEqb5WKCxCyQhLN1J7qdb9JyHaGwtL44QYeU0GROe0thGdAb7I+MeVFYT9p8Jc3I1wv3QMKbH1jzLKI1trFGfHOAiop0kN8QI8j1YY4dZOUTp8HVJcpiprBfv0kjXcZMmjg3KuxKfZUFfL5XZ8xN5iS+IQVZr1TG8kwhPpuiwQElr7A2EtZ9GDXgyri1IGcIXa2xhG1qghmWJNnRuG0GD+2s1dpEHNBLlU5r230S0jax6XBarCdgWYYP6UcT77IbIFCZp4JMR2Qcavav/IPoM2tM0PuNZjRMjSKcPfaDwoxonxhzCjLdxs65eqpH0f2Y7Iu5B4HGWRara5WCloL+P1THmSHW67C/FOPf5FtsRH7UdcR9wccz2z/VcefTeQFgTNSLhPQnaympsMtuJYYAkXjhDlHt6hWbhtRJHxzhvF4UHNXYqG/i6LnulMrD+jujjE3cQRpw3PF4F/C96w/llnivHxVhAi1Sa3g8Sbcj/ru2IzTE2wyiHwEb13tHMC53a+FlFRlF9OUiN9eEa9fRbcSfRqhc4snMMVm1Iw7ZuXspnZRyj/X7AjzRr+VHCmKnHq975VsKjRUGMtET/ljDR37AQ1twIHbxM43gdGhhFJ2ikidW0xk4Xpbo802TsUjNFGOZqdP+VMRaRzqj6FuAaz5WHVB9d8VyZUZlALwRuoHGO8kEJ5Hsx1K6/xVCrPgD8yXPlmapPYwfHw3PlXM+VJ3iu/JGylZ2pae9O4DfES0HdrjEMb9JEepdjzL888AfPlUdWL07PlSnPldM8V36c0DlwrCbO7d9tR2yJa0fOZHd33KRTUCnTTTy74ReIdp5VgK83OE51XdRGVoUl6A/ED7uX8GjNgtuWMNfVeA2RtOIw8jyNGvsMI4NOjU1ldQwJq6QW7Tz0OayOBh73XPkIYXzPwUoFnxSjrxepjBw6PKD6PAd9KMzvCO2FKzxXPkXouT0QffhANVl/PuacyBGdEXd5zKMhN7OzDmDUs90FPOG58u+ENtyDCO2mcUIELotJwgAUfdExZhxzyjWmeSsFmQwlnZNK2d3eqbnNUsJUS3WP06lsDm+MEav1Tc+Vd+ok4mEhLLVbL9KENCRxY3ZpRNJWGcJP0Nxn+QgR1iwNWbygi1C2HRF4rryIMFPBtBhern9SfyTMh3QR8c6brfFc+S0Vv2PFjKg/qIn00iuAM21HPJkgVGOGJkYoDq4lLILxTzE8knn0TqRa3AJ8JeHG3JZtr9EYLOjvh6mzYmk4b9CMjQ9cHtUn2xF/81z5c+DT6LO1fga4cE+ohO0aN/EykhnJ5zV5HIQWegh7YtgyWoVjI3JOATwXx6WtxPRLhqmPtwKfTbiArlJnxIYLLwPvth3xUMKKTlGhGk/FTQlD6PYfDjwCfKyJgOX55YDxQWVXvbtvh/65lAf5dPQhPvfH6McPYwooH1N2vBEnLJ2HcFnCid6pOfi6rEXVhTuHaHxtFRZqvk+SLeJy4JoW9++3wFkJSkO9ksOKsDBEcRjG7C7g7apAAgmLpBDhzEkSLnMzoYG6lfgjcEYzRWKBox0HuzqtjJUCv4/NRFf/QUlWJ6IvCtEb472vIl6YwyTgi+pkxIgS1lFEu2WfTxjJvEAjsrfC4O4QfYp8eVxjJ62pvRglUT6XJAEiYR6q61vQrw2ECfPObtbWoDKwvg34VYvGaiNhjcqTE7j6qzepBZoo+XUJUyB9Oebi1KGbMJTgnc2UfVdYXFstR1V63h4jf9Ucoh1dA0oNTiJd/5V49QyPGWnCOkxjp0iSBuYAor1UL9LcMZN66uDCIQQP0kIP4XyN/e/ZhCSxndAD97OE5zepMuBfDZxoO+LnSbJsNOjPBuBcwuIEzzbZzAvAfwPH2474ryTln9g1w+iRGudGdxNS5PnAF5uMDXQJPWtLbEf80HaEN4Sh7giC3V2xA/146Osb7B/joPLzCefg19GfGbUJDfBtjKCXMEtokKvUcV2XEorZB6j2+hq4wp9t0ZGcg6vc9Hsyad9CQgNkf50YFkst1E1NkMQ24MOeK39BePbuDKUOZepsLgPq7xnCeKdbExix4/anDPzIc+WvCA/5vkftrGm1OabV34BaXIHamO4grGV4uyI+hlhpaWzE3FrWTPI4NR8v9lx5M/DParwnqXncaKxXKKnzVuDhoc5pz5XZP64UU6bV6AypDAyUWZ3Pyl7N8c7Xoc9B1ptwXG7zXHmtrtoToZPtnBgZd2nJ4VTPlTOVelVvwXUDT8V9IZ4rx0dIPhXg6SZzDdXeZ5JSD+r1eYAwMt9l+CWsDhVSkG3Ql422I55rwX3mq3c0hjAod5ZSr9ayM53Ks60Y2wSnGeap/gw6bWxCZ0evIqvuhOmTdfccTejNtiJsrbIF95mpnm2sUrPmqI17UILbrhwpslXPViixuHc79znjcCrlXUt7Vcpc2JVrHHyq0kXfQ3QA613ASUmlbc+VC5RqOF5z6XKgy3bEumEnLAMDgz2LQol3Vir8Pl2duM+CoAxWijO6co2PLCnCulFpHbWbZqAk4B/ajvgBzRH4J5R6GNS0a1V9liJM5HdRs9JmxkwDA4NXDaZ1jAqzMlRTgmIFXeR+j+fKc5SkW0sqFcUF64ZgDrjcc+Wfatous7M+5CBxZWpIzBCWgcE/KGbsZnBPQX8PPXan3gZqO2JY04Arb/GwImXmgIHB3g/PlW0b13FUbVmvdBp6e3mB1oQB7fUwhGVg8CpA0Rcz7Q4OCiq7x2AN9PFoV04bg2UIy8DAYMQwIZtlTK2EVS7DpBkjdh7WEJaBgUEsHDx6LNl6QaO0pu6BISwDA4PWYM0KTrDqrFa/nwojFwBtCMvAwACdwb3TGb17UY5MBrZvZTUjV7XcEJaBgYEWTqWyu/3KSoFlsTqflZswhGVgYMDe4SFc0DmGqZXy7udUtm/jxRZl5jWEZWBg0BKcNMqhfReDuwV+H8H0WbGS7RnCMjAwGBls2cSsWoN7OgXbu9lCmOnCEJaBgQF7w4Fnx0rxmnpHclIptuazcrMhLANa5N2Z77nyzSoL5t7czwmeK9/luXKUeWt7HQ53RnNY2a9ZuCnoLvEQI1cE2BAW//jG0k8VffHtFiUjHM5+nlT0xX8Tnf/eYM9gViZLKqhTJWf6LG7c2+cWe7guocGuksmooi++QZjArRso5LPyL7YjSp4r00VfLAZmFkpcyc5UHs/ks/JSYGLRFxfms/IS2xHLPVd+oOgLtyvHtZ4rFxR9cWY+Ky+uTqer2vwiYfbSMmHaDh/I5rPyx7YjnvBcubjoi1PyWfmjwRTDnitPLPri+HxWfh0YX/TFlwmT6v20K8fDhOmvRxd9cUmhRJ/q5+Z8Vv6gOs+7et6vEmba7AeezGflzbYjXlbqy7sJS5At7cpxvedKUfTFN1XiwhRhUrvH8ll53WCxC8+Vc4u++H+qvXZ1ncxn5R22I24fzNNe9MUHCCsPDaj+rc5n5U22I/5eL6970RfnAUeocdpc095hRV98Wt3nYtsR6wsl3q/a76+qk9iTz8orBzOzeq6crMZudD4r77Qd8VvPla8p+uKzKug8TZi184F8Vv6hyRTP1c+RKvri8EwmPILzipRhgbsNf5TTslJ4RsLaR9CmyCpHmEH1x0VfLFUZVdOE5ZLuVZkYxxOmMD4dCIq+eBNhpeMez5V20RcXEFYmouiL1wOfo34Gx9Hq87Hqnp8kTAs86NoeB3ylupBo0RfHAWcrQnAI6wJ+hJ316ZYTVoPuVL8/nrAwRXud+ZJT958DfKfoi794rlxYlQr6LPWcqDHIVY3RIuB7RV9c67nSqWrzEMLKO4PZUruKvlhaKPFtpU53KFIdq9qZBLyr6IvbCyW6aFw5R6jfvLHoi5sKpVfq6KVVyt73A5aq6PIa4DQ1LhOBKeoeN3iunF01tvOBDxV9cRQ7K5hPVP0aq57l8qIvrlAZV4ci+c7v7+NDtfarVBp29PBIPiuXmSVowBAMpO8olAgKJQ5r8P3dhVJYfaVQ4qJCKaz467nyxEIJ33PlG9R3/1Yo8ZzKEhm1A59QKPGySgU9+NnsQol1nivfWHXfKwolbh60pXmuXFwosdJz5awG/by4UOIOXWmmQomTCiV6CiXeUvXZk4USF0T0+a2FEq7nykOrfvPFQokXVDUlPFdmCiW+Wyix3nNlrpHdrVBiZdS9qqs0FUo8VChx1+AzFUpcWCjxxKDdznNlZ6HEg4US51f97vBCif5CiffVtPWk58pTG1XtKZT4bKHERs+Vk4c4n466cyP+vd0Eal4FhRJBsY/gN0W+vi+uMSNhtRY9wNZ8Vm6tM5EXAgfks3KpIo5DgUMKJb5d9MV/ECbnf0BdvogwR36PZgc+HlgPVHuKeoFK0RfT1X3bgdcCfx60dxR9sUT1dV2DVLpLgKW6Yg35rFyunnd7VRn0CfmsfEL9/xLPlUexe9WadYP39lw5QUmJVw2qvyoQ8iEl4aU9V04qlHi/ehaqCiZsilEpBtXuRsIc65Wqikrr2Fmd6XBgXj4rr6upON1dJb1SVeTiaUUqb/Vc+brqYhX5rFzVZCWjWky3Qmlwl3QyO3pgxv6JqlQZwjKoP8EUeWypTb5W9MWlSj18sEot8YFUPis/0pXj47YjPM+V+wMnEFa20dXfOxZ4rKZowA61wKaws+zVfureg+gHrrYd0V+HBL+q+nQ18aoBdVbVw2sHblfVgyn64tNFX3ys5jez1RhJdc0bgc58Vl5Zc90xirRKwHGEucCnV32fU6rYi8QrAjKXXcuPFYFrqkh8PmHZt5errhkLVPJZuaFqfBar8d2oVL5vFX1xbm1kuuq3HEoBjw2r+KA9CqtaJUylYVs3q4A/74sLzBjdW4sTCeu6ba2WWIq++Bmwfz4rTxwkl0KJDWqhfnXwaIXnyglFX1wGrMhn5S2akk1tygZ1U22tuEKJFcAMz5WOMtL/OZ+Vjw+215Xj0gYqyIVK2nl7nAKzRV9MI0xtslrde0VoFxJ4ruxQUt7jNb/JA14Vyb4XuK26CrLnymOKvjg3n5Xn2o4oF0rMVtLQ+qqm5gLj8lm5TjNOKBuayGflS1Vj8N0aaXGg6AtXbSKDGCSn6mwIh6rndZX9SgwSdBUWARuGUuux6It8bjLH1x7HSaehexP3nTK3+fzrhrAMBonpcOD3g7u28vb9CtiRz8qTaspZXQL8qeiLuwolbgOmFn3xFmBlPivPieFh6gTaQrVM4LkyV/TFOVXqy4eU9LJMLfy+iL6PKfriCkKv2qldOf4Sp8Jy0RdvVYVFtzTo3wTgkRqv19GEZcfwXDm96ItjgE95rnxT0RdHAtOLvniHkqhuVp7RLuCJmhLqk5Ta9VKtbavoi7PZWbFloOiLeUBn0Rev8Vx5W3U7niv3K/riNGVEf72SGp9SpPFmRU7rPVfuX/TFScApwD22IyqFEvOB8fmsfGiQCFV/pwMPD3FKne2Mwe73dg0W7XXxZy3gyn11nRnCah3GqEW0vkblviaflT+trX/YleNRz5WnFH1xPvB29bv/VNf2xrzfn5Rqg/Lcna4kr15Cr989+ay8KkZ7aeCRfFZ+eTBEIaY54WW1eIMG1X5vzWfl/VUSUAD8pUo1GwfckM/K/y364ixC7+Qa4NNdOX6jiLgNWAUsrZFAfODndexwtlKpRVVlljJQUNJRR02x0AzwJtWXX9YUtN2sVOfAc+UUJQ2uBq5RUtnYoi+uBp6oae8RNf40aWyfva3EqbkawTGdgQ2ruf/kWfLeGFLlPyRMXUJa5iE8WE3U07ty3JJQOrOHWL682q6VAir7WkBhnbFI15SyIsqJ4LkyrVPhlIcxGM6x9VyZvmGZ+MmchXzY79vV2F4J6w+e2ZXj90bCMhgS8lk5qeiL+/NZ+ULS3a8VZFVVTr1s3gYktR/Fub6ZEvdN2K5OnTidcwdqjuJk22D9Kh4eP4lb9+X3aiSs1u2MKSC1L+UmMmi5lL641+W2MeOYPDBQEyjq0t3ewWldOe7Zl8fIhDW0bkevGLIyGAJZTZTruWzs+F3JCkLP4LqV/HRfJytDWAYGewdZTdm4hqunzuRovyYyrr0D1q/iwdkH8H0zUkYlNDDY02Q1beNarpkxl2P6ayyZmTYobeSl0eM4tSu3W6yXkbAMDAxGlKxO6Jb8YcacOmSVgZ6t9Iwex8cNWRkvoYHBniSquauWc35/H2dNnE5Hf9/u8VY7eult7+CjXTluMyNmVEIDgz1BVPOAc3pcPjJuPNPK5TC2ahcJIgu9Lr1t7XyiK8cvzagZwjIwYIRCXdqKvpgILNm0liV2J8fkBFOCAMp1/MnZdti6ma2jHM7rykUffjeEZWBgkJSQxhCeUUwDo6oyVsxbtZwTO8dwaDrD7LE5ZrR3wIBfn6hSqTDWavNGnhib47yuHAUzuoawDPZ+Asiw8/zfLvM0KsbNc2VWHXCu1DiUHDXHy8peO0X926o6stOuDmpbDdZFO2Eam3RVBtbM+tXMb2tnjgU5LDKZDA4WpNO0dY6mI50NUxmXB6BcafBUQDYLfR6VtSv5xYw5fKUr13xKGkNYI6PXHwe8T/Xl9q4c18b4zWTgS4RpcA3x7nkEQMemNYwvQ6XW9RwEpCpl+qfOomFJdbmOuZl2RhNQsWoPAYI14LO9XKav9kVXKgTZLOPaR3FwUNmVsNIZRlkWBAEVLKxOB7s6t1SggjLT6YhVEdQnm8AKPx9sL6hUXR7jAE8mA5UA5DoeHj+Jb+Wz8sZ9/fznXk9YhRIn7nD51TjBlADo3U5vJssnjhnHVZZVf0/yXGld/4z4zfzFvLs80HjnMhh5xsKqP6EG87xEvitL336jS4KgPklUgp1NxyWSYV1sVngmMAigtIlVzli+A/y6K8c2M4P2csIqlBi1eR0PTJ3NokG3biYL20psHuWwuCsX5kyql+fa3coNYycwuWwOwhjsbQvK2vlfy1JEq/7tbmPA3co9PVu5Y9YB/KorxyozYrw64rCu+gqc8kXaK5VdxHsyWdqiAlpLm3jftDlM3uGal2ewZwjJskIj+W5EZUHvdoJKBSoVvKBCvwVWJaBv83p+PnM+f+4aI++xFzZOpmiwlxJWezvlPo+XUikWUHXIc0cPL7e1N07g75Z4rmcCQTqDtadFfIM9I700VEmrVIZq6SZlhdk6iVAp66kdtRqsypqA10tvACULAssiCAJ2BAHdmTbSdgePAo8Cy9iZzLFnyczB3PPCvMhXsQ1rysa1XLvfPI4B2LCGZ8aN54yuXFiRhAYJzoq++FoQ8NVsm3mBJDY0RUyG1O6LdyT7FkQQld8H/f0EqdTuczYICIKAV8xo5Qp+eQDfSpGq+PQFAT1BwFpSUBmgJ4CyFWAFFkHKItO9hRdnL2ArYL38PLm2dmwLgikzKcErhWUHCLORvgi8lM/K9erzMmEGU5fQm2m20X9wL+EUwqKWFvD3rpy+fJHKDb6E0B1tzkPGQ1pt71F2cVlT0qrFlBiJivqz6rSZIix20RsxZytVc9pTfylFOL35rNyo2vKrvXGeKy3jnTMwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMNjL8H8mi7KBDlhErAAAAABJRU5ErkJggg==">
+      <img class="l-light" alt="אוטוסטרדה" src="data:image/png;base64,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">
+    </div>
+  </aside>
+  <div class="main" id="mainScroll">
+    <div class="topbar">
+      <label class="search"><span id="srchIco"></span><input id="q" placeholder="חיפוש לקוחה, טלפון או מספר הזמנה" aria-label="חיפוש"></label>
+      <button class="btn sm soft" id="tourBtn"></button>
+      <div class="skin-switch" role="group" aria-label="בחירת עיצוב">
+        <span>עיצוב לבחירה:</span>
+        <div class="seg" id="skinSeg">
+          <button data-skin="atelier" aria-pressed="true">א׳ · אטלייה</button>
+          <button data-skin="crm" aria-pressed="false">ב׳ · מודרני</button>
+        </div>
+      </div>
+    </div>
+    <div class="content" id="view"></div>
+  </div>
+</div>
+<div class="scrim" id="scrim" role="dialog" aria-modal="true"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="printArea" hidden></div>
+
+<script>
+/* ============ icons ============ */
+const P={
+home:'<path d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1z"/>',
+list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+book:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/>',
+plus:'<path d="M12 5v14M5 12h14"/>',
+wallet:'<rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M16 15h2"/>',
+clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+receipt:'<path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
+chart:'<path d="M3 3v18h18"/><path d="M7 15v3M12 10v8M17 6v12"/>',
+bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+check:'<path d="M20 6 9 17l-5-5"/>',
+x:'<path d="M18 6 6 18M6 6l12 12"/>',
+phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>',
+mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
+chat:'<path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.5L3 21l2-5.6A8.5 8.5 0 1 1 21 11.5z"/>',
+print:'<path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+scissors:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/>',
+spark:'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 17v4M17 19h4"/>',
+layers:'<path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/>',
+cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+card:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+send:'<path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/>',
+alert:'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+play:'<path d="m7 4 13 8-13 8z"/>',
+lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+login:'<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>',
+compass:'<circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2.1 6.3-6.3 2.1 2.1-6.3z"/>',
+arrow:'<path d="M19 12H5M12 19l-7-7 7-7"/>',
+back:'<path d="M5 12h14M12 5l7 7-7 7"/>',
+up:'<path d="m22 7-8.5 8.5-5-5L2 17M16 7h6v6"/>',
+coins:'<circle cx="8" cy="8" r="6"/><path d="M18.1 10.4A6 6 0 1 1 10.3 18M7 6h1v4M16.7 13.9l.7.7-2.8 2.8"/>',
+info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+pkg:'<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/>',
+inbox:'<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+chev:'<path d="m6 9 6 6 6-6"/>',
+note:'<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>',
+upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
+wind:'<path d="M9.6 4.6A2 2 0 1 1 11 8H2M12.6 19.4A2 2 0 1 0 14 16H2M17.5 8a2.5 2.5 0 1 1 2 4H2"/>',
+star:'<path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/>',
+retry:'<path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/>'
+};
+const I=(n,s)=>`<svg class="i" viewBox="0 0 24 24" ${s?`style="width:${s}px;height:${s}px"`:''} aria-hidden="true">${P[n]}</svg>`;
+
+/* ============ helpers ============ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ils=n=>'₪'+Math.round(n).toLocaleString('he-IL');
+const T0=new Date();T0.setHours(0,0,0,0);
+const dOff=n=>{const d=new Date(T0);d.setDate(d.getDate()+n);return d};
+const diff=d=>Math.round((new Date(d).setHours(0,0,0,0)-T0)/864e5);
+const DAYS=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+const MONTHS=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+const fmt=d=>{d=new Date(d);return `${d.getDate()}.${d.getMonth()+1}`};
+const fmtL=d=>{d=new Date(d);return `יום ${DAYS[d.getDay()]}, ${d.getDate()} ב${MONTHS[d.getMonth()]}`};
+const iso=d=>{d=new Date(d);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const initials=n=>n.split(' ').map(x=>x[0]).slice(0,2).join('');
+const num=v=>+String(v).replace(/[^\d]/g,'')||0;
+function dueInfo(d){const n=diff(d);
+  if(n<0)return{cls:'bad',txt:n===-1?'באיחור של יום':`באיחור ${-n} ימים`};
+  if(n===0)return{cls:'bad',txt:'היום'};
+  if(n===1)return{cls:'warn',txt:'מחר'};
+  if(n<=7)return{cls:'warn',txt:`בעוד ${n} ימים`};
+  return{cls:'',txt:`בעוד ${n} ימים`};}
+const TYPES={prod:{n:'ייצור',ic:'layers',d:'פאה חדשה לפי מידה והזמנה'},upg:{n:'שדרוג',ic:'spark',d:'סקין, צבע, תוספת שיער ועוד'},comb:{n:'סירוק',ic:'scissors',d:'חפיפה, סירוק ועיצוב'}};
+const CHN={wa:['WhatsApp','chat'],mail:['מייל','mail'],voice:['שיחה קולית','phone']};
+
+/* ============ catalogs (default prices, editable in settings) ============ */
+const CAT={
+ prod:{
+  hair:{lab:'סוג שיער',opts:[['virgin','אירופאי בתולי',6800],['euro','אירופאי',5200],['brazil','ברזילאי',3900]]},
+  length:{lab:'אורך',opts:[['35','35 ס״מ',0],['40','40 ס״מ',0],['45','45 ס״מ',350],['50','50 ס״מ',700],['55','55 ס״מ',1050],['60','60 ס״מ',1400]]},
+  cap:{lab:'בסיס / כיפה',opts:[['skin','סקין מלא',0],['front','לייס קדמי',600],['lace','לייס מלא',1200],['mono','מונופילמנט',800]]},
+  density:{lab:'צפיפות',opts:[['light','קלה',0],['reg','רגילה',0],['full','מלאה',400]]},
+  color:{lab:'צבע',opts:[['natural','גוון אחיד',0],['hl','עם גוונים',450],['ombre','אומברה',550]]},
+  texture:{lab:'מבנה שיער',opts:[['straight','חלק',0],['wave','גלי',0],['curl','מתולתל',300]]},
+  bangs:{lab:'פוני',opts:[['none','בלי',0],['front','פוני ישר',0],['side','פוני צד',0]]},
+  size:{lab:'מידת ראש',opts:[['S','S',0],['M','M',0],['L','L',0],['custom','לפי מדידה',250]]}
+ },
+ upg:[['skin','החלפת סקין / כיפה','כולל העברת השיער לבסיס חדש',950],['color','צביעה מלאה','גוון אחיד, כולל טיפול',450],['hl','גוונים / היילייטס','',380],['add','הוספת שיער','לפי יחידות של 25 גרם',280,true],['net','תיקון רשת ובסיס','תפרים, קרעים, החלפת גומיות',350],['cut','קיצור ועיצוב תספורת','',180],['treat','טיפול שיקום לשיער','לחות והחזרת ברק',220]],
+ comb:{base:[['wash','חפיפה בלבד','ניקוי וייבוש טבעי, בלי סירוק',70],['washset','חפיפה וסירוק','הסירוק הקבוע',160],['event','חפיפה וסירוק לאירוע','עיצוב מיוחד לשמחה',240]],
+       extra:[['ends','גזירת קצוות','',50],['mask','מסכת לחות','',40],['urgent','שירות מהיר (עד 24 שעות)','',60]]}
+};
+const combBase=k=>CAT.comb.base.find(x=>x[0]===k);
+const REGN={wash:'חפיפה בלבד',washset:'חפיפה וסירוק'};
+
+/* ============ demo data ============ */
+const W=(id,n,desc,reg,notes,price)=>({id,n,desc,reg:reg||null,notes:notes||'',price:price||null});
+const CUST=[
+ {id:1,n:'רחלי כהן',ph:'050-0000001',em:'rachelic@example.com',ch:['wa','mail'],since:2019,debtAuto:true,notes:'לקוחה קבועה, מביאה כל שבועיים. מעדיפה לאסוף אחרי 20:00.',
+  wigs:[W(101,'פאת שבת','אירופאי · 45 ס״מ · חום שוקולד · לייס קדמי','washset','שביל בצד ימין, נפח בכתר, גלים רכים בקצוות.',150),W(102,'פאת יום יום','ברזילאי · 40 ס״מ · חום · סקין','wash','ייבוש טבעי בלבד! לא לסרק ולא לייבש בפן. לתלות לייבוש על ראש בובה.'),W(103,'פאה חדשה (בייצור)','אירופאי בתולי · 50 ס״מ · לייס קדמי','', 'בייצור, הזמנה #1041')]},
+ {id:2,n:'מלכי פרידמן',ph:'050-0000002',em:'malkif@example.com',ch:['wa'],since:2021,debtAuto:true,notes:'',wigs:[W(201,'פאה בינונית','אירופאי · 40 ס״מ · דבש','washset','לא לקצר! רוצה לשמור על האורך.')]},
+ {id:3,n:'שושי לוי',ph:'050-0000003',em:'',ch:['voice'],since:2022,debtAuto:true,notes:'אין לה WhatsApp ולא מייל. רק שיחה קולית.',wigs:[W(301,'פאה מתולתלת','ברזילאי · 35 ס״מ · ערמוני · תלתל טבעי','wash','תלתל טבעי: חפיפה וייבוש באוויר בלבד. סירוק הורס את התלתל.')]},
+ {id:4,n:'אסתי וייס',ph:'050-0000004',em:'esty.w@example.com',ch:['wa','mail'],since:2020,debtAuto:false,notes:'לבקש תשלום מראש. נשארה חייבת בעבר.',wigs:[W(401,'פאת שבת','אירופאי · 50 ס״מ · חום כהה','', '')]},
+ {id:5,n:'חני גולדברג',ph:'050-0000005',em:'chani.g@example.com',ch:['mail'],since:2023,debtAuto:true,notes:'לשאול לפני כל סירוק אם יש שמחה קרובה.',wigs:[W(501,'פאה ארוכה','אירופאי · 55 ס״מ · בלונד כהה','washset','קצוות נוטים להתייבש, תמיד מסכת לחות.')]},
+ {id:6,n:'דבורי שטרן',ph:'050-0000006',em:'',ch:['wa'],since:2024,debtAuto:true,notes:'',wigs:[W(601,'פאה בינונית','ברזילאי · 40 ס״מ · שחור רך','washset','')]},
+ {id:7,n:'ציפי רוזנברג',ph:'050-0000007',em:'tzipi.r@example.com',ch:['wa'],since:2021,debtAuto:true,notes:'מגיעה עם הבת, משלמות ביחד.',wigs:[W(701,'פאת יום יום','אירופאי · 45 ס״מ · חום','', ''),W(702,'פאת שבת','אירופאי · 45 ס״מ · חום בהיר','washset','שביל באמצע.')]},
+ {id:8,n:'יהודית קליין',ph:'050-0000008',em:'',ch:['voice'],since:2022,debtAuto:true,notes:'',wigs:[W(801,'פאה ארוכה','ברזילאי · 50 ס״מ · קרמל','', ''),W(802,'פאה חדשה (בייצור)','ברזילאי · 40 ס״מ · מונופילמנט','', 'בייצור, הזמנה #1053')]},
+ {id:9,n:'פייגי ברגר',ph:'050-0000009',em:'faigy.b@example.com',ch:['wa'],since:2020,debtAuto:true,notes:'',wigs:[W(901,'פאה קצרה','אירופאי · 30 ס״מ · חום','wash','ייבוש טבעי. אחרי החפיפה רק להבריש בעדינות.')]},
+ {id:10,n:'ברכי הורוביץ',ph:'050-0000010',em:'brachi.h@example.com',ch:['wa','mail'],since:2023,debtAuto:true,notes:'',wigs:[W(1001,'פאה בינונית','אירופאי · 40 ס״מ · ערמוני','washset','')]},
+ {id:11,n:'נחמי שפירא',ph:'050-0000011',em:'',ch:['wa'],since:2024,debtAuto:true,notes:'',wigs:[W(1101,'פאה ארוכה','ברזילאי · 50 ס״מ · שחור','', '')]},
+ {id:12,n:'טובי אדלר',ph:'050-0000012',em:'tovi.a@example.com',ch:['mail','voice'],since:2018,debtAuto:true,notes:'לקוחה ותיקה מאוד. מבקשת שיחה לפני כל שינוי.',wigs:[W(1201,'פאת שבת','אירופאי · 45 ס״מ · דבש','washset','נפח עדין, לא גבוה.'),W(1202,'פאה חדשה (בייצור)','אירופאי · 45 ס״מ · סקין מלא','', 'בייצור, הזמנה #1051')]},
+ {id:13,n:'רבקי זילבר',ph:'050-0000013',em:'rivky.z@example.com',ch:['wa'],since:2022,debtAuto:true,notes:'',wigs:[W(1301,'פאת יום יום','ברזילאי · 40 ס״מ · חום כהה','wash','ייבוש טבעי, בלי פן.')]},
+ {id:14,n:'גיטי פולק',ph:'050-0000014',em:'',ch:['wa'],since:2021,debtAuto:true,notes:'משלמת תמיד בביט.',wigs:[W(1401,'פאת שבת','אירופאי · 45 ס״מ · ערמוני','washset','גלים גדולים, שביל בצד שמאל.')]},
+ {id:15,n:'מירי טננבוים',ph:'050-0000015',em:'miri.t@example.com',ch:['wa','mail'],since:2020,debtAuto:true,notes:'',wigs:[W(1501,'פאה בינונית','אירופאי · 40 ס״מ · חום','washset',''),W(1502,'פאת ספורט','ברזילאי · 35 ס״מ · חום','wash','ייבוש טבעי.')]},
+ {id:16,n:'שרי גרוס',ph:'050-0000016',em:'',ch:['wa'],since:2025,debtAuto:true,notes:'',wigs:[W(1601,'פאה ארוכה','אירופאי · 50 ס״מ · דבש','', '')]}
+];
+const C=id=>CUST.find(c=>c.id===id);
+const WIG=id=>{for(const c of CUST){const w=c.wigs.find(x=>x.id===id);if(w)return w}return null};
+let NEXT=1058,NEXTW=2000;
+const JOBS=[
+ {id:1041,c:1,w:103,t:'prod',items:[['אירופאי בתולי',6800],['אורך 50 ס״מ',700],['לייס קדמי',600],['עם גוונים',450]],due:-2,st:'work',paid:3000,start:-38,spec:'אירופאי בתולי · 50 ס״מ · לייס קדמי · M · גוון 6 עם גוונים'},
+ {id:1043,c:6,w:601,t:'comb',items:[['חפיפה וסירוק',160]],due:-1,st:'work',paid:0,start:-4},
+ {id:1046,c:4,w:401,t:'upg',items:[['החלפת סקין / כיפה',950],['גוונים / היילייטס',380]],due:0,st:'work',paid:500,start:-12},
+ {id:1047,c:9,w:901,t:'comb',items:[['חפיפה בלבד',70]],due:0,st:'work',paid:0,start:-2},
+ {id:1048,c:10,w:1001,t:'comb',items:[['חפיפה וסירוק לאירוע',240],['שירות מהיר (עד 24 שעות)',60]],due:1,st:'work',paid:0,start:-1},
+ {id:1049,c:7,w:701,t:'upg',items:[['הוספת שיער × 2',560],['קיצור ועיצוב תספורת',180]],due:3,st:'work',paid:0,start:-6},
+ {id:1050,c:2,w:201,t:'comb',items:[['חפיפה וסירוק',160]],due:4,st:'work',paid:0,start:-1},
+ {id:1051,c:12,w:1202,t:'prod',items:[['אירופאי',5200],['אורך 45 ס״מ',350],['מידת ראש לפי מדידה',250]],due:12,st:'work',paid:2000,start:-20,spec:'אירופאי · 45 ס״מ · סקין מלא · היקף 55.5 · גוון 8'},
+ {id:1052,c:11,w:1101,t:'upg',items:[['צביעה מלאה',450],['טיפול שיקום לשיער',220]],due:9,st:'work',paid:0,start:-3},
+ {id:1053,c:8,w:802,t:'prod',items:[['ברזילאי',3900],['מונופילמנט',800]],due:26,st:'work',paid:1500,start:-9,spec:'ברזילאי · 40 ס״מ · מונופילמנט · L · גוון 4'},
+ {id:1036,c:3,w:301,t:'comb',items:[['חפיפה בלבד',70]],due:-3,st:'ready',paid:0,start:-7,notif:'noanswer',readyAt:-1},
+ {id:1038,c:5,w:501,t:'comb',items:[['חפיפה וסירוק',160],['מסכת לחות',40]],due:-1,st:'ready',paid:200,start:-5,notif:'ok',readyAt:-1},
+ {id:1039,c:7,w:702,t:'comb',items:[['חפיפה וסירוק',160]],due:-2,st:'ready',paid:0,start:-6,notif:'fail',readyAt:-2},
+ {id:1042,c:1,w:102,t:'comb',items:[['חפיפה בלבד',70]],due:0,st:'ready',paid:0,start:-3,notif:'ok',readyAt:0},
+ {id:1044,c:15,w:1501,t:'comb',items:[['חפיפה וסירוק',160]],due:0,st:'ready',paid:0,start:-2,notif:'ok',readyAt:0},
+ {id:1030,c:2,w:201,t:'upg',items:[['תיקון רשת ובסיס',350]],due:-9,st:'done',paid:150,start:-20,doneAt:-6},
+ {id:1031,c:11,w:1101,t:'comb',items:[['חפיפה וסירוק',160]],due:-8,st:'done',paid:0,start:-12,doneAt:-5},
+ {id:1028,c:4,w:401,t:'prod',items:[['אירופאי',5200],['אורך 50 ס״מ',700]],due:-15,st:'done',paid:4400,start:-60,doneAt:-12},
+ {id:1022,c:1,w:101,t:'comb',items:[['חפיפה וסירוק (מחיר קבוע)',150]],due:-12,st:'done',paid:150,start:-15,doneAt:-12},
+ {id:1019,c:1,w:102,t:'comb',items:[['חפיפה בלבד',70]],due:-17,st:'done',paid:70,start:-20,doneAt:-17},
+ {id:1012,c:1,w:101,t:'upg',items:[['גוונים / היילייטס',380]],due:-40,st:'done',paid:380,start:-50,doneAt:-40},
+ {id:1025,c:13,w:1301,t:'comb',items:[['חפיפה בלבד',70]],due:-10,st:'done',paid:70,start:-13,doneAt:-10},
+ {id:1026,c:14,w:1401,t:'comb',items:[['חפיפה וסירוק',160]],due:-9,st:'done',paid:160,start:-12,doneAt:-9}
+];
+JOBS.forEach(j=>{j.due=dOff(j.due);j.start=dOff(j.start)});
+const total=j=>j.items.reduce((s,x)=>s+x[1],0);
+const bal=j=>total(j)-j.paid;
+const openJobOfWig=wid=>JOBS.find(j=>j.w===wid&&(j.st==='work'||j.st==='ready'));
+
+const day=T0.getDate();
+const mDay=n=>new Date(T0.getFullYear(),T0.getMonth(),Math.max(1,Math.min(n,day)));
+const PAYS=[
+ {c:1,j:1041,a:3000,m:'העברה',d:mDay(2),k:'prod',note:'מקדמה'},{c:12,j:1051,a:2000,m:'אשראי',d:mDay(3),k:'prod',note:'מקדמה'},
+ {c:4,j:1028,a:2400,m:'אשראי',d:mDay(4),k:'prod',link:true},{c:8,j:1053,a:1500,m:'מזומן',d:mDay(6),k:'prod',note:'מקדמה'},
+ {c:9,a:160,m:'ביט',d:mDay(5),k:'comb',link:true},{c:10,a:160,m:'ביט',d:mDay(7),k:'comb',link:true},{c:6,a:240,m:'מזומן',d:mDay(8),k:'comb'},
+ {c:4,j:1046,a:500,m:'ביט',d:mDay(9),k:'upg',note:'מקדמה'},{c:5,j:1038,a:200,m:'אשראי',d:mDay(10),k:'comb',link:true},
+ {c:2,j:1030,a:150,m:'מזומן',d:mDay(11),k:'upg'},{c:3,a:160,m:'ביט',d:mDay(12),k:'comb',link:true},{c:12,a:950,m:'אשראי',d:mDay(13),k:'upg',link:true},
+ {c:7,a:230,m:'ביט',d:mDay(14),k:'comb',link:true},{c:1,a:150,m:'מזומן',d:mDay(15),k:'comb'},{c:11,a:670,m:'אשראי',d:mDay(16),k:'upg',link:true},
+ {c:5,a:5600,m:'העברה',d:mDay(17),k:'prod'},{c:10,a:300,m:'ביט',d:mDay(18),k:'comb',link:true},{c:2,a:160,m:'ביט',d:mDay(19),k:'comb',link:true},
+ {c:8,a:430,m:'אשראי',d:mDay(20),k:'upg',link:true},{c:6,a:160,m:'מזומן',d:mDay(21),k:'comb'},{c:13,a:70,m:'ביט',d:mDay(12),k:'comb',link:true},{c:14,a:160,m:'ביט',d:mDay(13),k:'comb',link:true},
+ {c:2,a:6200,m:'העברה',d:mDay(9),k:'prod'},{c:10,a:5400,m:'אשראי',d:mDay(16),k:'prod',link:true}
+];
+const NOTIFS=[
+ {c:3,j:1036,ch:'voice',k:'ready',st:'noanswer',at:dOff(-1),det:'לא נענתה אחרי 2 חיוגים'},
+ {c:5,j:1038,ch:'mail',k:'ready',st:'ok',at:dOff(-1),det:'נמסר לתיבת הדואר'},
+ {c:7,j:1039,ch:'wa',k:'ready',st:'fail',at:dOff(-2),det:'המספר לא רשום ב-WhatsApp'},
+ {c:1,j:1042,ch:'wa',k:'ready',st:'ok',at:dOff(0),det:'נקראה'},
+ {c:1,j:1042,ch:'mail',k:'ready',st:'ok',at:dOff(0),det:'נמסר לתיבת הדואר'},
+ {c:15,j:1044,ch:'wa',k:'ready',st:'ok',at:dOff(0),det:'נמסרה'},
+ {c:15,j:1044,ch:'mail',k:'ready',st:'ok',at:dOff(0),det:'נמסר לתיבת הדואר'},
+ {c:2,j:1030,ch:'wa',k:'debt',st:'ok',at:dOff(-3),det:'תזכורת חוב אוטומטית, נקראה'},
+ {c:11,j:1031,ch:'wa',k:'debt',st:'wait',at:dOff(1),det:'תצא מחר ב-10:00 (מחוץ לשעות השליחה)'},
+ {c:4,j:1028,ch:'wa',k:'ready',st:'ok',at:dOff(-14),det:'נקראה'},
+ {c:2,j:1030,ch:'wa',k:'remind',st:'cancel',at:dOff(-6),det:'בוטלה, הפאה נמסרה'},
+ {c:11,j:1031,ch:'wa',k:'remind',st:'cancel',at:dOff(-5),det:'בוטלה, הפאה נמסרה'}
+];
+const SUPPLIERS=['מ. גולד יבוא שיער','י.ש. בסיסים ורשתות','פרו־קולור צבעים','ציוד לסטודיו ש.ב.','בעל הנכס (שכירות)','חשבונות חשמל ומים','דפוס השכונה','שליחויות מהירות'];
+const EXP_TYPES=['שיער וחומרי גלם','בסיסים וכיפות','צבעים וטיפוח','ציוד וכלים','שכירות וחשבונות','שיווק','נסיעות ומשלוחים','אחר'];
+const EXP_PAY=['אשראי','מזומן','העברה','צ׳ק','ביט'];
+const EXPS=[
+ {d:mDay(1),a:3200,t:'שכירות וחשבונות',m:'העברה',sup:'בעל הנכס (שכירות)',s:'שכירות הסטודיו'},{d:mDay(3),a:4850,t:'שיער וחומרי גלם',m:'העברה',sup:'מ. גולד יבוא שיער',s:'שיער אירופאי 400 גר׳'},
+ {d:mDay(5),a:640,t:'בסיסים וכיפות',m:'אשראי',sup:'י.ש. בסיסים ורשתות',s:'3 בסיסי סקין'},{d:mDay(6),a:310,t:'צבעים וטיפוח',m:'אשראי',sup:'פרו־קולור צבעים',s:'צבעים ומחמצן'},
+ {d:mDay(8),a:185,t:'ציוד וכלים',m:'מזומן',sup:'ציוד לסטודיו ש.ב.',s:'מסרקים וסיכות'},{d:mDay(10),a:420,t:'שיווק',m:'אשראי',sup:'דפוס השכונה',s:'מודעה בעלון'},
+ {d:mDay(12),a:1900,t:'שיער וחומרי גלם',m:'צ׳ק',sup:'מ. גולד יבוא שיער',s:'שיער ברזילאי 200 גר׳'},{d:mDay(13),a:260,t:'נסיעות ומשלוחים',m:'ביט',sup:'שליחויות מהירות',s:'שליח לספק'},
+ {d:mDay(15),a:540,t:'שכירות וחשבונות',m:'אשראי',sup:'חשבונות חשמל ומים',s:'חשמל ומים'},{d:mDay(17),a:290,t:'צבעים וטיפוח',m:'אשראי',sup:'פרו־קולור צבעים',s:'שמפו ומסכות'},
+ {d:mDay(19),a:1250,t:'ציוד וכלים',m:'אשראי',sup:'ציוד לסטודיו ש.ב.',s:'מייבש מקצועי'},{d:mDay(20),a:120,t:'אחר',m:'מזומן',sup:'',s:'כיבוד לסטודיו'}
+];
+const WORKERS=[{id:1,n:'מירי שטיין',role:'מסרקת',rate:48},{id:2,n:'שרה לנדאו',role:'מסרקת',rate:45},{id:3,n:'נחמה גרין',role:'תפירה וייצור',rate:55},{id:4,n:'יוכי ברק',role:'עוזרת',rate:38}];
+const SHIFTS=[];
+(function(){const wd={1:[0,1,2,3,4],2:[1,3,4],3:[0,2,3],4:[0,2,4]},hr={1:[9,13],2:[9,13.5],3:[8.5,14],4:[15,18.5]};
+ for(let d=1;d<day;d++){const dt=new Date(T0.getFullYear(),T0.getMonth(),d);
+  WORKERS.forEach(w=>{if(!wd[w.id].includes(dt.getDay()))return;const p=hr[w.id];SHIFTS.push({w:w.id,d:dt,in:p[0]+((d*7+w.id)%3)*0.08,out:p[1]+((d*3+w.id)%4)*0.07})})}
+ SHIFTS.push({w:1,d:new Date(T0),in:8.95,out:null});SHIFTS.push({w:3,d:new Date(T0),in:8.45,out:null});})();
+const hhmm=h=>{const H=Math.floor(h),M=Math.round((h-H)*60);return `${String(H).padStart(2,'0')}:${String(M).padStart(2,'0')}`};
+const nowH=()=>{const n=new Date();return n.getHours()+n.getMinutes()/60};
+const HIST=[{i:26800,e:21400},{i:29300,e:22800},{i:24900,e:20100},{i:33600,e:24300},{i:28600,e:22200}];
+const SETTINGS={from:'10:00',to:'21:00',city:'ירושלים',autoReadyRem:true,readyRemDays:2,autoDebt:true,debtDays:3,debtRepeat:false,
+ tmpl:'שלום {שם}, הפאה שלך מוכנה לאיסוף בסטודיו של לאה אלבוים.\n{פירוט}\nלתשלום: {סכום}\n{קישורי תשלום}\nשעות איסוף: א׳–ה׳ 10:00–19:00'};
+
+/* ============ state ============ */
+const S={view:'dashboard',filter:{type:'all',st:'open'},remind:{ready:false,debt:false},sel:new Set(),selD:new Set(),remCh:'wa',tipsOff:new Set(),wiz:null,expFilter:'all',
+ clear:false,selJ:new Set(),intake:{f:'reg',sel:new Set(),tr:{},due:3,q:''},custId:null,draft:{},setTab:'comb',expForm:null};
+function newWiz(){return{c:null,w:null,newC:false,nc:{n:'',ph:''},t:null,autoT:false,prod:{hair:'euro',length:'45',cap:'skin',density:'reg',color:'natural',texture:'straight',bangs:'none',size:'M',circ:'',shade:'',notes:''},upg:new Set(),addQty:1,comb:'washset',combX:new Set(),pr:{},due:null,dep:0,visit:''}}
+
+/* ============ combobox (searchable dropdown) ============ */
+const CB={};
+function combo(id,opts,val,ph,onPick,addLabel){CB[id]={opts,onPick,addLabel};const cur=opts.find(o=>o.v===val);
+ return `<div class="cb"><input class="in" id="cb_${id}" data-cbin="${id}" value="${esc(cur?cur.l:'')}" placeholder="${esc(ph)}" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="cbl_${id}" aria-autocomplete="list"><span class="cb-car">${I('chev',16)}</span><div class="cb-list" id="cbl_${id}" role="listbox" hidden></div></div>`}
+function cbShow(id,q){const c=CB[id];if(!c)return;const list=$('#cbl_'+id);q=(q||'').trim();
+ const m=c.opts.filter(o=>!q||(o.l+' '+(o.s||'')).replace(/-/g,'').includes(q.replace(/-/g,'')));
+ list.innerHTML=m.slice(0,60).map((o,i)=>`<div class="cb-o${i===0?' act':''}" role="option" data-cbpick="${id}" data-v="${esc(o.v)}"><b>${esc(o.l)}</b>${o.s?`<span>${esc(o.s)}</span>`:''}</div>`).join('')
+  +(!m.length&&!c.addLabel?'<div class="cb-o muted">לא נמצאו תוצאות</div>':'')
+  +(c.addLabel?`<div class="cb-o add" role="option" data-cbpick="${id}" data-v="__new">${I('plus',14)} ${c.addLabel}${q?` ״${esc(q)}״`:''}</div>`:'');
+ list.hidden=false;$('#cb_'+id).setAttribute('aria-expanded','true')}
+function cbHide(id){const l=$('#cbl_'+id);if(l){l.hidden=true;$('#cb_'+id).setAttribute('aria-expanded','false')}}
+document.addEventListener('focusin',e=>{const id=e.target.dataset&&e.target.dataset.cbin;if(id){e.target.select();cbShow(id,'')}});
+document.addEventListener('focusout',e=>{const id=e.target.dataset&&e.target.dataset.cbin;if(id)setTimeout(()=>cbHide(id),150)});
+document.addEventListener('mousedown',e=>{const o=e.target.closest('[data-cbpick]');if(!o)return;e.preventDefault();const id=o.dataset.cbpick;const q=$('#cb_'+id).value;cbHide(id);CB[id].onPick(o.dataset.v,q)});
+document.addEventListener('keydown',e=>{const id=e.target.dataset&&e.target.dataset.cbin;if(!id)return;const l=$('#cbl_'+id);if(l.hidden)return;const os=[...l.querySelectorAll('[data-cbpick]')];let i=os.findIndex(o=>o.classList.contains('act'));
+ if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();os[i]&&os[i].classList.remove('act');i=e.key==='ArrowDown'?Math.min(os.length-1,i+1):Math.max(0,i-1);os[i]&&(os[i].classList.add('act'),os[i].scrollIntoView({block:'nearest'}))}
+ if(e.key==='Enter'&&os[i]){e.preventDefault();const q=e.target.value;cbHide(id);CB[id].onPick(os[i].dataset.v,q)}
+ if(e.key==='Escape'){cbHide(id)}});
+const custOpts=()=>CUST.map(c=>({v:String(c.id),l:c.n,s:c.ph+(c.wigs.some(w=>w.reg)?' · לקוחה קבועה':'')}));
+
+/* ============ nav ============ */
+const NAV=[['dashboard','דשבורד','home','dash'],['intake','קליטת פאות','inbox','intake'],['new','הזמנה חדשה','plus','new'],['jobs','עבודות','list','jobs'],['customers','לקוחות','book','cust'],['sep'],['payments','תשלומים ותזכורות','wallet','pay'],['log','יומן הודעות','chat','log'],['sep'],['clock','שעון נוכחות','clock','clock'],['expenses','הוצאות','receipt','exp'],['report','דו״ח חודשי','chart','rep'],['sep'],['settings','הגדרות ומחירון','gear','set']];
+const notReached=j=>j.st==='ready'&&(j.notif==='fail'||j.notif==='noanswer');
+function renderNav(){
+ const late=JOBS.filter(j=>j.st==='work'&&diff(j.due)<=0).length, debts=debtCust().length, fail=JOBS.filter(notReached).length;
+ const badges={jobs:late,payments:debts,log:fail};const cur=S.view==='customer'?'customers':S.view;
+ $('#nav').innerHTML=NAV.map(n=>n[0]==='sep'?'<div class="nav-sep"></div>':`<button class="nav-i" data-go="${n[0]}" style="--acc:var(--a-${n[3]});--acc-t:var(--a-${n[3]}-t)" ${cur===n[0]?'aria-current="page"':''}><span class="tile">${I(n[2])}</span>${n[1]}${badges[n[0]]?`<span class="badge" aria-label="${badges[n[0]]} דורשות טיפול">${badges[n[0]]}</span>`:''}</button>`).join('');
+}
+function go(v){if(v==='new')S.wiz=newWiz();S.view=v;S.remind={ready:false,debt:false};S.clear=false;S.selJ.clear();S.draft={};render();$('#mainScroll').scrollTop=0}
+function openCust(id){S.custId=id;S.draft={};S.view='customer';closeModal();render();$('#mainScroll').scrollTop=0}
+function newFor(cid,wid){S.wiz=newWiz();const w=S.wiz;w.c=cid;if(wid)pickWig(wid);S.view='new';closeModal();render();$('#mainScroll').scrollTop=0}
+
+/* ============ tips (pain -> solution) ============ */
+const TIPS={
+ dashboard:['״מה דחוף היום? למי הבטחתי לשבוע הבא?״','כל עבודה נכנסת עם תאריך יעד, והדשבורד מסדר אותן לפי דחיפות: מה באיחור, מה להיום ומחר, ומה בהמשך השבוע.'],
+ intake:['״עשרים פאות על השולחן, וכל אחת צריכה משהו אחר״','המערכת מכירה כל פאה ואת הטיפול הקבוע שלה. לקוחות קבועות נקלטות יחד בלחיצה אחת, ופאה עם ייבוש טבעי נקלטת אוטומטית לחפיפה בלבד.'],
+ jobs:['״הזמנות על פתקים ובראש״','כל העבודות במקום אחד: ייצור, שדרוג וסירוק, עם תאריך יעד, מחיר ויתרה לתשלום.'],
+ new:['״כמה גובים על שדרוג כזה? מה סיכמנו על הייצור?״','מחירון ברירת מחדל לכל רכיב, שאפשר לשנות בכל הזמנה. ההערות על הלקוחה ועל הפאה קופצות כאן לבד.'],
+ customers:['״איפה המספר שלה? מה היא אוהבת?״','לכל לקוחה כרטיס עם הפאות שלה, הערות, היסטוריה וערוצי ההודעות שלה.'],
+ customer:['״רגע, לה אסור לסרק? היא ביקשה שביל בצד?״','לכל פאה יש טיפול קבוע והערות קבועות, והן מופיעות בכל פעם שהפאה נקלטת. ההערות על הלקוחה מופיעות בכל הזמנה.'],
+ payments:['״לרדוף אחרי כסף זה הכי לא נעים״','בהודעה ״הפאה מוכנה״ יש קישור לתשלום בביט ובאשראי. התשלום נרשם לבד, ותזכורת נשלחת בלחיצה, בלי שיחה מביכה.'],
+ log:['״קיבלה את ההודעה או לא?״','כל הודעה מתועדת: נמסרה, נענתה, לא נענתה או נכשלה. מה שלא הגיע ללקוחה מסומן באדום גם בדשבורד.'],
+ clock:['״שעות העובדות במחברת, ובסוף החודש ויכוחים״','עמדת החתמה עם קוד אישי. השעות והשכר מחושבים לבד.'],
+ expenses:['״קבלות בכל מגירה״','טופס קצר לכל הוצאה: ספק, סוג ואופן התשלום. הכל מסוכם לפי קטגוריה ונכנס לדו״ח.'],
+ report:['״עבדתי כל כך הרבה. כמה באמת הרווחתי?״','דו״ח חודשי מוכן: הכנסות לפי סוג עבודה, הוצאות, שכר עובדות ורווח נקי.'],
+ settings:['״המחירים בראש, וכל פעם קצת אחרת״','מחירון אחד לכל הרכיבים, שעות שליחה ונוסח ההודעה. כל שינוי חל על ההזמנות הבאות.']
+};
+function tip(v){if(S.tipsOff.has(v)||!TIPS[v])return'';const t=TIPS[v];
+ return `<div class="tip"><span class="lbl">${I('compass',16)}</span><p><span class="pain">${t[0]}</span><br><b>${t[1]}</b></p><button class="btn ghost sm x" data-tipoff="${v}" aria-label="הסתרת ההסבר">${I('x',16)}</button></div>`}
+const backBtn=()=>`<button class="btn back" data-go="dashboard">${I('back',16)} לדשבורד</button>`;
+
+/* ============ views ============ */
+function render(){renderNav();$('#view').innerHTML=tip(S.view)+VIEWS[S.view]();}
+const VIEWS={};
+function debtCust(){const m={};JOBS.filter(j=>j.st==='done'&&bal(j)>0).forEach(j=>{(m[j.c]=m[j.c]||{c:j.c,a:0,jobs:[],since:j.doneAt}).a+=bal(j);m[j.c].jobs.push(j)});return Object.values(m)}
+const monthIncome=()=>PAYS.reduce((s,p)=>s+p.a,0);
+const typePill=t=>`<span class="pill ${t}">${TYPES[t].n}</span>`;
+const itemsTxt=j=>j.items.map(x=>x[0]).join(' · ');
+const nameLink=(c)=>`<a href="#" data-cust="${c.id}" style="color:inherit;font-weight:800;text-decoration:none">${esc(c.n)}</a>`;
+const regPill=w=>w&&w.reg?`<span class="reg">${I(w.reg==='wash'?'wind':'scissors',13)} קבוע: ${REGN[w.reg]}</span>`:'';
+
+VIEWS.dashboard=()=>{
+ const work=JOBS.filter(j=>j.st==='work').sort((a,b)=>a.due-b.due);
+ const late=work.filter(j=>diff(j.due)<0), soon=work.filter(j=>{const n=diff(j.due);return n>=0&&n<=1}), week=work.filter(j=>{const n=diff(j.due);return n>=2&&n<=7}), later=work.filter(j=>diff(j.due)>7);
+ const ready=JOBS.filter(j=>j.st==='ready'), debts=debtCust(), fails=JOBS.filter(notReached);
+ const h=new Date().getHours();const hi=h<12?'בוקר טוב':h<17?'צהריים טובים':'ערב טוב';
+ const urgentN=late.length+soon.length;
+ const col=(title,cls,arr,ic)=>`<div class="due-col ${cls}"><h3>${I(ic,15)} ${title} <span class="muted num">(${arr.length})</span></h3>${arr.length?arr.map(jobCard).join(''):`<div class="empty">${I('check',18)}אין עבודות כאן</div>`}</div>`;
+ const inNow=SHIFTS.filter(s=>s.d.getTime()===T0.getTime()&&s.out===null);
+ return `
+ <div class="greet"><div><div class="date">${fmtL(T0)}</div><h1>${hi}, לאה</h1><div class="sub">${urgentN?`${urgentN} עבודות מחכות להיום ומחר, ${late.length} מהן באיחור.`:'אין עבודות דחופות היום.'} ${fails.length?`${fails.length} לקוחות לא קיבלו את ההודעה.`:''}</div></div>
+ <div class="row" style="margin-inline-start:auto;gap:10px"><button class="btn lg" data-go="intake" style="background:transparent;color:inherit;border:1.5px solid currentColor">${I('inbox')} קליטת פאות</button><button class="btn lg" data-go="new">${I('plus')} הזמנה חדשה</button></div></div>
+ <div class="kpis">
+  <button class="kpi attn" data-jobs="late"><span class="k-l">${I('alert',16)} באיחור או להיום</span><span class="k-v num">${late.length+work.filter(j=>diff(j.due)===0).length}</span><span class="k-s">לפי תאריך היעד</span></button>
+  <button class="kpi" data-jobs="open"><span class="k-l">${I('list',16)} בעבודה</span><span class="k-v num">${work.length}</span><span class="k-s">${work.filter(j=>j.t==='prod').length} ייצור · ${work.filter(j=>j.t==='upg').length} שדרוג · ${work.filter(j=>j.t==='comb').length} סירוק</span></button>
+  <button class="kpi" data-jobs="ready"><span class="k-l">${I('bell',16)} מוכנות לאיסוף</span><span class="k-v num">${ready.length}</span><span class="k-s">${ready.length-fails.length} קיבלו הודעה</span></button>
+  <button class="kpi" data-go="payments"><span class="k-l">${I('wallet',16)} חובות פתוחים</span><span class="k-v num">${ils(debts.reduce((s,d)=>s+d.a,0))}</span><span class="k-s">${debts.length} לקוחות</span></button>
+  <button class="kpi" data-go="report"><span class="k-l">${I('up',16)} הכנסות החודש</span><span class="k-v num">${ils(monthIncome())}</span><span class="k-s">${PAYS.filter(p=>p.link).length} תשלומים דרך הקישור</span></button>
+ </div>
+ <div class="card" style="--acc:var(--a-jobs);--acc-t:var(--a-jobs-t)"><div class="card-h"><span class="ico-tile">${I('cal')}</span><h2>בסטודיו, לפי תאריך יעד</h2><span class="count">${work.length} בעבודה</span>
+  <div class="act">${S.clear?`<button class="btn sm ghost" data-clear="0">ביטול</button><button class="btn sm ok" data-clearsend ${S.selJ.size?'':'disabled'}>${I('send',15)} סמני ${S.selJ.size} מוכנות ושלחי הודעות</button>`:`<button class="btn sm soft" data-clear="1">${I('check',15)} סימון כמה כמוכנות</button><button class="btn sm ghost" data-go="jobs">כל העבודות</button>`}</div></div>
+ <div class="card-b">${S.clear?`<div class="note" style="margin-bottom:12px">${I('info',16)}<span>סמני את הפאות שסיימת. כל לקוחה תקבל הודעה אחת, גם אם סיימת כמה פאות שלה.</span></div>`:''}<div class="due">${col('באיחור','late',late,'alert')}${col('היום ומחר','soon',soon,'clock')}${col('השבוע','week',week,'cal')}${col('בהמשך','later',later,'layers')}</div></div></div>
+ <div class="grid g-main">
+  <div class="stack">${readySection(ready)}${failSection(fails)}</div>
+  <div class="stack">${debtSection(debts)}
+   <div class="card" style="--acc:var(--a-clock);--acc-t:var(--a-clock-t)"><div class="card-h"><span class="ico-tile">${I('clock')}</span><h2>בסטודיו עכשיו</h2><div class="act"><button class="btn sm ghost" data-go="clock">לשעון הנוכחות</button></div></div>
+   <div class="card-b">${inNow.length?inNow.map(s=>{const w=WORKERS.find(x=>x.id===s.w);return `<div class="lr"><span class="av">${initials(w.n)}</span><div class="grow"><div class="t1">${w.n}</div><div class="t2">${w.role}</div></div><span class="pill ok">נכנסה ${hhmm(s.in)}</span></div>`}).join(''):`<div class="empty">אף עובדת לא החתימה כניסה היום</div>`}</div></div>
+  </div>
+ </div>`;
+};
+function jobCard(j){const c=C(j.c),di=dueInfo(j.due),w=WIG(j.w);const sel=S.selJ.has(j.id);
+ return `<button class="jc ${j.t} ${sel?'sel':''}" data-${S.clear?'pickj':'job'}="${j.id}" ${S.clear?`aria-pressed="${sel}"`:''}>${S.clear?`<span class="pick">${sel?`<span class="pill ok nodot">${I('check',13)}</span>`:'<span class="pill nodot">בחירה</span>'}</span>`:''}<div class="ft"><span class="nm">${esc(c.n)}</span>${typePill(j.t)}</div><div class="it">${w?esc(w.n)+' · ':''}${esc(itemsTxt(j))}</div><div class="ft"><span class="pill ${di.cls} nodot">${I('cal',13)} ${fmt(j.due)} · ${di.txt}</span>${c.notes||(w&&w.notes)?`<span title="יש הערות" style="color:var(--warn)">${I('note',15)}</span>`:''}</div></button>`}
+
+function readySection(ready){
+ const rm=S.remind.ready;const byC={};ready.forEach(j=>{(byC[j.c]=byC[j.c]||[]).push(j)});
+ const rows=Object.entries(byC).map(([cid,js])=>{const c=C(+cid);const fail=js.some(notReached);const b=js.reduce((s,j)=>s+bal(j),0);
+  return `<div class="lr ${fail?'attn':''}">${rm?`<input type="checkbox" class="chk" data-selr="${cid}" ${S.sel.has(+cid)?'checked':''} aria-label="בחירת ${esc(c.n)}">`:''}<span class="av">${initials(c.n)}</span>
+  <div class="grow"><div class="t1">${nameLink(c)} ${js.length>1?`<span class="pill nodot">${js.length} פאות</span>`:''}</div><div class="t2">${js.map(j=>(WIG(j.w)?WIG(j.w).n+': ':'')+itemsTxt(j)).join(' | ')}</div></div>
+  ${fail?`<span class="pill bad">לא קיבלה הודעה</span>`:`<span class="pill ok">קיבלה הודעה</span>`}
+  ${b>0?`<span class="pill warn nodot num">לתשלום ${ils(b)}</span>`:`<span class="pill ok nodot">שולם</span>`}
+  ${rm?'':`<button class="btn sm soft" data-preview="${js[0].id}">${I('chat',15)} ההודעה</button><button class="btn sm" data-deliver="${cid}">${I('check',15)} נמסרה</button>`}</div>`}).join('');
+ return `<div class="card" style="--acc:var(--ok);--acc-t:var(--ok-t)"><div class="card-h"><span class="ico-tile">${I('bell')}</span><h2>מוכנות לאיסוף</h2><span class="count">${ready.length}</span>
+ <div class="act">${rm?`<button class="btn sm ghost" data-remind="ready">ביטול</button>`:`<button class="btn sm soft" data-remind="ready">${I('send',15)} שליחת תזכורות</button>`}</div></div>
+ <div class="card-b">${rm?remindBar('ready',S.sel.size):''}${rows||`<div class="empty">${I('check',20)}אין פאות שמחכות לאיסוף</div>`}</div></div>`}
+function failSection(fails){if(!fails.length)return'';
+ return `<div class="card" style="--acc:var(--bad);--acc-t:var(--bad-t);border-color:color-mix(in srgb,var(--bad) 40%,transparent)"><div class="card-h"><span class="ico-tile">${I('alert')}</span><h2>הודעות שלא הגיעו</h2><span class="count">${fails.length}</span><div class="act"><button class="btn sm ghost" data-go="log">ליומן ההודעות</button></div></div>
+ <div class="card-b">${fails.map(j=>{const c=C(j.c);const n=NOTIFS.find(x=>x.j===j.id&&(x.st==='fail'||x.st==='noanswer'));return `<div class="lr attn"><span class="av">${initials(c.n)}</span><div class="grow"><div class="t1">${nameLink(c)}</div><div class="t2">${n?`${CHN[n.ch][0]}: ${n.det}`:''}</div></div><button class="btn sm" data-resend="${j.id}">${I('retry',15)} שליחה חוזרת</button><button class="btn sm ghost" data-called="${j.id}">${I('phone',15)} דיברתי איתה</button></div>`}).join('')}</div></div>`}
+function remindBar(kind,n){const chs=[['wa','WhatsApp','chat'],['mail','מייל','mail'],['voice','שיחה קולית','phone']].filter(c=>kind!=='debt'||c[0]!=='voice');
+ return `<div class="note" style="margin-bottom:10px;align-items:center;flex-wrap:wrap">${I('info',16)}<span>סמני לקוחות, בחרי ערוץ ושלחי. בתזכורת יש קישור לתשלום.</span>
+ <div class="seg" style="margin-inline-start:auto">${chs.map(c=>`<button data-remch="${c[0]}" aria-pressed="${S.remCh===c[0]}">${I(c[2],15)} ${c[1]}</button>`).join('')}</div>
+ <button class="btn primary sm" data-sendrem="${kind}" ${n?'':'disabled'}>${I('send',15)} שליחה ל-${n} לקוחות</button></div>`}
+function debtSection(debts){const rm=S.remind.debt;
+ return `<div class="card" style="--acc:var(--a-pay);--acc-t:var(--a-pay-t)"><div class="card-h"><span class="ico-tile">${I('wallet')}</span><h2>חובות פתוחים</h2><span class="count num">${ils(debts.reduce((s,d)=>s+d.a,0))}</span>
+ <div class="act">${rm?`<button class="btn sm ghost" data-remind="debt">ביטול</button>`:`<button class="btn sm soft" data-remind="debt">${I('send',15)} תזכורת</button>`}</div></div>
+ <div class="card-b">${rm?remindBar('debt',S.selD.size):''}${debts.length?debts.map(d=>{const c=C(d.c);return `<div class="lr">${rm?`<input type="checkbox" class="chk" data-seld="${d.c}" ${S.selD.has(d.c)?'checked':''} aria-label="בחירת ${esc(c.n)}">`:''}<span class="av">${initials(c.n)}</span><div class="grow"><div class="t1">${nameLink(c)}</div><div class="t2">${d.since===0?'נמסרה היום':'נמסרה לפני '+(-d.since)+' ימים'}${c.debtAuto?'':' · בלי תזכורות אוטומטיות'}</div></div><b class="num disp" style="font-size:18px">${ils(d.a)}</b>${rm?'':`<button class="btn sm" data-pay="${d.c}">${I('coins',15)} רישום תשלום</button>`}</div>`}).join(''):`<div class="empty">${I('check',20)}אין חובות פתוחים</div>`}</div></div>`}
+
+/* ---- intake (bulk receive) ---- */
+function intakeRows(){const it=S.intake;const q=it.q.trim();const rows=[];
+ CUST.forEach(c=>c.wigs.forEach(w=>{if(openJobOfWig(w.id)||/בייצור/.test(w.n))return;if(it.f==='reg'&&!w.reg)return;if(q&&!(c.n.includes(q)||c.ph.replace(/-/g,'').includes(q.replace(/-/g,''))||w.n.includes(q)))return;rows.push({c,w})}));
+ return rows}
+function trOf(w){return S.intake.tr[w.id]||w.reg||'washset'}
+function priceOf(w,tr){return w.price&&tr===w.reg?w.price:combBase(tr)[3]}
+VIEWS.intake=()=>{const it=S.intake;const rows=intakeRows();const allReg=[];CUST.forEach(c=>c.wigs.forEach(w=>{if(w.reg&&!openJobOfWig(w.id))allReg.push(w)}));
+ const selN=it.sel.size;const sum=[...it.sel].reduce((s,wid)=>{const w=WIG(wid);return s+priceOf(w,trOf(w))},0);
+ const allSel=rows.length&&rows.every(r=>it.sel.has(r.w.id));
+ return `<div class="ph" style="--acc:var(--a-intake);--acc-t:var(--a-intake-t)"><span class="ico-tile">${I('inbox',22)}</span><div><h1>קליטת פאות</h1><div class="muted">פאות של לקוחות שמגיעות לסטודיו. המערכת יודעת מה הטיפול הקבוע של כל פאה.</div></div><div class="act">${backBtn()}</div></div>
+ <div class="row" style="flex-wrap:wrap;gap:10px">
+  <button class="ftl" data-intf="reg" aria-pressed="${it.f==='reg'}">${I('star')}<span>לקוחות קבועות</span><span class="n num">${allReg.length}</span></button>
+  <button class="ftl" data-intf="all" aria-pressed="${it.f==='all'}">${I('book')}<span>כל הפאות שלא בסטודיו</span></button>
+  <label class="search" style="max-width:320px;margin-inline-start:auto">${I('search',16)}<input id="intq" data-intq placeholder="חיפוש לקוחה או פאה" value="${esc(it.q)}" aria-label="חיפוש בקליטה"></label>
+ </div>
+ <div class="grid g-main" style="align-items:start">
+ <div class="card"><div class="tbl-wrap"><table><thead><tr><th style="width:40px"><input type="checkbox" class="chk" data-intall ${allSel?'checked':''} aria-label="בחירת הכל"></th><th>לקוחה והפאה</th><th>טיפול</th><th>מחיר</th><th>הערות קבועות</th></tr></thead><tbody>
+ ${rows.map(({c,w})=>{const tr=trOf(w);const on=it.sel.has(w.id);const ovr=it.tr[w.id]&&it.tr[w.id]!==w.reg;return `<tr ${on?'style="background:var(--surface-2)"':''}><td><input type="checkbox" class="chk" data-intsel="${w.id}" ${on?'checked':''} aria-label="בחירת ${esc(c.n)} ${esc(w.n)}"></td>
+ <td><div class="row"><span class="av">${initials(c.n)}</span><div><div>${nameLink(c)} · <b>${esc(w.n)}</b></div><div class="muted" style="font-size:12.5px">${esc(w.desc)}</div></div></div></td>
+ <td style="min-width:200px"><select class="in" style="height:38px" data-inttr="${w.id}" aria-label="טיפול">${CAT.comb.base.map(b=>`<option value="${b[0]}" ${tr===b[0]?'selected':''}>${b[1]}</option>`).join('')}</select><div style="margin-top:4px">${w.reg?(ovr?`<span class="was">שונה מהקבוע (${REGN[w.reg]})</span>`:regPill(w)):'<span class="muted" style="font-size:12px">אין טיפול קבוע, נבחר ברירת מחדל</span>'}</div></td>
+ <td class="num"><b>${ils(priceOf(w,tr))}</b>${w.price&&tr===w.reg?'<div class="muted" style="font-size:11.5px">מחיר קבוע ללקוחה</div>':''}</td>
+ <td style="max-width:260px;font-size:13px">${w.notes?`<span style="color:var(--t-comb)">${I('note',14)}</span> ${esc(w.notes)}`:'<span class="muted">—</span>'}${c.notes?`<div style="color:var(--warn);font-size:12.5px;margin-top:3px">${I('alert',12)} ${esc(c.notes)}</div>`:''}</td></tr>`}).join('')||`<tr><td colspan="5"><div class="empty">${I('search',20)}לא נמצאו פאות. נסי חיפוש אחר או ״כל הפאות״.</div></td></tr>`}
+ </tbody></table></div></div>
+ <div class="card sum" style="--acc:var(--a-intake);--acc-t:var(--a-intake-t)"><div class="card-h"><span class="ico-tile">${I('inbox')}</span><h2>נבחרו ${selN} פאות</h2></div><div class="card-b stack">
+  <div class="f"><span class="lab">תאריך יעד לכולן</span><div class="chips">${[[1,'מחר'],[2,'יומיים'],[3,'3 ימים'],[7,'שבוע']].map(x=>`<button class="chip" data-intdue="${x[0]}" aria-pressed="${it.due===x[0]}">${x[1]}</button>`).join('')}</div><div class="muted" style="font-size:13px">${fmtL(dOff(it.due))}</div></div>
+  <div class="sum-t"><span style="font-weight:800">סה״כ</span><b class="num">${ils(sum)}</b></div>
+  <button class="btn primary lg" data-intgo ${selN>1?'':'disabled'}>${I('check')} קליטת ${selN>1?selN:''} פאות יחד</button>
+  <button class="btn lg" data-intone ${selN===1?'':'disabled'}>${I('note')} קליטה אישית עם הערות לביקור</button>
+  <div class="muted" style="font-size:13px">${I('info',14)} פאה אחת נפתחת בקליטה אישית, עם מקום להערות על הביקור הזה. כמה פאות נקלטות יחד, כל אחת עם הטיפול והמחיר שלה.</div>
+ </div></div></div>`};
+
+/* ---- jobs list ---- */
+VIEWS.jobs=()=>{
+ const f=S.filter;const q=($('#q').value||'').trim();
+ let list=JOBS.slice();
+ if(f.st==='open')list=list.filter(j=>j.st==='work');else if(f.st==='ready')list=list.filter(j=>j.st==='ready');else if(f.st==='late')list=list.filter(j=>j.st==='work'&&diff(j.due)<=0);else if(f.st==='done')list=list.filter(j=>j.st==='done');
+ if(f.type!=='all')list=list.filter(j=>j.t===f.type);
+ if(q)list=list.filter(j=>C(j.c).n.includes(q)||C(j.c).ph.replace(/-/g,'').includes(q.replace(/-/g,''))||String(j.id).includes(q));
+ list.sort((a,b)=>a.due-b.due);
+ const cnt=fn=>JOBS.filter(fn).length;
+ const stT=[['open','בעבודה',j=>j.st==='work','list'],['late','באיחור / היום',j=>j.st==='work'&&diff(j.due)<=0,'alert'],['ready','מוכנות',j=>j.st==='ready','bell'],['done','נמסרו',j=>j.st==='done','check']];
+ const ST={work:['בעבודה','info'],ready:['מוכנה','ok'],done:['נמסרה','']};
+ return `<div class="ph" style="--acc:var(--a-jobs);--acc-t:var(--a-jobs-t)"><span class="ico-tile">${I('list',22)}</span><div><h1>עבודות</h1><div class="muted">${JOBS.length} עבודות · ממוינות לפי תאריך יעד</div></div><div class="act">${backBtn()}<button class="btn primary" data-go="new">${I('plus')} הזמנה חדשה</button></div></div>
+ <div class="ftiles">${stT.map(s=>`<button class="ftl" data-fst="${s[0]}" aria-pressed="${f.st===s[0]}">${I(s[3])}<span>${s[1]}</span><span class="n num">${cnt(s[2])}</span></button>`).join('')}
+ <span style="width:12px"></span>${[['all','הכל'],['prod','ייצור'],['upg','שדרוג'],['comb','סירוק']].map(t=>`<button class="ftl" data-fty="${t[0]}" aria-pressed="${f.type===t[0]}">${t[0]!=='all'?typePill(t[0]):'כל הסוגים'}</button>`).join('')}</div>
+ <div class="card"><div class="tbl-wrap"><table><thead><tr><th>לקוחה</th><th>סוג</th><th>הפאה ומה עושים</th><th>תאריך יעד</th><th>סכום</th><th>יתרה</th><th>סטטוס</th><th></th></tr></thead><tbody>
+ ${list.map(j=>{const c=C(j.c),di=dueInfo(j.due),w=WIG(j.w);const late=j.st==='work'&&diff(j.due)<0;const soon=j.st==='work'&&diff(j.due)>=0&&diff(j.due)<=1;
+  return `<tr class="click ${late?'attn':soon?'soon':''}" data-job="${j.id}"><td><div class="row"><span class="av">${initials(c.n)}</span><div><b>${esc(c.n)}</b><div class="muted num" style="font-size:12.5px">#${j.id} · <span dir="ltr">${c.ph}</span></div></div></div></td>
+  <td>${typePill(j.t)}</td><td style="max-width:300px"><b style="font-size:13.5px">${w?esc(w.n):''}</b> <span class="muted">${esc(itemsTxt(j))}</span></td>
+  <td>${j.st==='work'?`<b class="num">${fmt(j.due)}</b> <span class="pill ${di.cls} nodot">${di.txt}</span>`:`<span class="muted num">${fmt(j.due)}</span>`}</td>
+  <td class="num">${ils(total(j))}</td><td class="num">${bal(j)>0?`<b>${ils(bal(j))}</b>`:`<span class="pill ok nodot">${I('check',13)} שולם</span>`}</td>
+  <td><span class="pill ${notReached(j)?'bad':ST[j.st][1]}">${notReached(j)?'מוכנה, ההודעה לא הגיעה':ST[j.st][0]}</span></td>
+  <td>${j.st==='work'?`<button class="btn sm ok" data-ready="${j.id}">${I('check',15)} סמני מוכנה</button>`:''}</td></tr>`}).join('')||`<tr><td colspan="8"><div class="empty">${I('search',20)}לא נמצאו עבודות בסינון הזה<button class="btn sm soft" data-fst="open">הצגת כל העבודות בעבודה</button></div></td></tr>`}
+ </tbody></table></div></div>`;
+};
+
+/* ---- new order wizard ---- */
+function pickWig(wid){const w=S.wiz;w.w=wid;const wig=WIG(wid);
+ if(wig&&wig.reg){if(!w.t||w.autoT){w.t='comb';w.autoT=true;w.due=null}if(w.t==='comb'){w.comb=wig.reg;if(wig.price)w.pr['c_'+wig.reg]=wig.price}}}
+function wizLines(){const w=S.wiz;if(!w||!w.t)return[];const L=[];const pr=(k,d)=>w.pr[k]!=null?w.pr[k]:d;
+ if(w.t==='prod'){for(const [key,def] of Object.entries(CAT.prod)){const o=def.opts.find(x=>x[0]===w.prod[key]);if(!o)continue;const price=pr('p_'+key+'_'+o[0],o[2]);
+   if(price>0||key==='hair')L.push({k:'p_'+key+'_'+o[0],l:(key==='length'?'אורך ':key==='size'?'מידת ראש ':'')+o[1],p:price,d:o[2]})}}
+ if(w.t==='upg'){CAT.upg.forEach(o=>{if(w.upg.has(o[0])){const unit=pr('u_'+o[0],o[3]);L.push({k:'u_'+o[0],l:o[1]+(o[4]?` × ${w.addQty}`:''),p:o[4]?unit*w.addQty:unit,d:o[3]})}})}
+ if(w.t==='comb'){const b=combBase(w.comb);L.push({k:'c_'+b[0],l:b[1],p:pr('c_'+b[0],b[3]),d:b[3]});CAT.comb.extra.forEach(o=>{if(w.combX.has(o[0]))L.push({k:'x_'+o[0],l:o[1],p:pr('x_'+o[0],o[3]),d:o[3]})})}
+ return L}
+function priceIn(key,def,cur,lbl,col){const ch=cur!==def;return `<div class="price ${ch?'changed':''}"><input class="in" inputmode="numeric" data-price="${key}" value="${cur}" aria-label="מחיר ${esc(lbl)}"></div>${ch?`<div class="was" style="grid-column:${col||3}">שונה, ברירת המחדל ${ils(def)}</div>`:''}`}
+VIEWS.new=()=>{const w=S.wiz;const dueDefault={prod:42,upg:14,comb:3};
+ if(w.t&&!w.due)w.due=iso(dOff(dueDefault[w.t]));
+ const L=wizLines();const tot=L.reduce((s,x)=>s+x.p,0);
+ const cust=w.c?C(w.c):null;const wig=w.w?WIG(w.w):null;
+ let det='';
+ if(w.t==='prod'){det=`<div class="note">${I('info',16)}<span><b>שימי לב:</b> הפרמטרים והמחירים כאן הם דוגמה ראשונית. נגדיר יחד בדיוק את סוגי השיער, הבסיסים, המידות והמחירון של הסטודיו שלך.</span></div>
+  ${Object.entries(CAT.prod).map(([key,def])=>`<div class="f"><span class="lab">${def.lab}</span><div class="seg">${def.opts.map(o=>`<button data-prod="${key}:${o[0]}" aria-pressed="${w.prod[key]===o[0]}">${o[1]}${o[2]?` <span class="muted num" style="font-weight:600">${key==='hair'?ils(o[2]):'+'+ils(o[2])}</span>`:''}</button>`).join('')}</div></div>`).join('')}
+  <div class="fgrid"><div class="f"><label for="circ">היקף ראש (ס״מ)</label><input id="circ" class="in num" data-pf="circ" value="${esc(w.prod.circ)}" placeholder="למשל 55.5"></div>
+  <div class="f"><label for="shade">מספר גוון</label><input id="shade" class="in" data-pf="shade" value="${esc(w.prod.shade)}" placeholder="למשל 6/8"></div></div>
+  <div class="f"><label for="pnotes">הערות לייצור</label><textarea id="pnotes" class="in" data-pf="notes" placeholder="קו שיער, שביל, העדפות מיוחדות">${esc(w.prod.notes)}</textarea></div>`}
+ if(w.t==='upg'){det=`<div class="note">${I('info',16)}<span><b>שימי לב:</b> רשימת השדרוגים והמחירים היא דוגמה. נבנה אותה יחד לפי השירותים שאת נותנת.</span></div>
+  <div>${CAT.upg.map(o=>{const on=w.upg.has(o[0]);const cur=w.pr['u_'+o[0]]!=null?w.pr['u_'+o[0]]:o[3];return `<div class="opt"><input type="checkbox" class="chk" id="u_${o[0]}" data-upg="${o[0]}" ${on?'checked':''}><label for="u_${o[0]}"><div class="ol">${o[1]}</div>${o[2]?`<div class="od">${o[2]}</div>`:''}
+   ${o[4]&&on?`<div class="row" style="margin-top:6px"><span class="od">כמות:</span><button class="btn sm" data-qty="-1" aria-label="פחות">−</button><b class="num">${w.addQty}</b><button class="btn sm" data-qty="1" aria-label="יותר">+</button></div>`:''}</label>${priceIn('u_'+o[0],o[3],cur,o[1])}</div>`}).join('')}</div>`}
+ if(w.t==='comb'){const regHere=wig&&wig.reg;
+  det=`${regHere?`<div class="smart"><span class="ico-tile">${I(wig.reg==='wash'?'wind':'scissors',20)}</span><div style="flex:1;min-width:220px"><b>המערכת מכירה את הפאה הזו: טיפול קבוע ״${REGN[wig.reg]}״</b><div class="muted" style="font-size:13.5px">${wig.reg==='wash'?'פאה עם ייבוש טבעי, ולכן נבחרה חפיפה בלבד, בלי סירוק.':'נבחר הטיפול הקבוע שלה.'}${wig.price?` מחיר קבוע ללקוחה: ${ils(wig.price)}.`:''} אפשר לשנות להזמנה הזו.</div></div>${w.comb!==wig.reg?`<span class="was">שונה מהקבוע</span>`:`<span class="pill ok nodot">${I('check',13)} נבחר אוטומטית</span>`}</div>`:''}
+  <div class="f"><span class="lab">סוג הטיפול</span><div>${CAT.comb.base.map(o=>{const cur=w.pr['c_'+o[0]]!=null?w.pr['c_'+o[0]]:o[3];return `<div class="opt"><input type="radio" name="cb" class="chk" id="c_${o[0]}" data-comb="${o[0]}" ${w.comb===o[0]?'checked':''}><label for="c_${o[0]}"><div class="ol">${o[1]} ${regHere&&wig.reg===o[0]?regPill(wig):''}</div><div class="od">${o[2]}</div></label>${priceIn('c_'+o[0],o[3],cur,o[1])}</div>`}).join('')}</div></div>
+  <div class="f"><span class="lab">תוספות</span><div>${CAT.comb.extra.map(o=>{const cur=w.pr['x_'+o[0]]!=null?w.pr['x_'+o[0]]:o[3];return `<div class="opt"><input type="checkbox" class="chk" id="x_${o[0]}" data-combx="${o[0]}" ${w.combX.has(o[0])?'checked':''}><label for="x_${o[0]}"><div class="ol">${o[1]}</div></label>${priceIn('x_'+o[0],o[3],cur,o[1])}</div>`}).join('')}</div></div>`}
+ const prodPrices=w.t==='prod'?`<div class="card"><div class="card-h"><h2 style="font-size:17px">מחירי הרכיבים</h2><span class="muted" style="font-size:13px">ברירת מחדל מהמחירון, אפשר לשנות להזמנה הזו</span></div><div class="card-b">${L.map(x=>`<div class="opt" style="grid-template-columns:1fr 130px"><span class="ol">${x.l}</span>${priceIn(x.k,x.d,x.p,x.l,2)}</div>`).join('')}</div></div>`:'';
+ const n=w.due?diff(w.due):null;
+ const wigSel=cust?`<div class="f"><label for="wigsel">איזו פאה?</label><select id="wigsel" class="in" data-wigsel>${w.t==='prod'?'<option value="new" selected>פאה חדשה (תיווצר בכרטיס הלקוחה)</option>':`<option value="" ${!w.w?'selected':''} disabled>בחרי פאה</option>${cust.wigs.filter(x=>!/בייצור/.test(x.n)).map(x=>{const o=openJobOfWig(x.id);return `<option value="${x.id}" ${w.w===x.id?'selected':''} ${o?'disabled':''}>${esc(x.n)} · ${esc(x.desc)}${x.reg?' · קבוע: '+REGN[x.reg]:''}${o?' (כבר בסטודיו)':''}</option>`}).join('')}<option value="new">+ פאה חדשה ללקוחה</option>`}</select></div>`:'';
+ const custBlock=w.newC?`<div class="fgrid"><div class="f"><label for="ncn">שם מלא <span class="req">*</span></label><input id="ncn" class="in" data-nc="n" value="${esc(w.nc.n)}"></div><div class="f"><label for="ncp">טלפון <span class="req">*</span></label><input id="ncp" class="in num" data-nc="ph" value="${esc(w.nc.ph)}" dir="ltr" style="text-align:right"></div></div><button class="btn sm ghost" data-newc="0" style="margin-top:8px">${I('x',14)} חזרה לבחירת לקוחה קיימת</button>`
+  :`<div class="fgrid" style="grid-template-columns:1fr 1fr"><div class="f"><label for="cb_wcust">לקוחה <span class="req">*</span></label>${combo('wcust',custOpts(),w.c?String(w.c):null,'הקלידי שם או טלפון',(v,q)=>{if(v==='__new'){w.newC=true;w.c=null;w.w=null;w.nc.n=/\d/.test(q)?'':q;w.nc.ph=/\d/.test(q)?q:''}else{w.c=+v;w.w=null;if(w.autoT){w.t=null;w.autoT=false}const cc=C(+v);const reg=cc.wigs.filter(x=>x.reg&&!openJobOfWig(x.id));if(cc.wigs.filter(x=>!/בייצור/.test(x.n)&&!openJobOfWig(x.id)).length===1){pickWig(cc.wigs.find(x=>!/בייצור/.test(x.n)&&!openJobOfWig(x.id)).id)}}render()},'לקוחה חדשה')}</div>${wigSel}</div>
+   ${cust&&cust.notes?`<div class="cnote" style="margin-top:12px"><span class="lb">${I('alert',15)} הערה על הלקוחה</span><span>${esc(cust.notes)}</span></div>`:''}
+   ${wig?`<div class="wnote" style="margin-top:10px"><span class="lb">${I('note',15)} ${esc(wig.n)}</span><span>${esc(wig.desc)}${wig.notes?`<br><b>הערות קבועות:</b> ${esc(wig.notes)}`:''} ${regPill(wig)}</span><button class="btn sm ghost" data-cust="${cust.id}" style="margin-inline-start:auto">לכרטיס</button></div>`:''}`;
+ return `<div class="ph" style="--acc:var(--a-new);--acc-t:var(--a-new-t)"><span class="ico-tile">${I('plus',22)}</span><div><h1>הזמנה חדשה</h1><div class="muted">קבלת פאה לעבודה או הזמנת פאה חדשה</div></div><div class="act">${backBtn()}</div></div>
+ <div class="grid g-main" style="align-items:start">
+ <div class="stack" style="gap:18px">
+  <div class="card" style="overflow:visible"><div class="card-h"><span class="ico-tile">${I('book')}</span><h2>1 · הלקוחה והפאה</h2></div><div class="card-b">${custBlock}</div></div>
+  <div class="card"><div class="card-h"><span class="ico-tile">${I('pkg')}</span><h2>2 · מה מזמינים?</h2>${w.autoT?`<span class="pill ok nodot">${I('check',13)} נבחר לפי הפאה</span>`:''}</div><div class="card-b"><div class="types">
+   ${Object.entries(TYPES).map(([k,t])=>`<button class="type-t ${k}" data-wt="${k}" aria-pressed="${w.t===k}"><span class="ico-tile">${I(t.ic,24)}</span><b>${t.n}</b><span>${t.d}</span></button>`).join('')}</div></div></div>
+  ${w.t?`<div class="card"><div class="card-h"><span class="ico-tile">${I(TYPES[w.t].ic)}</span><h2>3 · פרטי ה${TYPES[w.t].n}</h2></div><div class="card-b stack" style="gap:16px">${det}
+   <div class="f"><label for="visit">הערות לביקור הזה</label><textarea id="visit" class="in" data-visit placeholder="למשל: הלקוחה ביקשה נפח קטן יותר הפעם">${esc(w.visit)}</textarea><span class="muted" style="font-size:12.5px">ההערות הקבועות של הפאה נשמרות בכרטיס. כאן כותבים רק מה שמיוחד לפעם הזו.</span></div></div></div>${prodPrices}
+  <div class="card"><div class="card-h"><span class="ico-tile">${I('cal')}</span><h2>4 · תאריך יעד</h2></div><div class="card-b stack">
+   <div class="row" style="flex-wrap:wrap"><input type="date" class="in" style="max-width:200px" data-due value="${w.due}" aria-label="תאריך יעד"><div class="chips">${[[3,'3 ימים'],[7,'שבוע'],[14,'שבועיים'],[30,'חודש'],[42,'6 שבועות']].map(x=>`<button class="chip" data-duein="${x[0]}" aria-pressed="${n===x[0]}">${x[1]}</button>`).join('')}</div></div>
+   <div class="muted" style="font-size:13.5px">${I('info',14)} ${fmtL(w.due)}. העבודה תופיע בדשבורד לפי התאריך הזה, ותעלה לראש הרשימה כשהוא מתקרב.</div></div></div>`:''}
+ </div>
+ <div class="card sum"><div class="card-h"><h2>סיכום ההזמנה</h2></div><div class="card-b">
+  <div class="muted" style="font-size:13.5px">${cust?esc(cust.n):w.newC&&w.nc.n?esc(w.nc.n):'עוד לא נבחרה לקוחה'}${wig?' · '+esc(wig.n):''}${w.t?' · '+TYPES[w.t].n:''}</div>
+  <div style="margin-top:10px">${L.length?L.map(x=>`<div class="sum-l"><span>${x.l}</span><span class="num">${ils(x.p)}</span></div>`).join(''):`<div class="empty">בחרי סוג עבודה כדי לראות מחיר</div>`}</div>
+  <div class="sum-t"><span style="font-weight:800">סה״כ</span><b class="num">${ils(tot)}</b></div>
+  ${w.t&&w.t!=='comb'?`<div class="f" style="margin-top:12px"><label for="dep">מקדמה שהתקבלה</label><div class="price"><input id="dep" class="in" data-dep value="${w.dep}" inputmode="numeric"></div><div class="muted" style="font-size:13px">יתרה לתשלום: <b class="num">${ils(tot-w.dep)}</b></div></div>`:''}
+  ${cust&&cust.notes?`<div class="cnote" style="margin-top:12px;font-size:13px"><span>${I('alert',14)} ${esc(cust.notes)}</span></div>`:''}
+  ${w.t?`<div class="muted" style="font-size:13.5px;margin-top:10px">${I('cal',14)} יעד: <b>${fmt(w.due)}</b></div>`:''}
+  <div class="stack" style="margin-top:16px;gap:8px">
+   <button class="btn primary lg" data-save="0" ${w.t&&(w.c||w.nc.n)?'':'disabled'}>${I('check')} שמירת ההזמנה</button>
+   ${w.t&&w.t!=='comb'?`<button class="btn lg" data-save="1" ${w.c||w.nc.n?'':'disabled'}>${I('print')} שמירה והדפסה ללקוחה</button>`:''}
+  </div></div></div>
+ </div>`;
+};
+
+/* ---- customers ---- */
+VIEWS.customers=()=>{const q=($('#q').value||'').trim();const list=CUST.filter(c=>!q||c.n.includes(q)||c.ph.replace(/-/g,'').includes(q.replace(/-/g,'')));
+ const chI=(c,k)=>`<span title="${CHN[k][0]}" aria-label="${CHN[k][0]}${c.ch.includes(k)?'':' (לא פעיל)'}" style="color:${c.ch.includes(k)?'var(--ok)':'#C4C0C2'}">${I(CHN[k][1],17)}</span>`;
+ return `<div class="ph" style="--acc:var(--a-cust);--acc-t:var(--a-cust-t)"><span class="ico-tile">${I('book',22)}</span><div><h1>לקוחות</h1><div class="muted">${CUST.length} לקוחות · לחיצה על שורה פותחת את הכרטיס</div></div><div class="act">${backBtn()}<button class="btn" data-import>${I('upload')} ייבוא מאקסל</button></div></div>
+ <div class="card"><div class="tbl-wrap"><table><thead><tr><th>לקוחה</th><th>טלפון</th><th>הפאות שלה</th><th>הערה</th><th>ערוצי הודעות</th><th>פתוחות</th><th>יתרה</th></tr></thead><tbody>
+ ${list.map(c=>{const js=JOBS.filter(j=>j.c===c.id);const open=js.filter(j=>j.st!=='done').length;const b=js.reduce((s,j)=>s+Math.max(0,bal(j)),0);const ws=c.wigs.filter(w=>!/בייצור/.test(w.n));
+  return `<tr class="click" data-cust="${c.id}"><td><div class="row"><span class="av">${initials(c.n)}</span><b>${esc(c.n)}</b></div></td><td class="num"><span dir="ltr">${c.ph}</span></td>
+  <td><div class="stack" style="gap:3px">${ws.map(w=>`<div style="font-size:13.5px"><b>${esc(w.n)}</b> ${regPill(w)}</div>`).join('')}</div></td>
+  <td style="max-width:220px;font-size:13px">${c.notes?`<span style="color:var(--warn)">${I('alert',13)}</span> ${esc(c.notes)}`:'<span class="muted">—</span>'}</td>
+  <td><div class="row" style="gap:8px">${chI(c,'wa')}${chI(c,'mail')}${chI(c,'voice')}</div></td><td class="num">${open||'<span class="muted">—</span>'}</td><td class="num">${b?`<b>${ils(b)}</b>`:`<span class="pill ok nodot">${I('check',13)} אין</span>`}</td></tr>`}).join('')}
+ </tbody></table></div></div>`};
+
+/* ---- customer card (the card IS the form) ---- */
+const dv=(k,orig)=>k in S.draft?S.draft[k]:orig;
+function dirtyCount(){const c=C(S.custId);let n=0;for(const k in S.draft){if(String(S.draft[k])!==String(origOf(c,k)))n++}return n}
+function origOf(c,k){if(k.startsWith('ch_'))return c.ch.includes(k.slice(3));if(k==='debtAuto')return c.debtAuto;const m=k.match(/^w(\d+)_(\w+)$/);if(m){const w=WIG(+m[1]);return m[2]==='price'?(w.price||''):(w[m[2]]??'')}return c[k]??''}
+function fld(k,orig,label,opts={}){const v=dv(k,orig);const ch=k in S.draft&&S.draft[k]!==orig;
+ const inp=opts.area?`<textarea class="in ${ch?'changed':''}" id="f_${k}" data-dr="${k}" placeholder="${esc(opts.ph||'')}" ${opts.style?`style="${opts.style}"`:''}>${esc(v)}</textarea>`:`<input class="in ${ch?'changed':''}" id="f_${k}" data-dr="${k}" value="${esc(v)}" ${opts.ltr?'dir="ltr" style="text-align:right"':''} placeholder="${esc(opts.ph||'')}">`;
+ return `<div class="f">${label?`<label for="f_${k}">${label}${opts.req?' <span class="req">*</span>':''}</label>`:''}${inp}${ch?`<span class="was">שונה, היה: ${esc(orig||'ריק')}</span>`:''}${opts.hint?`<span class="muted" style="font-size:12.5px">${opts.hint}</span>`:''}</div>`}
+function sw(k,orig,label){const v=dv(k,orig);return `<button class="sw" role="switch" aria-checked="${v}" data-drsw="${k}"><span class="tr"><span class="kn">${v?'✓':'✕'}</span></span> ${label}</button>`}
+VIEWS.customer=()=>{const c=C(S.custId);const js=JOBS.filter(j=>j.c===c.id).sort((a,b)=>b.start-a.start);const open=js.filter(j=>j.st!=='done');const b=js.reduce((s,j)=>s+Math.max(0,bal(j)),0);
+ const pays=PAYS.filter(p=>p.c===c.id).sort((a,b)=>b.d-a.d);const isReg=c.wigs.some(w=>w.reg);
+ const wigCard=w=>{const oj=openJobOfWig(w.id);const reg=dv(`w${w.id}_reg`,w.reg||'');const last=js.find(j=>j.w===w.id&&j.st==='done');const prod=/בייצור/.test(w.n);
+  return `<div class="wig ${reg?'':'noreg'}"><div class="wh"><input class="in ${`w${w.id}_n` in S.draft&&S.draft[`w${w.id}_n`]!==w.n?'changed':''}" data-dr="w${w.id}_n" value="${esc(dv(`w${w.id}_n`,w.n))}" aria-label="שם הפאה">
+   ${oj?`<span class="pill ${oj.st==='ready'?'ok':'info'}">${oj.st==='ready'?'מוכנה לאיסוף':'בסטודיו · '+TYPES[oj.t].n}</span>`:prod?'<span class="pill info">בייצור</span>':'<span class="pill">אצל הלקוחה</span>'}
+   ${!oj&&!prod?`<button class="btn sm soft" style="margin-inline-start:auto" data-newfor="${c.id}:${w.id}">${I('inbox',15)} קליטה לסטודיו</button>`:''}</div>
+   ${fld(`w${w.id}_desc`,w.desc,'תיאור הפאה',{ph:'סוג שיער, אורך, צבע, בסיס'})}
+   ${prod?'':`<div class="f"><span class="lab">טיפול קבוע בסירוק</span><div class="seg">${[['','אין טיפול קבוע','x'],['wash','חפיפה בלבד','wind'],['washset','חפיפה וסירוק','scissors']].map(o=>`<button data-drseg="w${w.id}_reg" data-val="${o[0]}" aria-pressed="${reg===o[0]}">${I(o[2],15)} ${o[1]}</button>`).join('')}</div><span class="muted" style="font-size:12.5px">${reg==='wash'?'פאה עם ייבוש טבעי: בכל קליטה תיבחר חפיפה בלבד, בלי סירוק.':reg?'בכל קליטה ייבחר הטיפול הזה אוטומטית.':'בקליטה תבחרי את הטיפול בכל פעם.'}</span>${`w${w.id}_reg` in S.draft&&S.draft[`w${w.id}_reg`]!==(w.reg||'')?`<span class="was">שונה, היה: ${w.reg?REGN[w.reg]:'אין טיפול קבוע'}</span>`:''}</div>
+   <div class="fgrid" style="grid-template-columns:200px 1fr"><div class="f"><label for="f_w${w.id}_price">מחיר קבוע ללקוחה</label><div class="price"><input class="in ${`w${w.id}_price` in S.draft&&String(S.draft[`w${w.id}_price`])!==String(w.price||'')?'changed':''}" id="f_w${w.id}_price" data-dr="w${w.id}_price" value="${esc(dv(`w${w.id}_price`,w.price||''))}" placeholder="לפי המחירון" inputmode="numeric"></div></div>
+   ${fld(`w${w.id}_notes`,w.notes,'הערות קבועות לפאה',{area:true,ph:'למשל: שביל בצד ימין, לא לקצר',hint:'מופיעות בכל פעם שהפאה נקלטת'})}</div>`}
+   ${last?`<div class="muted" style="font-size:12.5px">${I('clock',13)} ביקור אחרון: ${fmt(last.doneAt!=null?dOff(last.doneAt):last.due)} · ${esc(itemsTxt(last))}</div>`:''}</div>`};
+ const dn=dirtyCount();
+ return `<div class="row" style="gap:8px"><button class="btn sm ghost" data-go="customers">${I('back',15)} כל הלקוחות</button><span style="margin-inline-start:auto"></span>${backBtn()}</div>
+ <div class="card" style="--acc:var(--a-cust);--acc-t:var(--a-cust-t);overflow:hidden"><div class="hero"><span class="av">${initials(c.n)}</span><div><h1>${esc(dv('n',c.n))}</h1><div class="row" style="flex-wrap:wrap;margin-top:6px;gap:6px">${isReg?`<span class="pill ok">לקוחה קבועה לסירוק</span>`:''}<span class="pill nodot">לקוחה מאז ${c.since}</span>${c.ch.map(k=>`<span class="pill nodot">${I(CHN[k][1],13)} ${CHN[k][0]}</span>`).join('')}</div></div>
+  <div class="act"><button class="btn primary" data-newfor="${c.id}:">${I('plus')} הזמנה חדשה</button>${debtCust().some(d=>d.c===c.id)?`<button class="btn" data-pay="${c.id}">${I('coins')} רישום תשלום</button>`:''}</div></div>
+  <div class="facts"><div><div class="fl">פאות</div><div class="fv num">${c.wigs.length}</div></div><div><div class="fl">עבודות פתוחות</div><div class="fv num">${open.length}</div></div><div><div class="fl">יתרה לתשלום</div><div class="fv num" style="${b?'color:var(--bad)':''}">${ils(b)}</div></div><div><div class="fl">ביקורים השנה</div><div class="fv num">${js.length}</div></div></div></div>
+ <div class="grid g-main" style="align-items:start">
+  <div class="stack" style="gap:18px">
+   <div class="card" style="--acc:var(--warn);--acc-t:var(--warn-t)"><div class="card-h"><span class="ico-tile">${I('alert')}</span><h2>הערות על הלקוחה</h2><span class="muted" style="font-size:13px">מופיעות בכל הזמנה וקליטה שלה</span></div><div class="card-b">${fld('notes',c.notes,'',{area:true,ph:'למשל: לבקש תשלום מראש, מעדיפה לאסוף בערב',style:c.notes?'background:var(--warn-t)':''})}</div></div>
+   <div class="card" style="--acc:var(--t-comb);--acc-t:var(--t-comb-t)"><div class="card-h"><span class="ico-tile">${I('scissors')}</span><h2>הפאות שלה</h2><span class="count">${c.wigs.length}</span><div class="act"><button class="btn sm soft" data-addwig="${c.id}">${I('plus',15)} הוספת פאה</button></div></div><div class="card-b stack" style="gap:14px">${c.wigs.map(wigCard).join('')}</div></div>
+   <div class="card"><div class="card-h"><span class="ico-tile">${I('list')}</span><h2>היסטוריית ביקורים</h2></div><div class="tbl-wrap"><table><thead><tr><th>תאריך</th><th>פאה</th><th>סוג</th><th>מה נעשה</th><th>סכום</th><th>תשלום</th></tr></thead><tbody>
+    ${js.map(j=>`<tr class="click" data-job="${j.id}"><td class="num">${fmt(j.start)}</td><td><b>${WIG(j.w)?esc(WIG(j.w).n):''}</b></td><td>${typePill(j.t)}</td><td class="muted" style="font-size:13.5px">${esc(itemsTxt(j))}</td><td class="num">${ils(total(j))}</td><td>${bal(j)>0?`<span class="pill warn nodot num">יתרה ${ils(bal(j))}</span>`:`<span class="pill ok nodot">${I('check',12)} שולם</span>`}</td></tr>`).join('')}</tbody></table></div></div>
+  </div>
+  <div class="stack" style="gap:18px">
+   <div class="card"><div class="card-h"><span class="ico-tile">${I('phone')}</span><h2>פרטי קשר</h2></div><div class="card-b stack">${fld('n',c.n,'שם מלא',{req:true})}${fld('ph',c.ph,'טלפון',{req:true,ltr:true})}${fld('em',c.em,'מייל',{ltr:true,ph:'אין מייל'})}</div></div>
+   <div class="card" style="--acc:var(--a-log);--acc-t:var(--a-log-t)"><div class="card-h"><span class="ico-tile">${I('bell')}</span><h2>איך היא מקבלת הודעות</h2></div><div class="card-b stack">
+    ${sw('ch_wa',c.ch.includes('wa'),'WhatsApp')}${sw('ch_mail',c.ch.includes('mail'),'מייל')}${sw('ch_voice',c.ch.includes('voice'),'שיחה קולית')}
+    <div style="border-top:1px solid var(--border);padding-top:10px">${sw('debtAuto',c.debtAuto,'תזכורות חוב אוטומטיות')}</div>
+    <div class="muted" style="font-size:12.5px">לקוחה שביקשה להפסיק שיחות עוברת לבד להודעות כתובות, אם יש לה מייל או WhatsApp.</div></div></div>
+   <div class="card" style="--acc:var(--a-pay);--acc-t:var(--a-pay-t)"><div class="card-h"><span class="ico-tile">${I('coins')}</span><h2>תשלומים</h2></div><div class="card-b">${pays.length?pays.slice(0,6).map(p=>`<div class="lr"><div class="grow"><div class="t1 num">${ils(p.a)}</div><div class="t2">${fmt(p.d)} · ${p.m}${p.note?' · '+p.note:''}</div></div>${p.link?`<span class="pill ok nodot">דרך הקישור</span>`:''}</div>`).join(''):`<div class="empty">עוד אין תשלומים החודש</div>`}</div></div>
+  </div>
+ </div>
+ <div class="savebar" id="savebar" ${dn?'':'hidden'}><b id="sbtxt">${dn} שדות שונו</b><span style="opacity:.8;font-size:13.5px">השינויים בפאות יחולו מהקליטה הבאה</span><span style="margin-inline-start:auto"></span><button class="btn" data-drcancel>ביטול</button><button class="btn primary" data-drsave style="background:var(--ok);border-color:var(--ok)">${I('check')} שמירה</button></div>`};
+function updBar(){const b=$('#savebar');if(!b)return;const n=dirtyCount();b.hidden=!n;$('#sbtxt').textContent=`${n} שדות שונו`}
+function saveDraft(){const c=C(S.custId);for(const k in S.draft){const v=S.draft[k];
+  if(k.startsWith('ch_')){const ch=k.slice(3);c.ch=c.ch.filter(x=>x!==ch);if(v)c.ch.push(ch);continue}
+  if(k==='debtAuto'){c.debtAuto=v;continue}
+  const m=k.match(/^w(\d+)_(\w+)$/);if(m){const w=WIG(+m[1]);if(m[2]==='price')w.price=num(v)||null;else if(m[2]==='reg')w.reg=v||null;else w[m[2]]=v;continue}
+  c[k]=v}
+ S.draft={};render();toast('הכרטיס נשמר')}
+
+/* ---- payments ---- */
+VIEWS.payments=()=>{const debts=debtCust();const open=JOBS.filter(j=>j.st!=='done'&&bal(j)>0);
+ const methods={};PAYS.forEach(p=>methods[p.m]=(methods[p.m]||0)+p.a);const tot=monthIncome();
+ const mc={'ביט':'var(--t-comb)','אשראי':'var(--t-prod)','מזומן':'var(--t-upg)','העברה':'var(--info)','צ׳ק':'var(--mute)'};
+ return `<div class="ph" style="--acc:var(--a-pay);--acc-t:var(--a-pay-t)"><span class="ico-tile">${I('wallet',22)}</span><div><h1>תשלומים ותזכורות</h1><div class="muted">כל תשלום נרשם, גם במזומן וגם דרך הקישור</div></div><div class="act">${backBtn()}</div></div>
+ <div class="grid g2" style="align-items:start">
+  <div class="stack">${debtSection(debts)}
+   <div class="card"><div class="card-h"><span class="ico-tile">${I('bell')}</span><h2>תזכורות אוטומטיות</h2><div class="act"><button class="btn sm ghost" data-go="settings">שינוי בהגדרות</button></div></div><div class="card-b stack" style="font-size:14.5px">
+    <div class="row">${SETTINGS.autoDebt?`<span class="pill ok">פעיל</span>`:'<span class="pill">כבוי</span>'} תזכורת על חוב פתוח, ${SETTINGS.debtDays} ימים אחרי המסירה</div>
+    <div class="row">${SETTINGS.autoReadyRem?`<span class="pill ok">פעיל</span>`:'<span class="pill">כבוי</span>'} תזכורת על פאה שלא נאספה, אחרי ${SETTINGS.readyRemDays} ימים</div>
+    <div class="muted" style="font-size:13px">אין שליחה בשבת, בחג ומחוץ לשעות ${SETTINGS.from}–${SETTINGS.to}. הודעה שנופלת בזמן כזה מחכה לחלון הבא.</div></div></div>
+  </div>
+  <div class="stack">
+   <div class="card"><div class="card-h"><span class="ico-tile">${I('coins')}</span><h2>הכנסות החודש</h2><span class="count num">${ils(tot)}</span></div><div class="card-b">
+    <div class="split">${Object.entries(methods).map(([m,a])=>`<i style="flex:${a};background:${mc[m]}" title="${m}"></i>`).join('')}</div>
+    <div class="legend">${Object.entries(methods).map(([m,a])=>`<span><i style="background:${mc[m]}"></i>${m} <b class="num">${ils(a)}</b></span>`).join('')}</div>
+    <div class="note" style="margin-top:12px">${I('up',16)}<span><b class="num">${PAYS.filter(p=>p.link).length} תשלומים</b> הגיעו החודש דרך הקישור שבהודעה, ונרשמו במערכת לבד.</span></div></div></div>
+   <div class="card"><div class="card-h"><span class="ico-tile">${I('list')}</span><h2>תשלומים אחרונים</h2></div><div class="card-b">${PAYS.slice().sort((a,b)=>b.d-a.d).slice(0,8).map(p=>`<div class="lr"><span class="av">${initials(C(p.c).n)}</span><div class="grow"><div class="t1">${nameLink(C(p.c))}</div><div class="t2">${fmt(p.d)} · ${TYPES[p.k].n}${p.note?' · '+p.note:''}</div></div>${p.link?`<span class="pill ok nodot">${I('check',12)} דרך הקישור</span>`:''}<span class="pill nodot">${p.m}</span><b class="num">${ils(p.a)}</b></div>`).join('')}</div></div>
+   <div class="card"><div class="card-h"><span class="ico-tile">${I('cal')}</span><h2>יתרות על עבודות פתוחות</h2><span class="count num">${ils(open.reduce((s,j)=>s+bal(j),0))}</span></div><div class="card-b">${open.map(j=>`<div class="lr"><div class="grow"><div class="t1">${esc(C(j.c).n)} ${typePill(j.t)}</div><div class="t2">שולם ${ils(j.paid)} מתוך ${ils(total(j))}</div></div><div style="width:110px" class="bar"><i style="width:${Math.round(j.paid/total(j)*100)}%"></i></div><b class="num">${ils(bal(j))}</b></div>`).join('')}</div></div>
+  </div></div>`};
+
+/* ---- notification log ---- */
+VIEWS.log=()=>{const STL={ok:['נמסרה','ok'],answered:['נענתה','ok'],noanswer:['לא נענתה','warn'],fail:['נכשלה','bad'],wait:['ממתינה לחלון שליחה','info'],cancel:['בוטלה','']};
+ const KN={ready:'הפאה מוכנה',remind:'תזכורת איסוף',debt:'תזכורת חוב'};
+ const act=NOTIFS.filter(n=>n.st!=='cancel').sort((a,b)=>b.at-a.at), can=NOTIFS.filter(n=>n.st==='cancel');
+ const row=n=>{const c=C(n.c);const s=STL[n.ch==='voice'&&n.st==='ok'?'answered':n.st];return `<div class="lr ${n.st==='fail'||n.st==='noanswer'?'attn':''} ${n.st==='cancel'?'cancel':''}"><span class="ico-tile" style="width:34px;height:34px">${I(CHN[n.ch][1],16)}</span><div class="grow"><div class="t1">${nameLink(c)} · <span style="font-weight:600">${KN[n.k]}</span></div><div class="t2">${CHN[n.ch][0]} · ${n.st==='wait'?'מתוכננת ל-'+fmt(n.at):fmt(n.at)} · ${esc(n.det)}</div></div><span class="pill ${s[1]}">${s[0]}</span>${n.st==='fail'||n.st==='noanswer'?`<button class="btn sm" data-resend="${n.j}">${I('retry',15)} שליחה חוזרת</button>`:''}</div>`};
+ return `<div class="ph" style="--acc:var(--a-log);--acc-t:var(--a-log-t)"><span class="ico-tile">${I('chat',22)}</span><div><h1>יומן הודעות</h1><div class="muted">כל הודעה שיצאה, ומה קרה איתה</div></div><div class="act">${backBtn()}</div></div>
+ <div class="ftiles">${[['ok','נמסרו / נענו',NOTIFS.filter(n=>n.st==='ok').length,'check'],['bad','לא הגיעו',NOTIFS.filter(n=>n.st==='fail'||n.st==='noanswer').length,'alert'],['info','ממתינות',NOTIFS.filter(n=>n.st==='wait').length,'clock']].map(x=>`<div class="ftl" style="cursor:default"><span style="color:var(--${x[0]})">${I(x[3])}</span><span>${x[1]}</span><span class="n num">${x[2]}</span></div>`).join('')}</div>
+ <div class="card"><div class="card-b" style="padding-top:12px">${act.map(row).join('')}</div></div>
+ <div class="card state-sec" style="opacity:.92"><div class="card-h"><span class="ico-tile" style="--acc:var(--mute);--acc-t:var(--mute-t)">${I('x')}</span><h2 style="font-size:17px">בוטלו כי הפאה כבר נמסרה</h2><span class="muted" style="font-size:13px">מוצגות בנפרד כדי לא לבלבל</span></div><div class="card-b">${can.map(row).join('')}</div></div>`};
+
+/* ---- clock ---- */
+VIEWS.clock=()=>{const today=SHIFTS.filter(s=>s.d.getTime()===T0.getTime());
+ const stat=WORKERS.map(w=>{const ms=SHIFTS.filter(s=>s.w===w.id);const hrs=ms.reduce((t,s)=>t+((s.out??nowH())-s.in),0);const days=new Set(ms.map(s=>s.d.getDate())).size;return{w,hrs,days,pay:hrs*w.rate}});
+ return `<div class="ph" style="--acc:var(--a-clock);--acc-t:var(--a-clock-t)"><span class="ico-tile">${I('clock',22)}</span><div><h1>שעון נוכחות</h1><div class="muted">עמדת החתמה לעובדות, וחישוב שעות ושכר אוטומטי</div></div><div class="act"><div style="text-align:center"><div class="bigclock num" id="bigclock">${hhmm(nowH())}</div><div class="muted" style="font-size:13px">${fmtL(T0)}</div></div>${backBtn()}</div></div>
+ <div class="card" style="--acc:var(--a-clock);--acc-t:var(--a-clock-t)"><div class="card-h"><span class="ico-tile">${I('login')}</span><h2>עמדת החתמה</h2><span class="muted" style="font-size:13px">העובדת לוחצת על השם ומקישה קוד אישי (בדמו: כל 4 ספרות)</span></div><div class="card-b"><div class="kiosk">
+ ${WORKERS.map(w=>{const s=today.find(x=>x.w===w.id&&x.out===null);return `<button class="wk ${s?'on':''}" data-wk="${w.id}"><span class="av">${initials(w.n)}</span><b>${w.n}</b><span class="muted" style="font-size:13px">${w.role}</span>${s?`<span class="pill ok">בעבודה מ-${hhmm(s.in)}</span>`:`<span class="pill">לא החתימה</span>`}</button>`}).join('')}</div></div></div>
+ <div class="grid g2" style="align-items:start">
+ <div class="card"><div class="card-h"><span class="ico-tile">${I('list')}</span><h2>היום</h2></div><div class="card-b">${today.length?today.map(s=>{const w=WORKERS.find(x=>x.id===s.w);return `<div class="lr"><span class="av">${initials(w.n)}</span><div class="grow"><div class="t1">${w.n}</div><div class="t2 num">כניסה ${hhmm(s.in)}${s.out?' · יציאה '+hhmm(s.out):''}</div></div>${s.out?`<span class="pill">${(s.out-s.in).toFixed(1)} שעות</span>`:`<span class="pill ok">בעבודה</span>`}</div>`}).join(''):`<div class="empty">אין החתמות היום</div>`}</div></div>
+ <div class="card"><div class="card-h"><span class="ico-tile">${I('coins')}</span><h2>שעות ושכר · ${MONTHS[T0.getMonth()]}</h2></div><div class="tbl-wrap"><table><thead><tr><th>עובדת</th><th>ימים</th><th>שעות</th><th>תעריף לשעה</th><th>שכר עד היום</th></tr></thead><tbody>
+ ${stat.map(s=>`<tr><td><b>${s.w.n}</b></td><td class="num">${s.days}</td><td class="num">${s.hrs.toFixed(1)}</td><td style="width:130px"><div class="price"><input class="in" data-rate="${s.w.id}" value="${s.w.rate}" style="height:36px" aria-label="תעריף ${s.w.n}"></div></td><td class="num"><b>${ils(s.pay)}</b></td></tr>`).join('')}
+ <tr><td><b>סה״כ</b></td><td></td><td class="num"><b>${stat.reduce((a,s)=>a+s.hrs,0).toFixed(1)}</b></td><td></td><td class="num"><b class="disp" style="font-size:18px">${ils(stat.reduce((a,s)=>a+s.pay,0))}</b></td></tr>
+ </tbody></table></div></div></div>`};
+
+/* ---- expenses ---- */
+VIEWS.expenses=()=>{const tot=EXPS.reduce((s,e)=>s+e.a,0);const byT={};EXPS.forEach(e=>byT[e.t]=(byT[e.t]||0)+e.a);const mx=Math.max(...Object.values(byT));
+ const list=EXPS.filter(e=>S.expFilter==='all'||e.t===S.expFilter).sort((a,b)=>b.d-a.d);
+ const f=S.expForm||(S.expForm={d:iso(T0),a:'',s:'',t:'',m:'אשראי',sup:''});
+ const supOpts=SUPPLIERS.map(s=>{const last=EXPS.filter(e=>e.sup===s).sort((a,b)=>b.d-a.d)[0];return{v:s,l:s,s:last?`בדרך כלל: ${last.t}`:''}});
+ const ok=f.a&&f.t&&f.m;
+ return `<div class="ph" style="--acc:var(--a-exp);--acc-t:var(--a-exp-t)"><span class="ico-tile">${I('receipt',22)}</span><div><h1>הוצאות</h1><div class="muted">${MONTHS[T0.getMonth()]} · ${EXPS.length} הוצאות · <b class="num">${ils(tot)}</b></div></div><div class="act">${backBtn()}</div></div>
+ <div class="grid g-main" style="align-items:start;--acc:var(--a-exp);--acc-t:var(--a-exp-t)">
+ <div class="stack">
+  <form class="card" id="expForm" style="overflow:visible"><div class="card-h"><span class="ico-tile">${I('plus')}</span><h2>הוספת הוצאה</h2></div><div class="card-b stack" style="gap:14px">
+   <div class="fgrid"><div class="f"><label for="ea">סכום <span class="req">*</span></label><div class="price"><input id="ea" class="in" data-ef="a" value="${esc(f.a)}" inputmode="numeric"></div></div>
+   <div class="f"><label for="ed">תאריך <span class="req">*</span></label><input id="ed" type="date" class="in" data-ef="d" value="${f.d}"></div>
+   <div class="f"><label for="cb_sup">ספק</label>${combo('sup',supOpts,f.sup||null,'בחרי או הקלידי ספק',(v,q)=>{if(v==='__new'){if(q.trim()){SUPPLIERS.push(q.trim());f.sup=q.trim();toast('הספק נוסף לרשימה')}}else{f.sup=v;const last=EXPS.filter(e=>e.sup===v).sort((a,b)=>b.d-a.d)[0];if(last&&!f.t)f.t=last.t;if(last)f.m=last.m}render()},'ספק חדש')}</div></div>
+   <div class="fgrid"><div class="f"><label for="et">סוג ההוצאה <span class="req">*</span></label><select id="et" class="in" data-ef="t"><option value="" ${f.t?'':'selected'} disabled>בחרי סוג</option>${EXP_TYPES.map(t=>`<option ${f.t===t?'selected':''}>${t}</option>`).join('')}</select></div>
+   <div class="f"><label for="em">אופן התשלום <span class="req">*</span></label><select id="em" class="in" data-ef="m">${EXP_PAY.map(m=>`<option ${f.m===m?'selected':''}>${m}</option>`).join('')}</select></div>
+   <div class="f"><label for="es">תיאור</label><input id="es" class="in" data-ef="s" value="${esc(f.s)}" placeholder="למשל שיער אירופאי 200 גר׳"></div></div>
+   ${f.sup&&EXPS.some(e=>e.sup===f.sup)?`<div class="muted" style="font-size:13px">${I('info',14)} הסוג ואופן התשלום מולאו לפי ההוצאה האחרונה מהספק הזה. אפשר לשנות.</div>`:''}
+   <div class="row" style="flex-wrap:wrap"><label class="btn sm ghost" style="cursor:pointer">${I('receipt',15)} צירוף קבלה (לא חובה)<input type="file" hidden accept="image/*,.pdf"></label><button class="btn primary" style="margin-inline-start:auto" ${ok?'':'disabled'} type="submit">${I('check')} שמירת ההוצאה</button></div>
+  </div></form>
+  <div class="card"><div class="card-h"><span class="ico-tile">${I('list')}</span><h2>הוצאות החודש</h2><div class="act"><select class="in" style="height:36px;width:auto" data-expfilter aria-label="סינון לפי סוג"><option value="all">כל הסוגים</option>${EXP_TYPES.map(t=>`<option ${S.expFilter===t?'selected':''}>${t}</option>`).join('')}</select></div></div>
+  <div class="tbl-wrap"><table><thead><tr><th>תאריך</th><th>ספק</th><th>תיאור</th><th>סוג</th><th>תשלום</th><th>סכום</th></tr></thead><tbody>${list.map(e=>`<tr><td class="num">${fmt(e.d)}</td><td>${esc(e.sup||'—')}</td><td class="muted">${esc(e.s||'—')}</td><td><span class="pill nodot" style="background:var(--a-exp-t);color:var(--a-exp)">${e.t}</span></td><td>${e.m}</td><td class="num"><b>${ils(e.a)}</b></td></tr>`).join('')}</tbody></table></div></div>
+ </div>
+ <div class="card sum"><div class="card-h"><span class="ico-tile">${I('chart')}</span><h2>לפי סוג</h2></div><div class="card-b stack">${Object.entries(byT).sort((a,b)=>b[1]-a[1]).map(([t,a])=>`<div><div class="row" style="justify-content:space-between;font-size:14px"><span>${t}</span><b class="num">${ils(a)}</b></div><div class="bar"><i style="width:${a/mx*100}%"></i></div></div>`).join('')}
+ <div class="sum-t"><span style="font-weight:800">סה״כ החודש</span><b class="num">${ils(tot)}</b></div></div></div>
+ </div>`};
+
+/* ---- report ---- */
+VIEWS.report=()=>{const inc=monthIncome();const exp=EXPS.reduce((s,e)=>s+e.a,0);
+ const wages=WORKERS.reduce((a,w)=>a+SHIFTS.filter(s=>s.w===w.id).reduce((t,s)=>t+((s.out??nowH())-s.in),0)*w.rate,0);
+ const net=inc-exp-wages;const byK={prod:0,upg:0,comb:0};PAYS.forEach(p=>byK[p.k]+=p.a);
+ const months=[...HIST,{i:inc,e:exp+wages,cur:true}];const mi=T0.getMonth();const labels=months.map((m,i)=>MONTHS[(mi-5+i+12)%12]);
+ const Wd=560,H=220,pad=34,mx=Math.ceil(Math.max(...months.map(m=>Math.max(m.i,m.e)))/10000)*10000;const bw=(Wd-pad*2)/months.length;const y=v=>H-26-(v/mx)*(H-46);
+ const chart=`<svg class="chart" style="direction:ltr" viewBox="0 0 ${Wd} ${H}" width="100%" role="img" aria-label="הכנסות מול הוצאות בחצי השנה האחרונה">
+  ${[0,mx/2,mx].map(v=>`<line x1="${pad}" x2="${Wd-6}" y1="${y(v)}" y2="${y(v)}" stroke="var(--border)"/><text x="${pad-6}" y="${y(v)+4}" text-anchor="end">${v?v/1000+'K':'0'}</text>`).join('')}
+  ${months.map((m,i)=>{const x=Wd-pad-(i+1)*bw+bw*.18;const w2=bw*.3;return `<rect x="${x+w2+3}" y="${y(m.i)}" width="${w2}" height="${y(0)-y(m.i)}" rx="3" fill="var(--primary)" opacity="${m.cur?1:.5}"/><rect x="${x}" y="${y(m.e)}" width="${w2}" height="${y(0)-y(m.e)}" rx="3" fill="var(--t-upg)" opacity="${m.cur?1:.45}"/><text x="${x+w2+1.5}" y="${H-8}" text-anchor="middle" style="font-weight:${m.cur?800:400}">${labels[i]}</text>`}).join('')}</svg>`;
+ const kc={prod:'var(--t-prod)',upg:'var(--t-upg)',comb:'var(--t-comb)'};const byT={};EXPS.forEach(e=>byT[e.t]=(byT[e.t]||0)+e.a);
+ return `<div class="ph" style="--acc:var(--a-rep);--acc-t:var(--a-rep-t)"><span class="ico-tile">${I('chart',22)}</span><div><h1>דו״ח חודשי · ${MONTHS[mi]}</h1><div class="muted">נכון ל${fmtL(T0)}</div></div><div class="act">${backBtn()}<button class="btn" data-repprint>${I('print')} הדפסה / PDF לרואה החשבון</button></div></div>
+ <div class="rep-k">
+  <div class="card"><div class="lbl">הכנסות</div><div class="big-n num">${ils(inc)}</div><div class="muted" style="font-size:13px">${I('up',13)} ${Math.round((inc/HIST[4].i-1)*100)}% לעומת ${MONTHS[(mi+11)%12]}</div></div>
+  <div class="card"><div class="lbl">הוצאות</div><div class="big-n num">${ils(exp)}</div><div class="muted" style="font-size:13px">${EXPS.length} הוצאות שנרשמו</div></div>
+  <div class="card"><div class="lbl">שכר עובדות</div><div class="big-n num">${ils(wages)}</div><div class="muted" style="font-size:13px">לפי שעון הנוכחות</div></div>
+  <div class="card hl"><div class="lbl">רווח נקי</div><div class="big-n num">${ils(net)}</div><div style="font-size:13px;opacity:.85">אחרי הוצאות ושכר</div></div></div>
+ <div class="grid g-main" style="align-items:start">
+  <div class="card"><div class="card-h"><span class="ico-tile">${I('chart')}</span><h2>הכנסות מול הוצאות</h2><div class="legend" style="margin:0 auto 0 0"><span><i style="background:var(--primary)"></i>הכנסות</span><span><i style="background:var(--t-upg)"></i>הוצאות ושכר</span></div></div><div class="card-b">${chart}</div></div>
+  <div class="card"><div class="card-h"><span class="ico-tile">${I('pkg')}</span><h2>הכנסות לפי סוג עבודה</h2></div><div class="card-b stack">
+   <div class="split">${Object.entries(byK).map(([k,a])=>`<i style="flex:${a};background:${kc[k]}"></i>`).join('')}</div>
+   ${Object.entries(byK).map(([k,a])=>`<div class="row" style="justify-content:space-between"><span>${typePill(k)}</span><span class="muted" style="font-size:13px">${Math.round(a/inc*100)}%</span><b class="num">${ils(a)}</b></div>`).join('')}</div></div></div>
+ <div class="grid g3">
+  <div class="card"><div class="card-h"><span class="ico-tile">${I('receipt')}</span><h2>הוצאות לפי סוג</h2></div><div class="card-b stack">${Object.entries(byT).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([t,a])=>`<div class="row" style="justify-content:space-between;font-size:14px"><span>${t}</span><b class="num">${ils(a)}</b></div>`).join('')}</div></div>
+  <div class="card"><div class="card-h"><span class="ico-tile">${I('star')}</span><h2>לקוחות</h2></div><div class="card-b stack">
+   <div class="row" style="justify-content:space-between"><span>לקוחות שהגיעו החודש</span><b class="num">${new Set(PAYS.map(p=>p.c)).size}</b></div>
+   <div class="row" style="justify-content:space-between"><span>לקוחות קבועות לסירוק</span><b class="num">${CUST.filter(c=>c.wigs.some(w=>w.reg)).length}</b></div>
+   <div class="row" style="justify-content:space-between"><span>הזמנות ייצור פתוחות</span><b class="num">${JOBS.filter(j=>j.t==='prod'&&j.st!=='done').length}</b></div></div></div>
+  <div class="card"><div class="card-h"><span class="ico-tile">${I('wallet')}</span><h2>פתוח לגבייה</h2></div><div class="card-b stack">
+   <div class="row" style="justify-content:space-between"><span>חובות על פאות שנמסרו</span><b class="num">${ils(debtCust().reduce((s,d)=>s+d.a,0))}</b></div>
+   <div class="row" style="justify-content:space-between"><span>יתרות על עבודות פתוחות</span><b class="num">${ils(JOBS.filter(j=>j.st!=='done').reduce((s,j)=>s+Math.max(0,bal(j)),0))}</b></div>
+   <div class="row" style="justify-content:space-between"><span>שולם דרך הקישור</span><b class="num">${ils(PAYS.filter(p=>p.link).reduce((s,p)=>s+p.a,0))}</b></div></div></div>
+ </div>`};
+
+/* ---- settings ---- */
+VIEWS.settings=()=>{const t=S.setTab;
+ const row=(path,label,desc,price)=>`<div class="opt" style="grid-template-columns:1fr 140px"><div><div class="ol">${label}</div>${desc?`<div class="od">${desc}</div>`:''}</div><div class="price"><input class="in" data-catp="${path}" value="${price}" inputmode="numeric" aria-label="מחיר ${esc(label)}"></div></div>`;
+ let body='';
+ if(t==='comb')body=`<h3 style="font-size:16px;margin:4px 0 6px">טיפולים</h3>${CAT.comb.base.map((o,i)=>row(`comb.base.${i}.3`,o[1],o[2],o[3])).join('')}<h3 style="font-size:16px;margin:16px 0 6px">תוספות</h3>${CAT.comb.extra.map((o,i)=>row(`comb.extra.${i}.3`,o[1],o[2],o[3])).join('')}`;
+ if(t==='upg')body=CAT.upg.map((o,i)=>row(`upg.${i}.3`,o[1]+(o[4]?' (ליחידה)':''),o[2],o[3])).join('');
+ if(t==='prod')body=Object.entries(CAT.prod).map(([k,d])=>`<h3 style="font-size:16px;margin:12px 0 4px">${d.lab}</h3>`+d.opts.map((o,i)=>row(`prod.${k}.opts.${i}.2`,o[1],k==='hair'?'מחיר בסיס':'תוספת למחיר',o[2])).join('')).join('');
+ return `<div class="ph" style="--acc:var(--a-set);--acc-t:var(--a-set-t)"><span class="ico-tile">${I('gear',22)}</span><div><h1>הגדרות ומחירון</h1><div class="muted">שינוי כאן חל על ההזמנות הבאות. הזמנות קיימות שומרות את המחיר שלהן.</div></div><div class="act">${backBtn()}</div></div>
+ <div class="grid g-main" style="align-items:start">
+  <div class="card"><div class="card-h"><span class="ico-tile">${I('coins')}</span><h2>מחירון ברירת מחדל</h2></div><div class="card-b">
+   <div class="tabs" role="tablist">${[['comb','סירוק','scissors'],['upg','שדרוג','spark'],['prod','ייצור','layers']].map(x=>`<button class="tab" role="tab" aria-selected="${t===x[0]}" data-settab="${x[0]}">${I(x[2],16)} ${x[1]}</button>`).join('')}</div>
+   ${t!=='comb'?`<div class="note" style="margin-bottom:8px">${I('info',16)}<span>הרכיבים והמחירים כאן הם דוגמה. נבנה יחד את המחירון האמיתי של הסטודיו.</span></div>`:''}${body}
+   <button class="btn sm soft" style="margin-top:10px" data-addcat>${I('plus',15)} הוספת רכיב</button></div></div>
+  <div class="stack" style="gap:18px">
+   <div class="card"><div class="card-h"><span class="ico-tile">${I('clock')}</span><h2>מתי שולחים הודעות</h2></div><div class="card-b stack">
+    <div class="fgrid" style="grid-template-columns:1fr 1fr"><div class="f"><label for="sfrom">משעה</label><input id="sfrom" type="time" class="in" value="${SETTINGS.from}" data-setv="from"></div><div class="f"><label for="sto">עד שעה</label><input id="sto" type="time" class="in" value="${SETTINGS.to}" data-setv="to"></div></div>
+    <div class="f"><label for="scity">עיר (לזמני שבת וחג)</label><select id="scity" class="in" data-setv="city">${['ירושלים','בני ברק','בית שמש','מודיעין עילית','ביתר עילית','אלעד','בית"ר'].slice(0,6).map(x=>`<option ${SETTINGS.city===x?'selected':''}>${x}</option>`).join('')}</select></div>
+    <div class="row" style="font-size:14px"><span class="pill ok">${I('lock',12)} תמיד</span> אין שליחה בשבת ובחג. הודעה שנופלת בזמן הזה יוצאת במוצאי שבת או חג.</div></div></div>
+   <div class="card"><div class="card-h"><span class="ico-tile">${I('bell')}</span><h2>תזכורות אוטומטיות</h2></div><div class="card-b stack">
+    <button class="sw" role="switch" aria-checked="${SETTINGS.autoReadyRem}" data-setsw="autoReadyRem"><span class="tr"><span class="kn">${SETTINGS.autoReadyRem?'✓':'✕'}</span></span> פאה שלא נאספה: תזכורת אחרי ${SETTINGS.readyRemDays} ימים</button>
+    <button class="sw" role="switch" aria-checked="${SETTINGS.autoDebt}" data-setsw="autoDebt"><span class="tr"><span class="kn">${SETTINGS.autoDebt?'✓':'✕'}</span></span> חוב פתוח: תזכורת ${SETTINGS.debtDays} ימים אחרי המסירה</button>
+    <button class="sw" role="switch" aria-checked="${SETTINGS.debtRepeat}" data-setsw="debtRepeat"><span class="tr"><span class="kn">${SETTINGS.debtRepeat?'✓':'✕'}</span></span> תזכורת חוב חוזרת כל שבוע</button>
+    <div class="muted" style="font-size:12.5px">אפשר לכבות תזכורות חוב ללקוחה מסוימת מהכרטיס שלה.</div></div></div>
+   <div class="card"><div class="card-h"><span class="ico-tile">${I('chat')}</span><h2>נוסח ההודעה ״הפאה מוכנה״</h2></div><div class="card-b stack">
+    <textarea class="in tmpl" rows="6" data-setv="tmpl" aria-label="נוסח ההודעה">${esc(SETTINGS.tmpl)}</textarea>
+    <div style="font-size:12.5px" class="muted">שדות שמתמלאים לבד: ${['{שם}','{פירוט}','{סכום}','{קישורי תשלום}'].map(x=>`<span class="tag-ph">${x}</span>`).join('')}</div>
+    <div class="row" style="flex-wrap:wrap"><label class="btn sm" style="cursor:pointer">${I('upload',15)} הקלטה לשיחה הקולית<input type="file" hidden accept="audio/*"></label><span class="muted" style="font-size:12.5px">עד 15 שניות, בקול שלך</span></div></div></div>
+  </div></div>`};
+
+/* ============ modals ============ */
+function openModal(html,narrow){const m=$('#modal');m.className='modal'+(narrow?' narrow':'');m.innerHTML=html;$('#scrim').classList.add('open');setTimeout(()=>{const f=m.querySelector('[autofocus],button.btn.primary,button');f&&f.focus()},30)}
+function closeModal(){$('#scrim').classList.remove('open');}
+const mh=(t,ic)=>`<div class="m-h">${ic?`<span class="ico-tile">${I(ic)}</span>`:''}<h2>${t}</h2><button class="btn ghost sm x" data-close aria-label="סגירה">${I('x')}</button></div>`;
+
+function jobModal(id){const j=JOBS.find(x=>x.id===id),c=C(j.c),di=dueInfo(j.due),w=WIG(j.w);
+ const ST={work:['בעבודה','info'],ready:['מוכנה לאיסוף','ok'],done:['נמסרה','']};
+ openModal(`${mh(`${esc(c.n)} · ${TYPES[j.t].n} #${j.id}`,TYPES[j.t].ic)}<div class="m-b stack" style="gap:14px">
+  <div class="row" style="flex-wrap:wrap">${typePill(j.t)}<span class="pill ${ST[j.st][1]}">${ST[j.st][0]}</span><span class="pill ${j.st==='work'?di.cls:''} nodot">${I('cal',13)} יעד ${fmt(j.due)}${j.st==='work'?' · '+di.txt:''}</span><span class="muted">התקבלה ${fmt(j.start)}</span><button class="btn sm ghost" data-cust="${c.id}" style="margin-inline-start:auto">${I('book',15)} לכרטיס הלקוחה</button></div>
+  ${c.notes?`<div class="cnote"><span class="lb">${I('alert',15)} הערה על הלקוחה</span><span>${esc(c.notes)}</span></div>`:''}
+  ${w?`<div class="wnote"><span class="lb">${I('note',15)} ${esc(w.n)}</span><span>${esc(w.desc)}${w.notes?`<br><b>הערות קבועות:</b> ${esc(w.notes)}`:''} ${regPill(w)}</span></div>`:''}
+  ${j.spec?`<div class="note">${I('layers',16)}<span><b>מפרט:</b> ${esc(j.spec)}</span></div>`:''}
+  ${j.visit?`<div class="note">${I('note',16)}<span><b>הערות לביקור:</b> ${esc(j.visit)}</span></div>`:''}
+  <div class="card" style="box-shadow:none"><div class="card-b" style="padding-top:12px">${j.items.map(x=>`<div class="sum-l"><span>${x[0]}</span><span class="num">${ils(x[1])}</span></div>`).join('')}
+   <div class="sum-t"><span style="font-weight:800">סה״כ</span><b class="num" style="font-size:22px">${ils(total(j))}</b></div>
+   <div class="sum-l"><span>שולם</span><span class="num">${ils(j.paid)}</span></div><div class="sum-l"><b>יתרה</b><b class="num">${ils(bal(j))}</b></div></div></div>
+ </div><div class="m-f">${j.t!=='comb'?`<button class="btn" data-print="${j.id}">${I('print')} טופס הזמנה ללקוחה</button>`:''}${bal(j)>0?`<button class="btn" data-payjob="${j.id}">${I('coins')} רישום תשלום</button>`:''}${j.st==='work'?`<button class="btn ok" data-ready="${j.id}">${I('check')} סמני מוכנה</button>`:j.st==='ready'?`<button class="btn soft" data-preview="${j.id}">${I('chat')} ההודעה שנשלחה</button>`:''}</div>`)}
+
+let PV={tab:'wa',pay:null,jid:null,mode:'view'};
+function previewModal(jid,fromReady){const c=C(JOBS.find(j=>j.id===jid).c);PV={tab:c.ch.includes('wa')?'wa':c.ch[0]||'wa',pay:null,jid,mode:fromReady?'confirm':'view'};drawPreview()}
+function drawPreview(){const j=JOBS.find(x=>x.id===PV.jid),c=C(j.c),w=WIG(j.w);const first=c.n.split(' ')[0];
+ const otherReady=JOBS.filter(x=>x.c===c.id&&x.id!==j.id&&x.st==='ready'&&x.notif==='ok');
+ const b=JOBS.filter(x=>x.c===c.id&&(x.st==='ready'||x.id===j.id)).reduce((s,x)=>s+bal(x),0);
+ const tabs=[['wa','WhatsApp','chat'],['mail','מייל','mail'],['voice','שיחה קולית','phone']];
+ const tm=hhmm(nowH());const payBtns=b>0;
+ const detail=`${w?esc(w.n)+', ':''}${TYPES[j.t].n}: ${esc(itemsTxt(j))}`;
+ const waMsg=`שלום ${first}, 😊<br>הפאה שלך מוכנה לאיסוף בסטודיו של לאה אלבוים.<br>${detail}<br>${payBtns?`<b>לתשלום: ${ils(b)}</b><br>אפשר לשלם כבר עכשיו, בלחיצה:`:'התשלום התקבל, תודה!'}<br>שעות איסוף: א׳–ה׳ 10:00–19:00`;
+ let si='';
+ if(PV.pay==='card')si=`<div class="paypage"><div class="pp-h"><div style="font-size:12px;color:#777">${I('lock',12)} תשלום מאובטח</div><b style="font-family:var(--display);font-size:18px">פאות לאה אלבוים</b><div style="font-size:12.5px;color:#666">הזמנה #${j.id} · ${esc(c.n)}</div></div><div class="pp-b"><div class="amt num">${ils(b)}</div><input class="in" placeholder="מספר כרטיס" aria-label="מספר כרטיס" dir="ltr"><div class="row"><input class="in" placeholder="MM/YY" aria-label="תוקף" dir="ltr"><input class="in" placeholder="CVV" aria-label="CVV" dir="ltr"></div><input class="in" placeholder="תעודת זהות" aria-label="תעודת זהות"><div class="row" style="font-size:12.5px;color:#666;justify-content:center">תשלומים: <select class="in" style="width:auto;height:34px" aria-label="מספר תשלומים"><option>1</option><option>2</option><option>3</option></select></div><button class="btn primary" data-dopay="card" style="margin-top:auto">שלמי ${ils(b)}</button><button class="btn ghost sm" data-pv="back">חזרה להודעה</button></div></div>`;
+ else if(PV.pay==='bit')si=`<div class="paypage"><div class="pp-h"><b style="font-family:var(--display);font-size:18px">תשלום בביט</b><div style="font-size:12.5px;color:#666">פאות לאה אלבוים · הזמנה #${j.id}</div></div><div class="pp-b" style="align-items:center;justify-content:center;text-align:center"><div class="amt num">${ils(b)}</div><div style="color:#555;font-size:14px">נפתחת אפליקציית ביט עם הסכום ושם הסלון. הלקוחה רק מאשרת.</div><button class="btn primary" data-dopay="bit" style="width:100%">אישור התשלום באפליקציה</button><button class="btn ghost sm" data-pv="back">חזרה להודעה</button></div></div>`;
+ else if(PV.pay==='done')si=`<div class="paypage"><div class="pp-b" style="align-items:center;justify-content:center;text-align:center;gap:14px"><span style="width:70px;height:70px;border-radius:50%;background:#E3F5EA;color:#1E7A46;display:grid;place-items:center">${I('check',36)}</span><b style="font-family:var(--display);font-size:22px">התשלום התקבל</b><div style="color:#555;font-size:14px">תודה ${first}! הקבלה נשלחה אלייך.<br>מחכות לך בסטודיו 💐</div><button class="btn ghost sm" data-pv="back">חזרה להודעה</button></div></div>`;
+ const phone=`<div class="phone"><div class="screen"><div class="wa-h"><span class="av">לא</span><div><b>פאות לאה אלבוים</b><small>חשבון עסקי</small></div></div><div class="wa-body"><div class="bub">${waMsg}<div class="tm">${tm}</div></div>${payBtns?`<button class="wa-btn" data-pv="bit">${I('coins',15)} תשלום בביט</button><button class="wa-btn" data-pv="card">${I('card',15)} תשלום באשראי</button>`:''}</div>${si}</div></div>`;
+ let right='';
+ if(PV.tab==='wa')right=`<h3 style="font-size:20px">ההודעה ב-WhatsApp</h3><p class="muted">יוצאת מהמספר העסקי של הסלון ברגע שמסמנים ״מוכנה״. הכפתורים פותחים דף תשלום של ביט או אשראי עם הסכום המדויק.</p><div class="note">${I('compass',16)}<span><b>נסי בעצמך:</b> לחצי על ״תשלום באשראי״ או ״תשלום בביט״ בטלפון, ותראי מה הלקוחה רואה. אחרי התשלום החוב נמחק מהמערכת לבד.</span></div>`;
+ if(PV.tab==='mail')right=`<div class="mail"><div class="mail-h"><span>מאת: פאות לאה אלבוים</span><span>אל: ${esc(c.em||'אין מייל ללקוחה הזו')}</span><b>הפאה שלך מוכנה לאיסוף ✨</b></div><div class="mail-b"><div style="font-family:var(--display);font-size:22px;color:var(--primary);margin-bottom:8px">לאה אלבוים · פאות</div>שלום ${first},<br>שמחות לבשר שהפאה שלך מוכנה ומחכה לך בסטודיו.<br>${detail}<br>${payBtns?`<b>יתרה לתשלום: ${ils(b)}</b><div class="pay"><a data-pv="bit">${I('coins',16)} תשלום בביט</a><a class="alt" data-pv="card">${I('card',16)} תשלום באשראי</a></div>`:'<p>התשלום התקבל, תודה!</p>'}שעות איסוף: א׳–ה׳ 10:00–19:00<br>להתראות, לאה</div></div>`;
+ if(PV.tab==='voice')right=`<div class="voice"><button class="pl" data-play aria-label="השמעת ההקלטה">${I('play',20)}</button><div><b>שיחה קולית אוטומטית</b><p style="margin:6px 0 0">״שלום, כאן פאות לאה אלבוים. הפאה שלך מוכנה לאיסוף. ${payBtns?`היתרה לתשלום היא ${b} שקלים.`:''} שעות האיסוף: ראשון עד חמישי, מעשר בבוקר עד שבע בערב. תודה ולהתראות.״</p><div class="muted" style="font-size:13px;margin-top:8px">ללקוחות בלי WhatsApp או מייל. ההקלטה בקול שלך. אם הלקוחה לא עונה, זה מסומן באדום בדשבורד.</div></div></div>`;
+ const chOn=c.ch;
+ openModal(`${mh(PV.mode==='confirm'?`הפאה של ${esc(first)} מוכנה. זו ההודעה שתצא:`:`ההודעה ל${esc(c.n)}`,'chat')}<div class="m-b"><div class="tabs" role="tablist">${tabs.map(t=>`<button class="tab" role="tab" aria-selected="${PV.tab===t[0]}" data-pvtab="${t[0]}">${I(t[2],16)} ${t[1]} ${chOn.includes(t[0])?`<span class="pill ok nodot" style="font-size:11px">ערוץ של הלקוחה</span>`:''}</button>`).join('')}</div>
+  <div class="prev">${phone}<div class="stack">${right}</div></div></div>
+  <div class="m-f">${PV.mode==='confirm'?`<span class="muted" style="margin-inline-end:auto;align-self:center;font-size:13.5px">${otherReady.length?`${I('info',14)} ${first} כבר קיבלה הודעה על פאה אחרת שמחכה לה, ולכן לא תצא הודעה נוספת.`:`תצא ב: ${chOn.map(k=>CHN[k][0]).join(' + ')}`}</span><button class="btn" data-close>ביטול</button><button class="btn ok lg" data-confirmready="${j.id}">${I('send')} ${otherReady.length?'סימון מוכנה':'סימון מוכנה ושליחה'}</button>`:`<button class="btn" data-close>סגירה</button>`}</div>`);}
+
+function payModal(cid,jid){const js=jid?[JOBS.find(j=>j.id===jid)]:JOBS.filter(j=>j.c===cid&&j.st==='done'&&bal(j)>0);const amt=js.reduce((s,j)=>s+bal(j),0);const c=C(js[0].c);
+ openModal(`${mh('רישום תשלום · '+esc(c.n),'coins')}<div class="m-b stack"><div class="f"><label for="pam">סכום</label><div class="price"><input id="pam" class="in" value="${amt}" inputmode="numeric" autofocus></div><div class="muted" style="font-size:13px">יתרה פתוחה: ${ils(amt)}</div></div>
+ <div class="f"><label for="pmeth">אופן התשלום</label><select id="pmeth" class="in">${['מזומן','ביט','אשראי','העברה','צ׳ק'].map(m=>`<option>${m}</option>`).join('')}</select></div></div>
+ <div class="m-f"><button class="btn" data-close>ביטול</button><button class="btn primary" data-dopayrec="${js.map(j=>j.id).join(',')}">${I('check')} רישום</button></div>`,true)}
+
+function printModal(j){const c=C(j.c);const tot=total(j);const w=WIG(j.w);
+ const slip=`<div class="slip"><div class="sh"><div><h2>לאה אלבוים · פאות</h2><div style="font-size:12.5px;color:#555">ייצור · שדרוג · סירוק</div></div><div style="text-align:left;font-size:13px"><b style="font-size:16px">טופס הזמנה #${j.id}</b><br>תאריך: ${fmt(j.start)}.${j.start.getFullYear()}</div></div>
+ <table style="margin-bottom:10px"><tr><td style="width:120px;color:#666">שם הלקוחה</td><td><b>${esc(c.n)}</b></td><td style="width:90px;color:#666">טלפון</td><td><span dir="ltr">${c.ph}</span></td></tr>
+ <tr><td style="color:#666">סוג העבודה</td><td><b>${TYPES[j.t].n}</b>${w?' · '+esc(w.n):''}</td><td style="color:#666">תאריך יעד</td><td><b>${fmt(j.due)}.${j.due.getFullYear()}</b></td></tr></table>
+ ${j.spec?`<div style="background:#f6f6f6;padding:8px 10px;border-radius:4px;margin-bottom:10px"><b>מפרט:</b> ${esc(j.spec)}</div>`:''}
+ <table><thead><tr><th style="text-align:right">פריט</th><th style="text-align:left;width:110px">מחיר</th></tr></thead><tbody>${j.items.map(x=>`<tr><td>${x[0]}</td><td style="text-align:left" class="num">${ils(x[1])}</td></tr>`).join('')}
+ <tr><td><b>סה״כ</b></td><td style="text-align:left"><b class="num">${ils(tot)}</b></td></tr><tr><td>מקדמה ששולמה</td><td style="text-align:left" class="num">${ils(j.paid)}</td></tr><tr><td><b>יתרה לתשלום באיסוף</b></td><td style="text-align:left"><b class="num">${ils(tot-j.paid)}</b></td></tr></tbody></table>
+ <div class="terms">${j.t==='prod'?'פאה בייצור מותאם אישית. המקדמה אינה מוחזרת לאחר תחילת הייצור. תאריך היעד משוער ויעודכן בהודעה.':'השדרוג מבוצע על הפאה שנמסרה. תאריך היעד משוער ויעודכן בהודעה.'} ההודעה על סיום העבודה תישלח אלייך עם קישור לתשלום.</div>
+ <div class="sig"><div>חתימת הלקוחה</div><div>חתימת הסלון</div></div></div>`;
+ $('#printArea').innerHTML=slip;
+ openModal(`${mh('טופס הזמנה להדפסה','print')}<div class="m-b" style="background:var(--surface-2)">${slip}</div><div class="m-f"><span class="muted" style="margin-inline-end:auto;align-self:center;font-size:13px">הנוסח והתנאים בטופס נקבעים יחד איתך.</span><button class="btn" data-close>סגירה</button><button class="btn primary" data-doprint>${I('print')} הדפסה</button></div>`)}
+
+function importModal(){const rows=[['רחל ברנר','527184420','052-718-4420','חדשה','ok'],['חיה לוין','054-8822-190','054-882-2190','חדשה','ok'],['רחלי כהן','0527614418','052-761-4418','קיימת, הפרטים יעודכנו','warn'],['שירה אביב','05271','—','טלפון חסר ספרות, לא תיובא','bad'],['דינה מור','058 320 9911','058-320-9911','חדשה','ok']];
+ openModal(`${mh('ייבוא לקוחות מאקסל','upload')}<div class="m-b stack"><div class="muted">מעלים את קובץ האקסל או אנשי הקשר שיש לך היום. המערכת מזהה את העמודות, מתקנת מספרי טלפון ומסמנת כפילויות לפני שמשהו נשמר.</div>
+ <div class="note">${I('note',16)}<span>לקוחות_לאה.xlsx · 124 שורות · זוהו עמודות: שם, טלפון, מייל</span></div>
+ <div class="tbl-wrap"><table class="imp"><thead><tr><th>שם</th><th>טלפון בקובץ</th><th>אחרי תיקון</th><th>מה יקרה</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${r[0]}</b></td><td class="num"><span dir="ltr">${r[1]}</span></td><td class="num"><span dir="ltr">${r[2]}</span></td><td><span class="pill ${r[4]}">${r[3]}</span></td></tr>`).join('')}</tbody></table></div>
+ <div class="muted" style="font-size:13px">ועוד 119 שורות · 118 חדשות · 4 קיימות · 2 עם בעיה</div></div>
+ <div class="m-f"><button class="btn" data-close>ביטול</button><button class="btn primary" data-close data-toast="בדמו לא נשמרים לקוחות מהייבוא. בהקמה זה נעשה עם הקובץ שלך.">${I('upload')} ייבוא 122 לקוחות</button></div>`)}
+
+let PIN={w:null,v:''};
+function pinModal(wid){PIN={w:wid,v:''};drawPin()}
+function drawPin(){const w=WORKERS.find(x=>x.id===PIN.w);const isIn=SHIFTS.find(s=>s.w===w.id&&s.d.getTime()===T0.getTime()&&s.out===null);
+ openModal(`${mh(`${w.n} · ${isIn?'יציאה':'כניסה'}`,'clock')}<div class="m-b" style="text-align:center"><div class="bigclock num">${hhmm(nowH())}</div><div class="muted">הקישי את הקוד האישי</div><div class="dots">${[0,1,2,3].map(i=>`<i class="${i<PIN.v.length?'f':''}"></i>`).join('')}</div>
+ <div class="pad">${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k=>k===''?'<span></span>':`<button data-pin="${k}" aria-label="${k==='⌫'?'מחיקה':k}">${k}</button>`).join('')}</div></div>`,true)}
+
+let tT;function toast(msg){const t=$('#toast');t.innerHTML=I('check')+msg;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),3400)}
+
+function tourModal(){const cards=[
+ ['״מתי הפאה מוכנה?״ עשר פעמים ביום','הודעה יוצאת לבד','ברגע שמסמנים ״מוכנה״ הלקוחה מקבלת WhatsApp, מייל או שיחה קולית.','jobs'],
+ ['לרדוף אחרי תשלומים','הכסף נכנס דרך הקישור','בהודעה יש כפתור לתשלום בביט ובאשראי. התשלום נרשם במערכת לבד.','payments'],
+ ['מה דחוף, ולמי הבטחתי?','תאריך יעד לכל עבודה','הדשבורד מסדר את העבודות לפי דחיפות, ומה שבאיחור מסומן באדום.','dashboard'],
+ ['״לה אסור לסרק, נכון?״','המערכת מכירה כל פאה','טיפול קבוע והערות לכל פאה. לקוחות קבועות נקלטות יחד בלחיצה.','intake'],
+ ['הזמנות ייצור על פתק','טופס הזמנה מסודר','ייצור, שדרוג או סירוק, עם מחירון ברירת מחדל והדפסה ללקוחה.','new'],
+ ['״קיבלה את ההודעה?״','יומן הודעות','רואים מה נמסר, מה לא נענה ומה נכשל, ושולחים שוב בלחיצה.','log'],
+ ['שעות העובדות במחברת','שעון נוכחות','החתמה בקוד אישי, ושכר שמחושב לבד לפי שעות.','clock'],
+ ['כמה באמת הרווחתי החודש?','הוצאות ודו״ח חודשי','רישום הוצאה בחצי דקה, ובסוף החודש דו״ח רווח מוכן.','report']];
+ openModal(`${mh('לאה, ככה המערכת עובדת בשבילך','compass')}<div class="m-b"><p class="muted" style="margin-top:0">זהו דמו עם לקוחות לדוגמה. אפשר ללחוץ על הכל: לקלוט פאות, לסמן פאה מוכנה, לנסות תשלום מהטלפון, לפתוח כרטיס לקוחה ולהחתים כניסה. בחרי במה להתחיל:</p>
+ <div class="tour-grid">${cards.map(c=>`<button class="tour-c" data-tourgo="${c[3]}"><span class="pain">${c[0]}</span><b>${c[1]}</b><span>${c[2]}</span><span class="go">לראות בדמו ${I('arrow',14)}</span></button>`).join('')}</div>
+ <p class="muted" style="font-size:13px;margin-bottom:0">${I('info',14)} שני עיצובים לבחירה: אפשר להחליף בכל רגע בכפתור ״עיצוב לבחירה״ למעלה. כל מה שרואים כאן ניתן להתאמה: המחירון, השדות, הנוסחים והצבעים של הסלון.</p></div>`)}
+
+/* ============ events ============ */
+function markReady(ids){const sentTo=new Set();ids.forEach(id=>{const j=JOBS.find(x=>x.id===id);const already=JOBS.some(x=>x.c===j.c&&x.st==='ready'&&x.notif==='ok');j.st='ready';j.readyAt=0;j.notif='ok';
+ if(!already&&!sentTo.has(j.c)){sentTo.add(j.c);C(j.c).ch.forEach(ch=>NOTIFS.push({c:j.c,j:j.id,ch,k:'ready',st:'ok',at:new Date(T0),det:'נמסרה'}))}});return sentTo.size}
+document.addEventListener('click',e=>{
+ const a=e.target.closest('[data-cust]');if(a&&!e.target.closest('[data-cbpick]')){e.preventDefault();openCust(+a.dataset.cust);return}
+ const t=e.target.closest('button,[data-pv],a,[data-toast],[data-job]');if(!t)return;const d=t.dataset;
+ if(d.toast){toast(d.toast)}
+ if(d.go){closeModal();go(d.go);return}
+ if(d.close!==undefined){closeModal();return}
+ if(d.tipoff){S.tipsOff.add(d.tipoff);render();return}
+ if(d.tourgo){closeModal();go(d.tourgo);return}
+ if(d.jobs){S.filter={type:'all',st:d.jobs};go('jobs');return}
+ if(d.job){jobModal(+d.job);return}
+ if(d.ready){previewModal(+d.ready,true);return}
+ if(d.confirmready){const j=JOBS.find(x=>x.id===+d.confirmready);const n=markReady([j.id]);closeModal();render();const c=C(j.c);toast(n?`${c.n.split(' ')[0]} קיבלה הודעה ב-${c.ch.map(k=>CHN[k][0]).join(' וב-')}, עם קישור לתשלום`:'סומנה מוכנה. לא נשלחה הודעה כפולה');return}
+ if(d.clear!==undefined){S.clear=d.clear==='1';S.selJ.clear();render();return}
+ if(d.pickj){const id=+d.pickj;S.selJ.has(id)?S.selJ.delete(id):S.selJ.add(id);render();return}
+ if(d.clearsend!==undefined){const n=S.selJ.size;const m=markReady([...S.selJ]);S.clear=false;S.selJ.clear();render();toast(`${n} פאות סומנו מוכנות. יצאו הודעות ל-${m} לקוחות`);return}
+ if(d.preview){previewModal(+d.preview,false);return}
+ if(d.pvtab){PV.tab=d.pvtab;PV.pay=null;drawPreview();return}
+ if(d.pv){PV.pay=d.pv==='back'?null:d.pv;drawPreview();return}
+ if(d.dopay){const j=JOBS.find(x=>x.id===PV.jid);let a=0;JOBS.filter(x=>x.c===j.c&&(x.st==='ready'||x.id===j.id)).forEach(x=>{const b=bal(x);if(b>0){a+=b;PAYS.push({c:x.c,j:x.id,a:b,m:d.dopay==='bit'?'ביט':'אשראי',d:new Date(T0),k:x.t,link:true});x.paid=total(x)}});PV.pay='done';drawPreview();render();toast(`התשלום של ${ils(a)} נקלט במערכת אוטומטית`);return}
+ if(d.play){toast('בגרסה המלאה תושמע כאן ההקלטה בקולך');return}
+ if(d.resend){const j=JOBS.find(x=>x.id===+d.resend);const c=C(j.c);j.notif='ok';NOTIFS.push({c:c.id,j:j.id,ch:c.ch.includes('mail')&&c.em?'mail':c.ch[0],k:'ready',st:'ok',at:new Date(T0),det:'שליחה חוזרת, נמסרה'});render();toast(`נשלחה שוב ל${c.n}`);return}
+ if(d.called){const j=JOBS.find(x=>x.id===+d.called);j.notif='ok';NOTIFS.push({c:j.c,j:j.id,ch:'voice',k:'ready',st:'ok',at:new Date(T0),det:'סומן ידנית: לאה דיברה איתה'});render();toast('סומן שהלקוחה יודעת');return}
+ if(d.deliver){JOBS.filter(j=>j.c===+d.deliver&&j.st==='ready').forEach(j=>{j.st='done';j.doneAt=0});render();const hasDebt=debtCust().some(x=>x.c===+d.deliver);toast(hasDebt?'נמסרה. היתרה עברה לחובות הפתוחים':'נמסרה ושולמה במלואה');return}
+ if(d.remind){const k=d.remind;S.remind[k]=!S.remind[k];if(k==='ready')S.sel.clear();else S.selD.clear();if(k==='debt'&&S.remCh==='voice')S.remCh='wa';render();return}
+ if(d.remch){S.remCh=d.remch;render();return}
+ if(d.sendrem){const n=d.sendrem==='ready'?S.sel.size:S.selD.size;S.remind[d.sendrem]=false;S.sel.clear();S.selD.clear();render();toast(`תזכורת יצאה ל-${n} לקוחות ב${CHN[S.remCh][0]}, עם קישור לתשלום`);return}
+ if(d.pay){payModal(+d.pay);return}
+ if(d.payjob){payModal(null,+d.payjob);return}
+ if(d.dopayrec){let amt=num($('#pam').value);const m=$('#pmeth').value;d.dopayrec.split(',').map(Number).forEach(id=>{const j=JOBS.find(x=>x.id===id);const take=Math.min(amt,bal(j));if(take<=0)return;j.paid+=take;amt-=take;PAYS.push({c:j.c,j:j.id,a:take,m,d:new Date(T0),k:j.t})});closeModal();render();toast('התשלום נרשם');return}
+ if(d.print){printModal(JOBS.find(x=>x.id===+d.print));return}
+ if(d.doprint){try{window.print()}catch(_){}toast('נשלח להדפסה');return}
+ if(d.repprint){toast('בגרסה המלאה הדו״ח יוצא כ-PDF ונשלח למייל שלך');return}
+ if(d.import!==undefined){importModal();return}
+ if(d.fst){S.filter.st=d.fst;render();return}
+ if(d.fty){S.filter.type=d.fty;render();return}
+ if(d.wk){pinModal(+d.wk);return}
+ if(d.pin!==undefined){if(d.pin==='⌫')PIN.v=PIN.v.slice(0,-1);else if(PIN.v.length<4)PIN.v+=d.pin;
+  if(PIN.v.length===4){const w=WORKERS.find(x=>x.id===PIN.w);const s=SHIFTS.find(s=>s.w===w.id&&s.d.getTime()===T0.getTime()&&s.out===null);const now=nowH();
+   if(s){s.out=now;toast(`יציאה נרשמה: ${w.n}, ${hhmm(now)}`)}else{SHIFTS.push({w:w.id,d:new Date(T0),in:now,out:null});toast(`כניסה נרשמה: ${w.n}, ${hhmm(now)}`)}closeModal();render();return}
+  drawPin();return}
+ /* intake */
+ if(d.intf){S.intake.f=d.intf;render();return}
+ if(d.intdue){S.intake.due=+d.intdue;render();return}
+ if(d.intgo!==undefined){const it=S.intake;const ids=[...it.sel];ids.forEach(wid=>{const w=WIG(wid);const c=CUST.find(c=>c.wigs.includes(w));const tr=trOf(w);JOBS.push({id:NEXT++,c:c.id,w:wid,t:'comb',items:[[combBase(tr)[1]+(w.price&&tr===w.reg?' (מחיר קבוע)':''),priceOf(w,tr)]],due:dOff(it.due),st:'work',paid:0,start:new Date(T0)})});it.sel.clear();it.tr={};S.view='dashboard';render();toast(`נקלטו ${ids.length} פאות, כל אחת עם הטיפול שלה`);return}
+ if(d.intone!==undefined){const wid=[...S.intake.sel][0];const w=WIG(wid);const c=CUST.find(c=>c.wigs.includes(w));const tr=trOf(w);S.intake.sel.clear();newFor(c.id,wid);S.wiz.t='comb';S.wiz.comb=tr;S.wiz.autoT=true;S.wiz.due=iso(dOff(S.intake.due));render();return}
+ /* customer card */
+ if(d.newfor){const [cid,wid]=d.newfor.split(':');newFor(+cid,wid?+wid:null);return}
+ if(d.drsw){const c=C(S.custId);const cur=dv(d.drsw,origOf(c,d.drsw));S.draft[d.drsw]=!cur;render();return}
+ if(d.drseg){S.draft[d.drseg]=d.val;render();return}
+ if(d.drsave!==undefined){saveDraft();return}
+ if(d.drcancel!==undefined){S.draft={};render();return}
+ if(d.addwig){const c=C(+d.addwig);c.wigs.push(W(NEXTW++,'פאה חדשה','', '', ''));render();toast('נוספה פאה. מלאי את הפרטים ושמרי');return}
+ /* settings */
+ if(d.settab){S.setTab=d.settab;render();return}
+ if(d.setsw){SETTINGS[d.setsw]=!SETTINGS[d.setsw];render();toast('נשמר');return}
+ if(d.addcat){toast('בגרסה המלאה נפתח כאן טופס להוספת רכיב למחירון');return}
+ /* wizard */
+ const w=S.wiz;if(!w)return;
+ if(d.newc){w.newC=d.newc==='1';if(w.newC){w.c=null;w.w=null}render();return}
+ if(d.wt){if(w.t!==d.wt){w.t=d.wt;w.due=null;w.dep=0;w.autoT=false;const wig=w.w&&WIG(w.w);if(d.wt==='comb'&&wig&&wig.reg){w.comb=wig.reg;if(wig.price)w.pr['c_'+wig.reg]=wig.price}}render();return}
+ if(d.prod){const [k,v]=d.prod.split(':');w.prod[k]=v;render();return}
+ if(d.qty){w.addQty=Math.max(1,w.addQty+ +d.qty);render();return}
+ if(d.duein){w.due=iso(dOff(+d.duein));render();return}
+ if(d.save!==undefined){let cid=w.c;if(!cid){cid=Math.max(...CUST.map(c=>c.id))+1;CUST.push({id:cid,n:w.nc.n,ph:w.nc.ph||'050-0000017',em:'',ch:['wa'],since:T0.getFullYear(),debtAuto:true,notes:'',wigs:[]})}
+  const c=C(cid);let wid=w.w;if(!wid||w.t==='prod'){wid=NEXTW++;c.wigs.push(W(wid,w.t==='prod'?'פאה חדשה (בייצור)':'פאה נוספת',w.t==='prod'?[CAT.prod.hair.opts.find(o=>o[0]===w.prod.hair)[1],w.prod.length+' ס״מ'].join(' · '):'', '', w.t==='prod'?'בייצור, הזמנה #'+NEXT:''))}
+  const L=wizLines();const spec=w.t==='prod'?Object.entries(CAT.prod).map(([k,def])=>def.opts.find(o=>o[0]===w.prod[k])[1]).filter(x=>x!=='בלי').join(' · ')+(w.prod.circ?` · היקף ${w.prod.circ}`:'')+(w.prod.shade?` · גוון ${w.prod.shade}`:''):null;
+  const j={id:NEXT++,c:cid,w:wid,t:w.t,items:L.map(x=>[x.l,x.p]),due:new Date(w.due+'T00:00'),st:'work',paid:+w.dep||0,start:new Date(T0),spec,visit:w.visit};JOBS.push(j);
+  if(j.paid)PAYS.push({c:cid,j:j.id,a:j.paid,m:'מזומן',d:new Date(T0),k:j.t,note:'מקדמה'});
+  const pr=d.save==='1';S.wiz=newWiz();S.view='dashboard';render();toast(`הזמנה #${j.id} נשמרה ונכנסה ללוח לפי תאריך היעד`);if(pr)printModal(j);return}
+});
+document.addEventListener('change',e=>{const t=e.target,d=t.dataset,w=S.wiz;
+ if(d.selr){t.checked?S.sel.add(+d.selr):S.sel.delete(+d.selr);render();return}
+ if(d.seld){t.checked?S.selD.add(+d.seld):S.selD.delete(+d.seld);render();return}
+ if(d.intsel){const id=+d.intsel;t.checked?S.intake.sel.add(id):S.intake.sel.delete(id);render();return}
+ if(d.intall!==undefined){intakeRows().forEach(r=>t.checked?S.intake.sel.add(r.w.id):S.intake.sel.delete(r.w.id));render();return}
+ if(d.inttr){S.intake.tr[+d.inttr]=t.value;render();return}
+ if(d.wigsel!==undefined){if(t.value==='new'){w.w=null;if(w.autoT){w.t=null;w.autoT=false}}else pickWig(+t.value);render();return}
+ if(d.upg){t.checked?w.upg.add(d.upg):w.upg.delete(d.upg);render();return}
+ if(d.comb){w.comb=d.comb;render();return}
+ if(d.combx){t.checked?w.combX.add(d.combx):w.combX.delete(d.combx);render();return}
+ if(d.due!==undefined){w.due=t.value;render();return}
+ if(d.price){w.pr[d.price]=num(t.value);render();return}
+ if(d.dep!==undefined){w.dep=num(t.value);render();return}
+ if(d.rate){WORKERS.find(x=>x.id===+d.rate).rate=+t.value||0;render();return}
+ if(d.expfilter!==undefined){S.expFilter=t.value;render();return}
+ if(d.ef==='d'||d.ef==='t'||d.ef==='m'){S.expForm[d.ef]=t.value;render();return}
+ if(d.catp){const path=d.catp.split('.');let o=CAT;for(let i=0;i<path.length-1;i++)o=o[path[i]];o[path[path.length-1]]=num(t.value);toast('המחיר עודכן במחירון');return}
+ if(d.setv){SETTINGS[d.setv]=t.value;toast('נשמר');return}
+});
+document.addEventListener('input',e=>{const t=e.target,d=t.dataset,w=S.wiz;
+ if(d.cbin){cbShow(d.cbin,t.value);return}
+ if(d.pf){w.prod[d.pf]=t.value;return}
+ if(d.visit!==undefined){w.visit=t.value;return}
+ if(d.nc){w.nc[d.nc]=t.value;document.querySelectorAll('[data-save]').forEach(b=>b.disabled=!(w.t&&w.nc.n));return}
+ if(d.ef==='a'||d.ef==='s'){S.expForm[d.ef]=t.value;const b=document.querySelector('#expForm [type=submit]');if(b)b.disabled=!(S.expForm.a&&S.expForm.t);return}
+ if(d.dr){const c=C(S.custId);S.draft[d.dr]=t.value;t.classList.toggle('changed',String(t.value)!==String(origOf(c,d.dr)));updBar();return}
+ if(d.intq!==undefined){S.intake.q=t.value;const pos=t.selectionStart;render();const n=$('#intq');n.focus();n.setSelectionRange(pos,pos);return}
+ if(t.id==='q'){if(S.view!=='jobs'&&S.view!=='customers'&&t.value){S.view='jobs';S.filter={type:'all',st:'all'}}render();t.focus();return}
+});
+document.addEventListener('submit',e=>{if(e.target.id!=='expForm')return;e.preventDefault();const f=S.expForm;if(!(f.a&&f.t))return;EXPS.push({d:new Date(f.d+'T00:00'),a:num(f.a),t:f.t,m:f.m,s:f.s,sup:f.sup});S.expForm=null;render();toast('ההוצאה נשמרה ונכנסה לדו״ח החודשי')});
+$('#scrim').addEventListener('click',e=>{if(e.target.id==='scrim')closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!(e.target.dataset&&e.target.dataset.cbin))closeModal()});
+$('#skinSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;setSkin(b.dataset.skin)});
+function setSkin(s){document.body.dataset.skin=s;document.querySelectorAll('#skinSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.skin===s));try{localStorage.setItem('leah-skin',s)}catch(_){}}
+$('#tourBtn').innerHTML=I('compass',16)+' איך זה עוזר לי?';$('#tourBtn').addEventListener('click',tourModal);
+$('#srchIco').innerHTML=I('search',16);
+setInterval(()=>{const b=$('#bigclock');if(b)b.textContent=hhmm(nowH())},20000);
+try{const s=localStorage.getItem('leah-skin');if(s)setSkin(s)}catch(_){}
+render();
+
+</script>
+</body>
+</html>
